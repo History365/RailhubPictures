@@ -54,12 +54,22 @@
 					<h1 class="CallOut" style="border-bottom: solid 1px black; margin-bottom: 1rem; font-size: 14px;">Welcome to Railhub Pictures!</h1>
 					<div style="display: flex; gap: 2rem;">
 						<div class="homePageText">
-							<a href="showpictureid=5.html" target="_blank">
-								<img style="float: right; border: solid 1px #000; width: 315px; height: auto; margin: 0 0 1rem 1rem;" 
-									 alt="Front Page Pic" 
-									 src="https://cdn.discordapp.com/attachments/1318687697358815235/1320862106282758215/cachedImage_-_Sequoia_Castaneda1.jpg?ex=676b2432&is=6769d2b2&hm=2e5dca6a327a7edc4d9e9dfa94f42b314153a91ed1c134b868948dcf26ec79d0&">
-							</a>
-							<p>Welcome to Railhub Pictures, your premier destination for railroad photography enthusiasts! Our growing collection showcases the beauty and diversity of railroads across the country.</p>
+							<script>
+								const images = [
+									"images/cachedImage - Sequoia Castaneda(2).jpg",
+									"images/cachedImage - Sequoia Castaneda.jpg",
+									"images/DSC_1560 - Burlington Northern 11.JPG",
+									"images/DSC00948.jpg"
+								];
+								const randomImage = images[Math.floor(Math.random() * images.length)];
+								document.write(`
+									<a href="showpictureid=5.html" target="_blank">
+										<img style="float: right; border: solid 1px #000; width: 315px; height: auto; margin: 0 0 1rem 1rem;" 
+											 alt="Front Page Pic" 
+											 src="${randomImage}">
+									</a>
+								`);
+							</script>							<p>Welcome to Railhub Pictures, your premier destination for railroad photography enthusiasts! Our growing collection showcases the beauty and diversity of railroads across the country.</p>
 							<p>Explore our extensive photo gallery by browsing through different <a href="railroadlist.html"><strong>railroad companies</strong></a>, searching specific <a href="locationlist"><strong>locations</strong></a>, or finding your favorite locomotive <a href="modelList.html"><strong>models</strong></a>. Check out our featured <a href="contribPicks.html"><strong>contributor selections</strong></a> for exceptional photography.</p>
 							<p><strong>Share Your Photos:</strong> Join our community by registering for a free account using the 'Register' link in the menu. Once registered, you can start sharing your own railroad photography with enthusiasts worldwide!</p>
 							<p>Our dedicated team regularly features outstanding photographs on the site. Look for specially marked featured images that represent the best of our collection. You can view our curated selections through the Contributor Picks link in the navigation menu.</p>
