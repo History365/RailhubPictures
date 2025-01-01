@@ -1,68 +1,68 @@
 BODY {
-	font-size : 8px;
+	font-size : 10px;
 	font-style : normal;
 	line-height : normal;
 	font-weight : normal;
-	color : #333366;
+	color : #000000;
 	text-decoration : none;
 	font-family : Verdana, Arial, Helvetica, sans-serif;
 	MARGIN: 0pt;
 }
 
 H1  {
-font-size : 18pt;
+font-size : 110pt;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 font-weight : bold;
 color : #000000;
 }
 
 H2  {
-font-size : 14pt;
+font-size : 10pt;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 font-weight : bold;
-color : #990000;
+color : #000000;
 }
 
 H3  {
-font-size : 12pt;
+font-size : 10pt;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 font-weight : bold;
-color : #990000;
+color : #100000;
 }
 
 .dataTable  {
-	font-size : 8pt;
+	font-size : 10pt;
 	font-style : normal;
 	line-height : normal;
 	font-weight : normal;
-	color : #333366;
+	color : #000000;
 	text-decoration : none;
 	font-family : Verdana, Arial, Helvetica, sans-serif;
 	border: 1px solid #000000;
 }
 
 .dataTable  A:link, .dataTable A:visited, .dataTable A:active  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #336666;
+color : #000000;
 text-decoration : underline;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .dataTable A:hover  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #336666;
+color : #000000;
 text-decoration : underline;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .dataTable TR TH  {
-	font-size : 9pt;
+	font-size : 10pt;
 	font-style : normal;
 	line-height : normal;
 	font-weight : bold;
@@ -81,126 +81,126 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .SmallText  {
-font-size : 6.4pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .homePageText  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .homePageText  A:link, .homePageText A:visited, .homePageText A:active {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 text-decoration : underline;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .homePageText A:hover  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #336666;
+color : #000000;
 text-decoration : underline;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .DefText  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .DefText  A:link, .DefText A:visited, .DefText A:active  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 text-decoration : underline;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .DefText A:hover  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #336666;
+color : #000000;
 text-decoration : underline;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .DefTextAlt  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 background-color : #ededed;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .DefTextAlt  A:link, .DefTextAlt A:visited, .DefTextAlt A:active  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 text-decoration : underline;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .DefTextAlt A:hover  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #336666;
+color : #000000;
 text-decoration : underline;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .DefTextLocked  {
-	font-size : 8pt;
+	font-size : 10pt;
 	font-style : normal;
 	line-height : normal;
 	font-weight : normal;
-	color : #333366;
+	color : #000000;
 	text-decoration : none;
 	font-family : Verdana, Arial, Helvetica, sans-serif;
 	border: 1px solid #FFFFFF;
 }
 
 .button  {
-	font-size : 8pt;
+	font-size : 10pt;
 	font-style : normal;
 	line-height : normal;
 	font-weight : normal;
 	color : gray;
 	text-decoration : none;
 	font-family : Verdana, Arial, Helvetica, sans-serif;
-	border: 1px solid #c9c9c9;
+	border: 1px solid #c10c10c10;
 	background-color: #FFFFFF;
 }
 
@@ -213,27 +213,27 @@ font : xx-small Verdana;
 }
    
 .Error  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #990000;
+color : #100000;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .Error  A:link, .Error A:visited, .Error A:active  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #990000;
+color : #100000;
 text-decoration : underline;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .Error A:hover  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
@@ -247,7 +247,7 @@ font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : bold;
-color : #990000;
+color : #100000;
 text-align : right;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
@@ -257,11 +257,11 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 font-size : 10pt;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 font-weight : bold;
-color : #990000;
+color : #000000;
 }
 
 .TableTitle2 {
-	font-size : 8pt;
+	font-size : 10pt;
 	font-style : normal;
 	line-height : normal;
 	font-weight : bold;
@@ -276,7 +276,7 @@ color : #990000;
 }
 
 .Tableheader  {
-	font-size : 9pt;
+	font-size : 10pt;
 	font-style : normal;
 	line-height : normal;
 	font-weight : bold;
@@ -289,7 +289,7 @@ color : #990000;
 }
 
 .Tableheader2  {
-font-size : 9pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : bold;
@@ -300,52 +300,52 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .Groupheader  {
-font-size : 9pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : bold;
 color : white;
 text-decoration : none;
-background-color : #2C4B74;
+background-color : #000000;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .TableDate  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .TableDate A:link, .TableDate A:visited, .TableDate A:active {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .TableDate A:hover {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #990000;
+color : #100000;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .TableDatehover, .TableDatehover A:hover, .TableDateHover a:link, .TableDateHover a:visited{
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 text-decoration : none;
 background-color : #e0e0e0;
 font-family : Verdana, Arial, Helvetica, sans-serif;
@@ -356,7 +356,7 @@ font-size : 7pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
-color : #333366;
+color : #000000;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 text-align : center;
@@ -387,7 +387,7 @@ font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : bold;
-color : #336666;
+color : #000000;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
@@ -403,7 +403,7 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .CallOutSmall  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : bold;
@@ -413,7 +413,7 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .CallOutSmall  A:link, .CallOutSmall A:visited, .CallOutSmall A:active {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : bold;
@@ -423,28 +423,28 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .CallOutSmall A:hover  {
-font-size : 8pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : bold;
-color : #336666;
+color : #000000;
 text-decoration : none;
 font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .Foot, .Foot A:link, .Foot A:visited, .Foot A:active  {
-	font-size : 8pt;
+	font-size : 10pt;
 	font-style : normal;
 	line-height : normal;
 	font-weight : normal;
 	font-variant : normal;
 	text-decoration : none;
-	color : #000063;
+	color : #000000;
 	font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .Foot A:hover  {
-	font-size : 8pt;
+	font-size : 10pt;
 	font-style : normal;
 	line-height : normal;
 	font-weight : normal;
@@ -456,7 +456,7 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 
 .PortData {
 	FONT-WEIGHT: normal;
-	FONT-SIZE: 8pt;
+	FONT-SIZE: 10pt;
 	COLOR: #000000;
 	FONT-STYLE: normal;
 	FONT-FAMILY: Verdana, Helvetica, Arial, sans-serif;
@@ -466,7 +466,7 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 .PortData A:link, .PortData A:visited, .PortData A:active{
 	FONT-WEIGHT: normal;
-	FONT-SIZE: 8pt;
+	FONT-SIZE: 10pt;
 	COLOR: #000000;
 	FONT-STYLE: normal;
 	FONT-FAMILY: Verdana, Helvetica, Arial, sans-serif;
@@ -476,8 +476,8 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 .PortData A:hover {
 	FONT-WEIGHT: normal;
-	FONT-SIZE: 8pt;
-	COLOR: #f88b1c;
+	FONT-SIZE: 10pt;
+	COLOR: #f1010b1c;
 	FONT-STYLE: normal;
 	FONT-FAMILY: Verdana, Helvetica, Arial, sans-serif;
 	FONT-VARIANT: normal;
@@ -485,28 +485,28 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 	BACKGROUND-COLOR: #EDEDED;
 }
 .DialogHeader {
-	font-size : 12pt;
+	font-size : 10pt;
 	font-family : Verdana, Arial, Helvetica, sans-serif;
 	font-weight : bold;
 	color : #000000;
 }
 
 .pageLinks {
-	font-size : 8pt;
+	font-size : 10pt;
 	font-weight : normal;
 	text-decoration : none;
 	color : #000063;
 	font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 .pageLinks A:link, .pageLinks A:visited, .pageLinks A:active  {
-	font-size : 8pt;
+	font-size : 10pt;
 	font-weight : normal;
 	text-decoration : underline;
 	color : #000063;
 	font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 .pageLinks A:hover  {
-	font-size : 8pt;
+	font-size : 10pt;
 	font-weight : normal;
 	text-decoration : none;
 	color : #6670BA;
@@ -514,14 +514,14 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .SubHeading  {
-	font-size : 12pt;
+	font-size : 10pt;
 	font-family : Verdana, Arial, Helvetica, sans-serif;
 	font-weight : bold;
-	color : #990000;
+	color : #100000;
 }
 
 .PageHeader {
-	font-size : 14pt;
+	font-size : 10pt;
 	font-style : normal;
 	line-height : normal;
 	font-weight : normal;
@@ -531,7 +531,7 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 	font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 .hiddenText  {
-font-size : 9pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
@@ -541,7 +541,7 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .hiddenText  A:link, .hiddenText A:visited, .hiddenText A:active  {
-font-size : 9pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
@@ -551,7 +551,7 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 }
 
 .hiddenText A:hover  {
-font-size : 9pt;
+font-size : 10pt;
 font-style : normal;
 line-height : normal;
 font-weight : normal;
@@ -564,14 +564,14 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 	padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 0px;
 	background-color:#e4e7ef;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 8pt;
+	font-size: 10pt;
 }
 .errorBox {
 	border:1px solid red;
 	padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 0px;
 	background-color:#fdcecf; 
 	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 8pt;
+	font-size: 10pt;
 	color:black;
 }
 .greyBox {
@@ -579,13 +579,13 @@ font-family : Verdana, Arial, Helvetica, sans-serif;
 	padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 0px;
 	background-color:#F7F7F7; 
 	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 8pt;
+	font-size: 10pt;
 	color:black;
 }
 UL.menu
 {
-    font-size : 8pt;
-    color : #333366;
+    font-size : 10pt;
+    color : #000000;
     text-decoration : none;
     text-align: left;
     margin-left: 2em;  
@@ -600,23 +600,23 @@ UL.menu LI A
 {
     width:100%;
     text-decoration:none;
-    color : #333366;
+    color : #000000;
 }
 UL.menu LI A:hover
 {
     background-color:#e0e0e0;
-    color : #333366;
+    color : #000000;
 }
 UL.menu LI A:visited
 {
     text-decoration:none;
-    color : #333366;
+    color : #000000;
 }
-DIV.box {margin:0 0 20px 0;padding:10px;border:1px solid #c0c0c0;background-color:#fafbfc;color:#505050;font-size:8pt;line-height:1.5em; overflow:auto}
+DIV.box {margin:0 0 20px 0;padding:10px;border:1px solid #c0c0c0;background-color:#fafbfc;color:#505050;font-size:10pt;line-height:1.5em; overflow:auto}
 DIV.box H4 { margin-top: 0.3em; color: #505050; letter-spacing:-1px; font-weight:bold; font-size: 10pt; border-bottom:1px solid black;}
 
-DIV.leftPane { width:49%; float:left;}
-DIV.rightPane { width:49%; float:right;}
+DIV.leftPane { width:410%; float:left;}
+DIV.rightPane { width:410%; float:right;}
 
 SPAN.note {color: Red; font-size: 7pt; font-style:italic}
 
