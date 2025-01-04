@@ -116,75 +116,110 @@
 			</div>
 		</nav>
         <main style="flex-grow: 1; padding: 1rem;">
-                    <h1>Search Locomotive Units</h1>
-                    <div class="search-container">
-                        <input type="text" id="unitSearch" placeholder="Enter unit number..." style="padding: 0.5rem; margin-right: 0.5rem;">
-                        <button onclick="searchUnits()" style="padding: 0.5rem 1rem;">Search</button>
-                    </div>
-                    <div id="searchResults" style="margin-top: 2rem;"></div>
-        
-                    <script>
-                        async function searchUnits() {
-                            const searchTerm = document.getElementById('unitSearch').value.trim();
-                            if (!searchTerm) {
-                                alert('Please enter a unit number');
-                                return;
-                            }
-        
-                            const resultsDiv = document.getElementById('searchResults');
-                            resultsDiv.innerHTML = 'Searching...';
-        
-                            try {
-                                // Search through all HTML files for locopicturesid matches
-                                const response = await fetch('/api/searchFiles', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify({
-                                        searchTerm: searchTerm
-                                    })
-                                });
-                                
-                                const files = await response.json();
-                                
-                                if (files.length === 0) {
-                                    resultsDiv.innerHTML = 'No results found for unit ' + searchTerm;
-                                    return;
-                                }
 
-                                let html = `<h2>Pictures of Unit ${searchTerm}</h2>
-                                          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">`;
-                                
-                                files.forEach(file => {
-                                    html += `
-                                        <div class="photo-card" style="border: 1px solid #eee; padding: 0.5rem; text-align: center;">
-                                            <a href="${file.path}">
-                                                <img src="${file.thumbnailUrl}" alt="Unit ${searchTerm}" style="max-width: 100%; height: auto;">
-                                                <p style="margin: 0.5rem 0;">${file.title}</p>
-                                                <p style="margin: 0; color: #666;">Date: ${file.date}</p>
-                                            </a>
-                                        </div>
-                                    `;
-                                });
-        
-                                html += '</div>';
-                                resultsDiv.innerHTML = html;
-        
-                            } catch (error) {
-                                resultsDiv.innerHTML = 'Error searching for units. Please try again later.';
-                                console.error('Search error:', error);
-                            }
-                        }
-        
-                        // Allow search when pressing Enter key
-                        document.getElementById('unitSearch').addEventListener('keypress', function(e) {
-                            if (e.key === 'Enter') {
-                                searchUnits();
-                            }
-                        });
-                    </script>
-                </main>
+			<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">Advanced Locomotive Search</h1>
+            <div class="search-container" style="background: #f5f5f5; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="unitSearch" placeholder="Enter unit number..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+                    <select id="railroad" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+                                            <option value="">All Railroads</option>
+                                            <optgroup label="Class I Freight">
+                                                <option value="BNSF">BNSF Railway</option>
+                                                <option value="CN">Canadian National</option>
+                                                <option value="CP">Canadian Pacific Kansas City</option>
+                                                <option value="CSX">CSX Transportation</option>
+                                                <option value="FXE">Ferromex</option>
+                                                <option value="NS">Norfolk Southern</option>
+                                                <option value="UP">Union Pacific</option>
+                                            </optgroup>
+                                            <optgroup label="Class I Passenger">
+                                                <option value="AMTK">Amtrak</option>
+                                                <option value="VIA">VIA Rail Canada</option>
+                                            </optgroup>
+                                        </select>                    <button onclick="searchUnits()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Search</button>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="activeOnly"> Active Units Only
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="deadlineOnly"> In Deadline Only
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="scrappedOnly"> Scrapped Only
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="rebuiltOnly"> Rebuilt Only
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="withPhotos"> With Photos Only
+                    </label>
+                </div>
             </div>
-        </body>
+
+            <div id="searchResults" style="margin-top: 2rem;">
+                <!-- Results will be displayed here -->
+            </div>
+
+            <script>
+                const locomotives = {
+                    "4710": {
+                        CSX: {
+                            model: "SD70MAC",
+                            status: "Active",
+                            photos: ["locopictureid=1.html", "locopictureid=2.html"]
+                        },
+                        BNSF: {
+                            model: "ES44DC",
+                            status: "Active",
+                            photos: ["locopictureid=3.html"]
+                        }
+                    },
+                    // Add more locomotive data as needed
+                };
+
+                function searchUnits() {
+                    const searchTerm = document.getElementById('unitSearch').value.trim();
+                    const railroad = document.getElementById('railroad').value;
+                    const activeOnly = document.getElementById('activeOnly').checked;
+                    const withPhotos = document.getElementById('withPhotos').checked;
+                    const resultsDiv = document.getElementById('searchResults');
+
+                    if (!searchTerm) {
+                        resultsDiv.innerHTML = '<div style="color: #721c24; background: #f8d7da; padding: 10px; border-radius: 4px;">Please enter a unit number</div>';
+                        return;
+                    }
+
+                    if (locomotives[searchTerm]) {
+                        let results = '';
+                        for (const [rr, data] of Object.entries(locomotives[searchTerm])) {
+                            if (railroad && railroad !== rr) continue;
+                            if (activeOnly && data.status !== "Active") continue;
+                            if (withPhotos && data.photos.length === 0) continue;
+
+                            results += `
+                                <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <img src="images/${rr}_${searchTerm}.jpg" alt="${rr} #${searchTerm}" style="width: 100%; max-width: 500px; height: auto; margin-bottom: 15px; border-radius: 4px;">
+                                    <a href="${data.photos[0]}" style="text-decoration: none; color: #2c3e50;">
+                                        <h2 style="color: #2c3e50; margin-bottom: 10px;">Pictures of ${rr} #${searchTerm}</h2>
+                                    </a>
+                                    <p style="margin-bottom: 10px;">Model: ${data.model} | Status: ${data.status}</p>
+                                </div>
+                            `;
+                        }
+                        resultsDiv.innerHTML = results || '<div style="color: #856404; background: #fff3cd; padding: 10px; border-radius: 4px;">No matches found for the selected filters</div>';
+                    } else {
+                        resultsDiv.innerHTML = '<div style="color: #856404; background: #fff3cd; padding: 10px; border-radius: 4px;">No results found for unit ' + searchTerm + '</div>';
+                    }
+                }
+
+                document.getElementById('unitSearch').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchUnits();
+                    }
+                });
+            </script>
+        </main>
+    </div>
+</body>
 </html>

@@ -66,7 +66,18 @@
 					var yyyy = today.getFullYear();
 					document.write(mm + '/' + dd + '/' + yyyy);
 				</script>
-			</div>
+				<script>
+					function updateClock() {
+						var now = new Date();
+						var hours = String(now.getHours()).padStart(2, '0');
+						var minutes = String(now.getMinutes()).padStart(2, '0');
+						var seconds = String(now.getSeconds()).padStart(2, '0');
+						document.getElementById('clock').innerHTML = hours + ':' + minutes + ':' + seconds;
+						setTimeout(updateClock, 1000);
+					}
+					document.write('<div id="clock"></div>');
+					updateClock();
+				</script>			</div>
 		</div>
 	</header>
 
