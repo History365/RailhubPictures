@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head id="ctl00_Head1">
+    <link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
+    <title>Registering</title>
+    <meta id="ctl00_metaDescription" name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .register-container {
+            width: 60%;
+            height: 3000%;
+            margin: 100px auto;
+            padding: 80px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+        }
+
+        .error-messages {
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            background: #e6ffe6;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error {
+            color: #ff0000;
+            margin: 5px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1.1em;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+        }
+
+        .register-button {
+            width: 100%;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .register-button:hover {
+            background: #45a049;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 1.1em;
+        }
+
+        .profile-photo {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin: 15px auto;
+            display: block;
+        }
+
+        #photo-preview {
+            display: none;
+        }
+
+        h2 {
+            font-size: 2.2em;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .password-option {
+            margin: 15px 0;
+        }
+
+        .username-requirements {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .generate-password-btn {
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <script src="includes/wz_dragdrop.js"></script> 
+    <script src="Scripts/jquery-1.4.2.min.js"></script>
+    <script src="Scripts/jquery-ui-1.8.6.custom.min.js"></script>
+
+    <header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
+            <div class="DefText" style="text-align: right;">
+                <div id="userInfo">
+                    <script>
+                        const loggedIn = sessionStorage.getItem('loggedIn');
+                        const username = DOMPurify.sanitize(sessionStorage.getItem('username'));
+                        if (loggedIn) {
+                            const safeUsername = document.createTextNode(username);
+                            const welcomeSpan = document.createElement('span');
+                            welcomeSpan.appendChild(document.createTextNode('Welcome, '));
+                            welcomeSpan.appendChild(safeUsername);
+                            welcomeSpan.appendChild(document.createTextNode('! '));
+                            
+                            const logoutLink = document.createElement('a');
+                            logoutLink.href = '#';
+                            logoutLink.onclick = logout;
+                            logoutLink.textContent = 'Logout';
+                            
+                            const container = document.getElementById('userInfo');
+                            container.appendChild(welcomeSpan);
+                            container.appendChild(logoutLink);
+                        }
+                    </script>
+                </div>
+                <script>
+                    var today = new Date();
+                    var dd = String(today.getDate()).padStart(2, '0');
+                    var mm = String(today.getMonth() + 1).padStart(2, '0');
+                    var yyyy = today.getFullYear();
+                    const dateText = document.createTextNode(mm + '/' + dd + '/' + yyyy);
+                    document.currentScript.parentNode.appendChild(dateText);
+                </script>
+            </div>
+        </div>
+    </header>
+
+	<div style="display: flex; min-height: 100vh;">
+		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
+			<div class="menu">
+				<div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0;">View Photos</div>
+				<ul class="menu" style="list-style: none; padding: 0;">
+					<li><a href="index.html" style="padding: 0.5rem 0; display: block;">Home</a></li>
+					<li><a href="newestphotos.html" style="padding: 0.5rem 0; display: block;">Newest Photos</a></li>
+					<li><a href="contribPicks.html" style="padding: 0.5rem 0; display: block;">Contributor Picks</a></li>
+					<li><a href="photoCalendar.html" style="padding: 0.5rem 0; display: block;">By Date</a></li>
+					<li><a href="railroadList.html" style="padding: 0.5rem 0; display: block;">By Railroad</a></li>
+					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
+					<li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
+                </ul>
+                <div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0;">Members</div>
+                <ul class="menu" style="list-style: none; padding: 0;">
+                    <li><a href="login.html" style="padding: 0.5rem 0; display: block;">Login</a></li>
+                    <li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="register-container">
+            <h2>Create an Account</h2>
+            
+            <div class="error-messages" style="display: none;">
+                <p class="error"></p>
+            </div>
+
+            <div class="success-message">
+                <p>Registration successful! Please check your email for login credentials. Redirecting to homepage...</p>
+            </div>
+
+            <form id="registerForm" class="register-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" name="username" id="username" maxlength="15" pattern="^[a-zA-Z0-9_-]+$" required>
+                    <div class="username-requirements">
+                        Username must be up to 15 characters long and can only contain letters, numbers, underscores, and hyphens.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" id="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required>
+                </div>
+
+                <button type="button" class="generate-password-btn" onclick="generatePassword()">Generate Password</button>
+
+                <div id="manual-password-fields">
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" name="password" id="password" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('password', this)">👁️‍🗨️</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password:</label>
+                        <input type="password" name="confirm_password" id="confirm_password" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('confirm_password', this)">👁️‍🗨️</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="profile_photo">Profile Photo:</label>
+                    <input type="file" name="profile_photo" id="profile_photo" accept="image/jpeg,image/png,image/gif" onchange="previewImage(this)">
+                    <img id="photo-preview" class="profile-photo" src="#" alt="Profile photo preview">
+                </div>
+
+                <button type="submit" name="register" class="register-button">Register</button>
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a href="login.html">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
+        <div class="DefText" style="display: flex; justify-content: space-between;">
+            <div>Photos © respective authors</div>
+            <div> </div>
+        </div>
+    </footer>
+
+    <script>
+        function sanitizeInput(input) {
+            return DOMPurify.sanitize(input.trim());
+        }
+
+        function shuffleString(str) {
+            return str.split('').sort(() => Math.random() - 0.5).join('');
+        }
+
+        function generatePassword() {
+            const length = 12;
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*';
+            
+            let password = '';
+            password += lowercase[Math.floor(Math.random() * lowercase.length)];
+            password += uppercase[Math.floor(Math.random() * uppercase.length)];
+            password += numbers[Math.floor(Math.random() * numbers.length)];
+            password += symbols[Math.floor(Math.random() * symbols.length)];
+            
+            const allChars = lowercase + uppercase + numbers + symbols;
+            for(let i = password.length; i < length; i++) {
+                password += allChars[Math.floor(Math.random() * allChars.length)];
+            }
+            
+            password = shuffleString(password);
+            
+            document.getElementById('password').value = password;
+            document.getElementById('confirm_password').value = password;
+            
+            // Show the generated password briefly
+            togglePasswordVisibility('password', document.querySelector('#password + .toggle-password'));
+            togglePasswordVisibility('confirm_password', document.querySelector('#confirm_password + .toggle-password'));
+            
+            setTimeout(() => {
+                togglePasswordVisibility('password', document.querySelector('#password + .toggle-password'));
+                togglePasswordVisibility('confirm_password', document.querySelector('#confirm_password + .toggle-password'));
+            }, 3000);
+        }
+
+        function togglePasswordVisibility(fieldId, button) {
+            const passwordField = document.getElementById(fieldId);
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                button.innerHTML = '👀';
+            } else {
+                passwordField.type = 'password';
+                button.innerHTML = '👁️';
+            }
+        }
+
+        function previewImage(input) {
+            const preview = document.getElementById('photo-preview');
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                const maxSize = 5 * 1024 * 1024;
+
+                if (!validTypes.includes(file.type)) {
+                    alert('Please upload only JPG, PNG or GIF images.');
+                    input.value = '';
+                    return;
+                }
+
+                if (file.size > maxSize) {
+                    alert('File size must be less than 5MB.');
+                    input.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function sendRegistrationEmail(email, username) {
+            // Simulate sending email (in real implementation, this would connect to a backend service)
+            console.log(`Registration confirmation email sent to ${email} from NOREPLYRAILHUBPICTURES@railhub.com`);
+        }
+
+        function showError(message) {
+            const errorDiv = document.querySelector('.error-messages');
+            const errorText = document.querySelector('.error');
+            errorText.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess() {
+            const successDiv = document.querySelector('.success-message');
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 3000);
+        }
+
+        document.getElementById('username').addEventListener('input', function() {
+            this.value = this.value.replace(/[^a-zA-Z0-9_-]/g, '');
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = sanitizeInput(document.getElementById('username').value);
+            const email = sanitizeInput(document.getElementById('email').

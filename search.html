@@ -115,91 +115,76 @@
 				</div>
 			</div>
 		</nav>
-		<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
-			<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">Newest Photos added to the Site</h1>
-			<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
-			<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
-				<tbody>
-					<tr>
-						<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-							<a href="showpictureid=2.html" target="_blank">
-								<img src="https://media.discordapp.net/attachments/1318687697358815235/1320864596696764456/dji_fly_20240610_093634_0400_1718030660995_photo.jpg?ex=6775b284&is=67746104&hm=2e7155dec9182a6cd940991781ba9d76a9f7b582a39c6949466f011f7e58c46b" border="0" alt="Heritage " style="width: auto; height: 150px;">
-							</a>
-						</td>						<td align="left" valign="top" style="padding: .5rem;">
-							<table class="DefText" style="width: 100%;">
-								<tbody>
-									<tr>
-										<td align="right" width="100"><strong>Title:</strong></td>
-										<td>B unit in Centralia</td>
-									</tr>
-									<tr>
-										<td align="right" valign="top"><strong>Description:</strong></td>
-										<td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
-									</tr>
-									<tr>
-										<td align="right"><strong>Photo Date:</strong></td>
-										<td>6/10/24  <strong>Upload Date:</strong> 12/23/2024 9:26:10 PM</td>
-									</tr>
-									<tr>
-										<td align="right"><strong>Location:</strong></td>
-										<td>Centralia, IL</td>
-									</tr>
-									<tr>
-										<td align="right"><strong>Author:</strong></td>
-										<td>Bishop Smith</td>
-									</tr>
-									<tr>
-										<td align="right"><strong>Locomotives:</strong></td>
-										<td><a class="DefText" title="Model: SD40-2B Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 334(SD40-2B)</a></td>
-									</tr>
-								</tbody>
-							</table>
-						</td>
-					</tr>
-				</tbody>			</table>			<div style="margin: 1rem 0;"></div>			<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
-				<tbody>
-					<tr>
-						<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-							<a href="showpictureid=1.html" target="_blank">
-								<img src="https://cdn.discordapp.com/attachments/1318687697358815235/1320864037977718866/IMG_8337.jpg?ex=676b25ff&is=6769d47f&hm=c4fe6688b5bd8dbc3cee77719d9b7db1012b85fd021b3a834ebc773f965fb3e5&" border="0" alt="Heritage " style="width: auto; height: 150px;">
-							</a>
-						</td>
-						<td align="left" valign="top" style="padding: .5rem;">
-							<table class="DefText" style="width: 100%;">
-								<tbody>
-									<tr>
-										<td align="right" width="100"><strong>Title:</strong></td>
-										<td>CSXT 4710 pushin' and pullin'</td>
-									</tr>
-									<tr>
-										<td align="right" valign="top"><strong>Description:</strong></td>
-										<td class="SmallText">When Connecticut DOT funded the purchase of power to put into Metro Norths pool, it opted to honor the states New Haven heritage by painting its new GEs in the 1950s McGinnis scheme. It looks good on these engines, and it is well adapted to the lines of the new power.</td>
-									</tr>
-									<tr>
-										<td align="right"><strong>Photo Date:</strong></td>
-										<td>8/10/2003  <strong>Upload Date:</strong> 12/23/2024 9:17:25 PM</td>
-									</tr>
-									<tr>
-										<td align="right"><strong>Location:</strong></td>
-										<td>Waycross, GA</td>
-									</tr>
-									<tr>
-										<td align="right"><strong>Author:</strong></td>
-										<td>Bishop Smith</td>
-									</tr>
-									<tr>
-										<td align="right"><strong>Locomotives:</strong></td>
-										<td><a class="DefText" title="Model: SD70MAC Click to view other pictures of this engine." href="locopictureid=1.html">CSX 4710(SD70MAC)</a></td>
-									</tr>
-								</tbody>
-							</table>
-						</td>
-					</tr>
-				</tbody>			</table>		</div>	</div>	<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
-		<div class="DefText" style="display: flex; justify-content: space-between;">
-			<div>Railhub Pictures ©2024-2025<br>Photos © respective authors</div>
-			<div> </div>
-		</div>
-	</footer>
-</body>
+        <main style="flex-grow: 1; padding: 1rem;">
+                    <h1>Search Locomotive Units</h1>
+                    <div class="search-container">
+                        <input type="text" id="unitSearch" placeholder="Enter unit number..." style="padding: 0.5rem; margin-right: 0.5rem;">
+                        <button onclick="searchUnits()" style="padding: 0.5rem 1rem;">Search</button>
+                    </div>
+                    <div id="searchResults" style="margin-top: 2rem;"></div>
+        
+                    <script>
+                        async function searchUnits() {
+                            const searchTerm = document.getElementById('unitSearch').value.trim();
+                            if (!searchTerm) {
+                                alert('Please enter a unit number');
+                                return;
+                            }
+        
+                            const resultsDiv = document.getElementById('searchResults');
+                            resultsDiv.innerHTML = 'Searching...';
+        
+                            try {
+                                // Search through all HTML files for locopicturesid matches
+                                const response = await fetch('/api/searchFiles', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        searchTerm: searchTerm
+                                    })
+                                });
+                                
+                                const files = await response.json();
+                                
+                                if (files.length === 0) {
+                                    resultsDiv.innerHTML = 'No results found for unit ' + searchTerm;
+                                    return;
+                                }
+
+                                let html = `<h2>Pictures of Unit ${searchTerm}</h2>
+                                          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">`;
+                                
+                                files.forEach(file => {
+                                    html += `
+                                        <div class="photo-card" style="border: 1px solid #eee; padding: 0.5rem; text-align: center;">
+                                            <a href="${file.path}">
+                                                <img src="${file.thumbnailUrl}" alt="Unit ${searchTerm}" style="max-width: 100%; height: auto;">
+                                                <p style="margin: 0.5rem 0;">${file.title}</p>
+                                                <p style="margin: 0; color: #666;">Date: ${file.date}</p>
+                                            </a>
+                                        </div>
+                                    `;
+                                });
+        
+                                html += '</div>';
+                                resultsDiv.innerHTML = html;
+        
+                            } catch (error) {
+                                resultsDiv.innerHTML = 'Error searching for units. Please try again later.';
+                                console.error('Search error:', error);
+                            }
+                        }
+        
+                        // Allow search when pressing Enter key
+                        document.getElementById('unitSearch').addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter') {
+                                searchUnits();
+                            }
+                        });
+                    </script>
+                </main>
+            </div>
+        </body>
 </html>
