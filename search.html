@@ -173,6 +173,16 @@
                             model: "ES44DC",
                             status: "Active",
                             photos: ["locopictureid=3.html"]
+                        },
+                        "BNSF2": {
+                            model: "C44-9W",
+                            status: "Active",
+                            photos: ["locopictureid=4.html"]
+                        },
+                        UP: {
+                            model: "SD70M",
+                            status: "Active",
+                            photos: ["locopictureid=5.html"]
                         }
                     },
                     // Add more locomotive data as needed
@@ -193,15 +203,15 @@
                     if (locomotives[searchTerm]) {
                         let results = '';
                         for (const [rr, data] of Object.entries(locomotives[searchTerm])) {
-                            if (railroad && railroad !== rr) continue;
+                            if (railroad && railroad !== rr && railroad !== rr.replace(/\d+$/, '')) continue;
                             if (activeOnly && data.status !== "Active") continue;
                             if (withPhotos && data.photos.length === 0) continue;
 
                             results += `
                                 <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                    <img src="images/${rr}_${searchTerm}.jpg" alt="${rr} #${searchTerm}" style="width: 100%; max-width: 500px; height: auto; margin-bottom: 15px; border-radius: 4px;">
+                                    <img src="images/${rr.replace(/\d+$/, '')}_${searchTerm}.jpg" alt="${rr.replace(/\d+$/, '')} #${searchTerm}" style="width: 100%; max-width: 500px; height: auto; margin-bottom: 15px; border-radius: 4px;">
                                     <a href="${data.photos[0]}" style="text-decoration: none; color: #2c3e50;">
-                                        <h2 style="color: #2c3e50; margin-bottom: 10px;">Pictures of ${rr} #${searchTerm}</h2>
+                                        <h2 style="color: #2c3e50; margin-bottom: 10px;">Pictures of ${rr.replace(/\d+$/, '')} #${searchTerm}</h2>
                                     </a>
                                     <p style="margin-bottom: 10px;">Model: ${data.model} | Status: ${data.status}</p>
                                 </div>
