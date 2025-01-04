@@ -65,8 +65,7 @@
 					var mm = String(today.getMonth() + 1).padStart(2, '0');
 					var yyyy = today.getFullYear();
 					document.write(mm + '/' + dd + '/' + yyyy);
-				</script>
-			</div>
+				</script>			</div>
 		</div>
 	</header>
 
@@ -106,7 +105,7 @@
 							document.write(`
 								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
 								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+									<li><a href="404.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
 									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
 								</ul>
 							`);
@@ -115,20 +114,145 @@
 				</div>
 			</div>
 		</nav>
-			</tr>
-		</tbody>
-	</table>
-</td>
-</tr>
-</tbody>
-</table>
-<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
-</div>		
-</div>		<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
-<div class="DefText" style="display: flex; justify-content: space-between;">
-<div>Railhub Pictures ©2024-2025<br>Photos © respective authors</div>
-<div> </div>
-</div>
-</footer>
+	
+		<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
+			<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">View Pictures by Railroad</h1>
+			<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
 
-</body></html>
+			<div style="display: flex; gap: 2rem;">
+				<div class="sidebar" style="min-width: 240px;">
+					<div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+						<div class="Tableheader" style="padding: 1rem; background: #f8f8f8; color: black; font-weight: bold;">Pick a Railroad Type</div>
+						<div class="type-menu" style="padding: 0.6rem;">
+							<div class="type-item" style="padding: 0.6rem 0;">
+								<a href="railroadList2a9b.html?tid=1" style="text-decoration: none; color: black;">Major Carriers</a>
+							</div>
+
+							<div class="type-item" style="padding: 0.6rem 0;">
+								<div class="type-header" onclick="toggleSubmenu(this)" style="cursor: pointer; color: black;">
+									<a href="railroadList4e24.html?tid=2" style="text-decoration: none; color: black;">Regionals</a>
+								</div>
+								<div class="submenu" style="display: none; padding: 0.6rem 0 0.6rem 1rem; color: black;">
+									<div style="padding: 0.3rem 0;">Eastern Regionals</div>
+									<div style="padding: 0.3rem 0;">Western Regionals</div>
+									<div style="padding: 0.3rem 0;">Central Regionals</div>
+								</div>
+							</div>
+
+							<div class="type-item" style="padding: 0.6rem 0;">
+								<a href="railroadList8ab9.html?tid=3" style="text-decoration: none; color: black;">Short Lines</a>
+							</div>
+
+							<div class="type-item" style="padding: 0.6rem 0;">
+								<a href="railroadList5f04.html?tid=4" style="text-decoration: none; color: black;">Leasing Companies</a>
+							</div>
+
+							<div class="type-item" style="padding: 0.6rem 0;">
+								<a href="railroadList8954.html?tid=7" style="text-decoration: none; color: black;">Passenger</a>
+							</div>
+
+							<div class="type-item" style="padding: 0.6rem 0;">
+								<a href="railroadListfd56.html?tid=5" style="text-decoration: none; color: black;">Fallen Flags</a>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="main-content" style="flex: 1;">
+					<table class="railroad-list" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+						<thead>
+							<tr style="background: #f8f8f8;">
+								<th style="padding: 1rem; text-align: left; font-weight: bold; color: black;">Reporting Marks</th>
+								<th style="padding: 1rem; text-align: left; font-weight: bold; color: black;">Railroad Name</th>
+								<th style="padding: 1rem; text-align: right; font-weight: bold; color: black;">Locomotives</th>
+								<th style="padding: 1rem; text-align: right; font-weight: bold; color: black;">Rolling Stock</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr style="border-bottom: 1px solid #ddd;">
+								<td style="padding: 1rem;"><a href="Railroadid=BNSF" style="text-decoration: none; color: black;">BNSF</a></td>
+								<td style="padding: 1rem; color: black;">BNSF Railway</td>
+								<td style="padding: 1rem; text-align: right;"><a href="locoListid=BNSF" style="text-decoration: none; color: black;">10,682</a></td>
+								<td style="padding: 1rem; text-align: right;"><a href="rsList8a80.html?id=BNSF" style="text-decoration: none; color: black;">46,059</a></td>
+							</tr>
+
+							<tr style="border-bottom: 1px solid #ddd; background: #fafafa;">
+								<td style="padding: 1rem;"><a href="Railroadid=BNSF" style="text-decoration: none; color: black;">CN</a></td>
+								<td style="padding: 1rem; color: black;">Canadian National Railways</td>
+								<td style="padding: 1rem; text-align: right;"><a href="locoListid=CN" style="text-decoration: none; color: black;">4,444</a></td>
+								<td style="padding: 1rem; text-align: right;"><a href="rsList0973.html?id=CN" style="text-decoration: none; color: black;">13,636</a></td>
+							</tr>
+
+							<tr style="border-bottom: 1px solid #ddd;">
+								<td style="padding: 1rem;"><a href="Railroadid=CPKC" style="text-decoration: none; color: black;">CPKC</a></td>
+								<td style="padding: 1rem; color: black;">Canadian Pacific Kansas City</td>
+								<td style="padding: 1rem; text-align: right;"><a href="locoListcb2a.html?id=CPKC" style="text-decoration: none; color: black;">3,457</a></td>
+								<td style="padding: 1rem; text-align: right;"><a href="rsListcb2a.html?id=CPKC" style="text-decoration: none; color: black;">13,247</a></td>
+							</tr>
+
+							<tr style="border-bottom: 1px solid #ddd; background: #fafafa;">
+								<td style="padding: 1rem;"><a href="Railroad61db.html?id=CSX" style="text-decoration: none; color: black;">CSX</a></td>
+								<td style="padding: 1rem; color: black;">CSX Railroad</td>
+								<td style="padding: 1rem; text-align: right;"><a href="locoList61db.html?id=CSX" style="text-decoration: none; color: black;">7,960</a></td>
+								<td style="padding: 1rem; text-align: right;"><a href="rsList61db.html?id=CSX" style="text-decoration: none; color: black;">39,840</a></td>
+							</tr>
+
+							<tr style="border-bottom: 1px solid #ddd; background: #fafafa;">
+								<td style="padding: 1rem;"><a href="Railroade5a4.html?id=NS" style="text-decoration: none; color: black;">NS</a></td>
+								<td style="padding: 1rem; color: black;">Norfolk Southern</td>
+								<td style="padding: 1rem; text-align: right;"><a href="locoListe5a4.html?id=NS" style="text-decoration: none; color: black;">8,636</a></td>
+								<td style="padding: 1rem; text-align: right;"><a href="rsListe5a4.html?id=NS" style="text-decoration: none; color: black;">42,507</a></td>
+							</tr>
+
+							<tr style="border-bottom: 1px solid #ddd; background: #fafafa;">
+								<td style="padding: 1rem;"><a href="Railroad1a25.html?id=UP" style="text-decoration: none; color: black;">UP</a></td>
+								<td style="padding: 1rem; color: black;">Union Pacific Railroad Company</td>
+								<td style="padding: 1rem; text-align: right;"><a href="locoList1a25.html?id=UP" style="text-decoration: none; color: black;">14,928</a></td>
+								<td style="padding: 1rem; text-align: right;"><a href="rsList1a25.html?id=UP" style="text-decoration: none; color: black;">20,376</a></td>
+							</tr>
+						</tbody>
+					</table>
+
+					<div class="search-form" style="margin-top: 2rem;">
+						<form id="fmIDSearch" method="get" action="https://www.rrpicturearchives.net/Railroad.aspx" style="display: flex; gap: 1rem; align-items: center;">
+							<label for="id" style="font-weight: bold; color: black;">Search By Reporting Marks:</label>
+							<input type="text" name="id" id="id" style="padding: 0.6rem; border: 1px solid #ddd; border-radius: 4px;">
+							<input type="submit" name="search" value="Search" style="padding: 0.6rem 1.2rem; background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; color: black;">
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			function toggleSubmenu(element) {
+				const submenu = element.nextElementSibling;
+				if (submenu && submenu.classList.contains('submenu')) {
+					submenu.style.display = submenu.style.display === 'none' ? 'block' : 'none';
+				}
+			}
+		</script><hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
+</div>		
+<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
+	<div class="DefText" style="display: flex; justify-content: space-between;">
+		<div>Railhub Pictures © 2024-2025 
+			Photos © respective authors</div>
+		<div>Version 1.0</div>
+	</div>
+</footer>
+<script>
+	function confirmLogout() {
+		if (confirm("Are you sure you want to sign out?")) {
+			logout();
+		}
+	}
+
+	function logout() {
+		localStorage.removeItem('loggedIn');
+		localStorage.removeItem('username');
+		localStorage.removeItem('profilePic');
+		location.reload();
+	}
+</script>
+</body>
+</html>

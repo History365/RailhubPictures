@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html>
-<head id="ctl00_Head1">
+<html><head id="ctl00_Head1">
 	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
-	<title>Railhub Pictures.com</title>
+	<title>Search</title>
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script>
@@ -65,7 +64,7 @@
 					var mm = String(today.getMonth() + 1).padStart(2, '0');
 					var yyyy = today.getFullYear();
 					document.write(mm + '/' + dd + '/' + yyyy);
-				</script>
+				</script>01/04/2025
 			</div>
 		</div>
 	</header>
@@ -112,6 +111,12 @@
 							`);
 						}
 					</script>
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
+								</ul>
+							
 				</div>
 			</div>
 		</nav>
@@ -231,5 +236,26 @@
             </script>
         </main>
     </div>
-</body>
-</html>
+    <footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
+        <div class="DefText" style="display: flex; justify-content: space-between;">
+            <div>Railhub Pictures © 2024-2025
+                Photos © respective authors</div>
+            <div>Version 1.0</div>
+        </div>
+    </footer>
+    <script>
+        function confirmLogout() {
+            if (confirm("Are you sure you want to sign out?")) {
+                logout();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('loggedIn');
+            localStorage.removeItem('username');
+            localStorage.removeItem('profilePic');
+            location.reload();
+        }
+    </script>
+
+</body></html>
