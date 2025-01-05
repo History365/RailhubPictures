@@ -1,30 +1,17 @@
 <!DOCTYPE html>
-<html><head id="ctl00_Head1">
-	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
-	<title>Search</title>
+<html>
+<head id="ctl00_Head1">
+	<link rel="stylesheet" href="stylesheet/stylesheet.css">
+	<title>Railhub Pictures.com</title>
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script>
-			// Save to userdata.json using fetch
-			fetch('/saveUserData', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					username: 'Test User',
-					profilePic: 'images/default-avatar.png'
-				})
+		fetch('/getUserData')
+			.then(response => response.json())
+			.then(data => {
+				localStorage.setItem('username', data.username);
+				localStorage.setItem('profilePic', data.profilePic);
 			});
-		} else {
-			// Load user data from server
-			fetch('/getUserData')
-				.then(response => response.json())
-				.then(data => {
-					localStorage.setItem('username', data.username);
-					localStorage.setItem('profilePic', data.profilePic);
-				});
-		}
 	</script>
 </head>
 <body>
@@ -34,37 +21,22 @@
 
 	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 		<div style="display: flex; justify-content: space-between; align-items: center;">
-			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
+			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px;"></a>
 			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
-				<div id="userInfo">
-					<script>
-						const loggedIn = localStorage.getItem('loggedIn');
-						const username = localStorage.getItem('username');
-						if (loggedIn) {
-							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
-						}
-					</script>
-				</div>
-				<div id="userProfile" style="cursor: pointer;">
-					<script>
-						if (loggedIn) {
-							document.write(`
-								<a href="aboutme.html">
-									<img src="${localStorage.getItem('profilePic') || 'images/default-avatar.png'}" 
-										 alt="Profile" 
-										 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-								</a>
-							`);
-						}
-					</script>
-				</div>
+				<div id="userInfo"></div>
+				<div id="userProfile" style="cursor: pointer;"></div>
 				<script>
-					var today = new Date();
-					var dd = String(today.getDate()).padStart(2, '0');
-					var mm = String(today.getMonth() + 1).padStart(2, '0');
-					var yyyy = today.getFullYear();
-					document.write(mm + '/' + dd + '/' + yyyy);
-				</script>01/04/2025
+					const loggedIn = localStorage.getItem('loggedIn');
+					const username = localStorage.getItem('username');
+					const profilePic = localStorage.getItem('profilePic') || 'images/default-avatar.png';
+					
+					if (loggedIn) {
+						document.getElementById('userInfo').innerHTML = `<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`;
+						document.getElementById('userProfile').innerHTML = `<a href="aboutme.html"><img src="${profilePic}" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;"></a>`;
+					}
+					
+					document.write(new Date().toLocaleDateString());
+				</script>
 			</div>
 		</div>
 	</header>
@@ -85,177 +57,131 @@
 
 				<div id="memberMenu">
 					<script>
-						if (loggedIn) {
-							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
-									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
-									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
-									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
-								</ul>
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
-									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
-									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
-								</ul>
-							`);
-						} else {
-							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
-									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
-								</ul>
-							`);
-						}
+						const menuHTML = loggedIn ? `
+							<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+							<ul class="menu" style="list-style: none; padding: 0;">
+								<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
+								<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
+								<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
+								<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
+							</ul>
+							<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
+							<ul class="menu" style="list-style: none; padding: 0;">
+								<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
+								<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
+								<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
+							</ul>
+						` : `
+							<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+							<ul class="menu" style="list-style: none; padding: 0;">
+								<li><a href="404.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+								<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
+							</ul>
+						`;
+						document.getElementById('memberMenu').innerHTML = menuHTML;
 					</script>
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
-									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
-								</ul>
-							
 				</div>
 			</div>
 		</nav>
-        <main style="flex-grow: 1; padding: 1rem;">
 
+		<main style="flex-grow: 1; padding: 1rem;">
 			<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">Advanced Locomotive Search</h1>
-            <div class="search-container" style="background: #f5f5f5; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <input type="text" id="unitSearch" placeholder="Enter unit number..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
-                    <select id="railroad" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
-                                            <option value="">All Railroads</option>
-                                            <optgroup label="Class I Freight">
-                                                <option value="BNSF">BNSF Railway</option>
-                                                <option value="CN">Canadian National</option>
-                                                <option value="CP">Canadian Pacific Kansas City</option>
-                                                <option value="CSX">CSX Transportation</option>
-                                                <option value="FXE">Ferromex</option>
-                                                <option value="NS">Norfolk Southern</option>
-                                                <option value="UP">Union Pacific</option>
-                                            </optgroup>
-                                            <optgroup label="Class I Passenger">
-                                                <option value="AMTK">Amtrak</option>
-                                                <option value="VIA">VIA Rail Canada</option>
-                                            </optgroup>
-                                        </select>                    <button onclick="searchUnits()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Search</button>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <label style="display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" id="activeOnly"> Active Units Only
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" id="deadlineOnly"> In Deadline Only
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" id="scrappedOnly"> Scrapped Only
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" id="rebuiltOnly"> Rebuilt Only
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" id="withPhotos"> With Photos Only
-                    </label>
-                </div>
-            </div>
+			<div class="search-container" style="background: #f5f5f5; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+				<div style="display: flex; gap: 10px; margin-bottom: 15px;">
+					<input type="text" id="unitSearch" placeholder="Enter unit number..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+					<select id="railroad" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+						<option value="">All Railroads</option>
+						<optgroup label="Class I Freight">
+							<option value="BNSF">BNSF Railway</option>
+							<option value="CN">Canadian National</option>
+							<option value="CP">Canadian Pacific Kansas City</option>
+							<option value="CSX">CSX Transportation</option>
+							<option value="FXE">Ferromex</option>
+							<option value="NS">Norfolk Southern</option>
+							<option value="UP">Union Pacific</option>
+						</optgroup>
+						<optgroup label="Class I Passenger">
+							<option value="AMTK">Amtrak</option>
+							<option value="VIA">VIA Rail Canada</option>
+						</optgroup>
+					</select>
+					<button onclick="searchUnits()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Search</button>
+				</div>
+				<div style="display: flex; gap: 10px;">
+					<label><input type="checkbox" id="activeOnly"> Active Units Only</label>
+					<label><input type="checkbox" id="deadlineOnly"> In Deadline Only</label>
+					<label><input type="checkbox" id="scrappedOnly"> Scrapped Only</label>
+					<label><input type="checkbox" id="rebuiltOnly"> Rebuilt Only</label>
+					<label><input type="checkbox" id="withPhotos"> With Photos Only</label>
+				</div>
+			</div>
 
-            <div id="searchResults" style="margin-top: 2rem;">
-                <!-- Results will be displayed here -->
-            </div>
+			<div id="searchResults" style="margin-top: 2rem;"></div>
 
-            <script>
-                const locomotives = {
-                    "4710": {
-                        CSX: {
-                            model: "SD70MAC",
-                            status: "Active",
-                            photos: ["locopictureid=1.html", "locopictureid=2.html"]
-                        },
-                        BNSF: {
-                            model: "ES44DC",
-                            status: "Active",
-                            photos: ["locopictureid=3.html"]
-                        },
-                        "BNSF2": {
-                            model: "C44-9W",
-                            status: "Active",
-                            photos: ["locopictureid=4.html"]
-                        },
-                        UP: {
-                            model: "SD70M",
-                            status: "Active",
-                            photos: ["locopictureid=5.html"]
-                        }
-                    },
-                    // Add more locomotive data as needed
-                };
+			<script>
+				const locomotives = {
+					"4710": {
+						CSX: { model: "SD70MAC", status: "Active", photos: ["locopictureid=1.html", "locopictureid=2.html"] },
+						BNSF: { model: "ES44DC", status: "Active", photos: ["locopictureid=3.html"] },
+						"BNSF2": { model: "C44-9W", status: "Active", photos: ["locopictureid=4.html"] },
+						UP: { model: "SD70M", status: "Active", photos: ["locopictureid=5.html"] }
+					}
+				};
 
-                function searchUnits() {
-                    const searchTerm = document.getElementById('unitSearch').value.trim();
-                    const railroad = document.getElementById('railroad').value;
-                    const activeOnly = document.getElementById('activeOnly').checked;
-                    const withPhotos = document.getElementById('withPhotos').checked;
-                    const resultsDiv = document.getElementById('searchResults');
+				function searchUnits() {
+					const searchTerm = document.getElementById('unitSearch').value.trim();
+					const railroad = document.getElementById('railroad').value;
+					const activeOnly = document.getElementById('activeOnly').checked;
+					const withPhotos = document.getElementById('withPhotos').checked;
+					const resultsDiv = document.getElementById('searchResults');
 
-                    if (!searchTerm) {
-                        resultsDiv.innerHTML = '<div style="color: #721c24; background: #f8d7da; padding: 10px; border-radius: 4px;">Please enter a unit number</div>';
-                        return;
-                    }
+					if (!searchTerm) {
+						resultsDiv.innerHTML = '<div style="color: #721c24; background: #f8d7da; padding: 10px; border-radius: 4px;">Please enter a unit number</div>';
+						return;
+					}
 
-                    if (locomotives[searchTerm]) {
-                        let results = '';
-                        for (const [rr, data] of Object.entries(locomotives[searchTerm])) {
-                            if (railroad && railroad !== rr && railroad !== rr.replace(/\d+$/, '')) continue;
-                            if (activeOnly && data.status !== "Active") continue;
-                            if (withPhotos && data.photos.length === 0) continue;
+					if (locomotives[searchTerm]) {
+						let results = '';
+						for (const [rr, data] of Object.entries(locomotives[searchTerm])) {
+							if (railroad && railroad !== rr && railroad !== rr.replace(/\d+$/, '')) continue;
+							if (activeOnly && data.status !== "Active") continue;
+							if (withPhotos && !data.photos.length) continue;
 
-                            results += `
-                                <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                    <img src="images/${rr.replace(/\d+$/, '')}_${searchTerm}.jpg" alt="${rr.replace(/\d+$/, '')} #${searchTerm}" style="width: 100%; max-width: 500px; height: auto; margin-bottom: 15px; border-radius: 4px;">
-                                    <a href="${data.photos[0]}" style="text-decoration: none; color: #2c3e50;">
-                                        <h2 style="color: #2c3e50; margin-bottom: 10px;">Pictures of ${rr.replace(/\d+$/, '')} #${searchTerm}</h2>
-                                    </a>
-                                    <p style="margin-bottom: 10px;">Model: ${data.model} | Status: ${data.status}</p>
-                                </div>
-                            `;
-                        }
-                        resultsDiv.innerHTML = results || '<div style="color: #856404; background: #fff3cd; padding: 10px; border-radius: 4px;">No matches found for the selected filters</div>';
-                    } else {
-                        resultsDiv.innerHTML = '<div style="color: #856404; background: #fff3cd; padding: 10px; border-radius: 4px;">No results found for unit ' + searchTerm + '</div>';
-                    }
-                }
+							results += `
+								<div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+									<img src="images/${rr.replace(/\d+$/, '')}_${searchTerm}.jpg" alt="${rr.replace(/\d+$/, '')} #${searchTerm}" style="width: 100%; max-width: 500px; height: auto; margin-bottom: 15px; border-radius: 4px;">
+									<a href="${data.photos[0]}" style="text-decoration: none; color: #2c3e50;">
+										<h2 style="color: #2c3e50; margin-bottom: 10px;">Pictures of ${rr.replace(/\d+$/, '')} #${searchTerm}</h2>
+									</a>
+									<p style="margin-bottom: 10px;">Model: ${data.model} | Status: ${data.status}</p>
+								</div>
+							`;
+						}
+						resultsDiv.innerHTML = results || '<div style="color: #856404; background: #fff3cd; padding: 10px; border-radius: 4px;">No matches found for the selected filters</div>';
+					} else {
+						resultsDiv.innerHTML = '<div style="color: #856404; background: #fff3cd; padding: 10px; border-radius: 4px;">No results found for unit ' + searchTerm + '</div>';
+					}
+				}
 
-                document.getElementById('unitSearch').addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        searchUnits();
-                    }
-                });
-            </script>
-        </main>
-    </div>
-    <footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
-        <div class="DefText" style="display: flex; justify-content: space-between;">
-            <div>Railhub Pictures © 2024-2025
-                Photos © respective authors</div>
-            <div>Version 1.0</div>
-        </div>
-    </footer>
-    <script>
-        function confirmLogout() {
-            if (confirm("Are you sure you want to sign out?")) {
-                logout();
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('loggedIn');
-            localStorage.removeItem('username');
-            localStorage.removeItem('profilePic');
-            location.reload();
-        }
-    </script>
-
-</body></html>
+				document.getElementById('unitSearch').addEventListener('keypress', e => e.key === 'Enter' && searchUnits());
+			</script>
+		</main>
+	</div>
+	<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
+		<div class="DefText" style="display: flex; justify-content: space-between;">
+			<div>Railhub Pictures © 2024-2025 Photos © respective authors</div>
+			<div>Version 1.0</div>
+		</div>
+	</footer>
+	<script>
+		function confirmLogout() {
+			if (confirm("Are you sure you want to sign out?")) {
+				localStorage.removeItem('loggedIn');
+				localStorage.removeItem('username');
+				localStorage.removeItem('profilePic');
+				location.reload();
+			}
+		}
+	</script>
+</body>
+</html>
