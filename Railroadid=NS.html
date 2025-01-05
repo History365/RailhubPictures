@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head id="ctl00_Head1">
+	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
+	<title>Railhub Pictures.com</title>
+	<meta id="ctl00_metaDescription" name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script>
+			// Save to userdata.json using fetch
+			fetch('/saveUserData', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					username: 'Test User',
+					profilePic: 'images/default-avatar.png'
+				})
+			});
+		} else {
+			// Load user data from server
+			fetch('/getUserData')
+				.then(response => response.json())
+				.then(data => {
+					localStorage.setItem('username', data.username);
+					localStorage.setItem('profilePic', data.profilePic);
+				});
+		}
+	</script>
+</head>
+<body>
+	<script src="includes/wz_dragdrop.js"></script> 
+	<script src="Scripts/jquery-1.4.2.min.js"></script>
+	<script src="Scripts/jquery-ui-1.8.6.custom.min.js"></script>
+
+	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+		<div style="display: flex; justify-content: space-between; align-items: center;">
+			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
+			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
+				<div id="userInfo">
+					<script>
+						const loggedIn = localStorage.getItem('loggedIn');
+						const username = localStorage.getItem('username');
+						if (loggedIn) {
+							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
+						}
+					</script>
+				</div>
+				<div id="userProfile" style="cursor: pointer;">
+					<script>
+						if (loggedIn) {
+							document.write(`
+								<a href="aboutme.html">
+									<img src="${localStorage.getItem('profilePic') || 'images/default-avatar.png'}" 
+										 alt="Profile" 
+										 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+								</a>
+							`);
+						}
+					</script>
+				</div>
+				<script>
+					var today = new Date();
+					var dd = String(today.getDate()).padStart(2, '0');
+					var mm = String(today.getMonth() + 1).padStart(2, '0');
+					var yyyy = today.getFullYear();
+					document.write(mm + '/' + dd + '/' + yyyy);
+				</script>			</div>
+		</div>
+	</header>
+
+	<div style="display: flex; min-height: 100vh;">
+		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
+			<div class="menu">
+				<div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0;">View Photos</div>
+				<ul class="menu" style="list-style: none; padding: 0;">
+					<li><a href="index.html" style="padding: 0.5rem 0; display: block;">Home</a></li>
+					<li><a href="newestphotos.html" style="padding: 0.5rem 0; display: block;">Newest Photos</a></li>
+					<li><a href="contribPicks.html" style="padding: 0.5rem 0; display: block;">Contributor Picks</a></li>
+					<li><a href="photoCalendar.html" style="padding: 0.5rem 0; display: block;">By Date</a></li>
+					<li><a href="railroadList.html" style="padding: 0.5rem 0; display: block;">By Railroad</a></li>
+					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
+					<li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
+				</ul>
+
+				<div id="memberMenu">
+					<script>
+						if (loggedIn) {
+							document.write(`
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
+									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
+									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
+									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
+								</ul>
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
+									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
+									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
+								</ul>
+							`);
+						} else {
+							document.write(`
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="404.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
+								</ul>
+							`);
+						}
+					</script>
+				</div>
+			</div>
+		</nav>
+        <div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
+            <div class="breadcrumbs" style="margin-bottom: 1rem;">
+                <a href="index.html" style="color: black;">Home</a> > <a href="Railroadid=NS.html">Norfolk Southern Railroad</a>
+            </div>
+
+            <div class="railroad-details">
+                <div class="railroad-logo">
+                    <img src="images/logos/NS-logo.png" alt="NS Logo" style="width: 450px; height: auto;">
+                </div>
+                
+                <div class="railroad-info-container">
+                    <div class="main-info">
+                        <h3>Main Information</h3>
+                        <table class="info-table">
+                            <tr>
+                                <th>Reporting Mark:</th>
+                                <td>NS</td>
+                            </tr>
+                            <tr>
+                                <th>Name:</th>
+                                <td>Norfolk Southern Railway</td>
+                            </tr>
+                            <tr>
+                                <th>Type:</th>
+                                <td>Major Carriers</td>
+                            </tr>
+                            <tr>
+                                <th>Web Site:</th>
+                                <td><a href="https://www.norfolksouthern.com/" target="_blank">www.norfolksouthern.com</a></td>
+                            </tr>
+                        </table>
+                
+                        <h3>Related Railroads</h3>
+                        <div class="related-railroads">
+                            <div class="railroad-item">
+                                <a href="/Railroad.aspx?id=ACL">ACL</a>
+                                <span>Atlantic Coast Line Railroad</span>
+                            </div>
+                            <div class="railroad-item">
+                                <a href="/Railroad.aspx?id=BO">BO</a>
+                                <span>Baltimore and Ohio Railroad</span>
+                            </div>
+                            <div class="railroad-item">
+                                <a href="/Railroad.aspx?id=C&O">C&O</a>
+                                <span>Chesapeake and Ohio Railway</span>
+                            </div>
+                            <div class="railroad-item">
+                                <a href="/Railroad.aspx?id=CLINCH">CLINCH</a>
+                                <span>Clinchfield Railroad</span>
+                            </div>
+                            <div class="railroad-item">
+                                <a href="/Railroad.aspx?id=GA">GA</a>
+                                <span>Georgia Railroad</span>
+                            </div>
+                            <div class="railroad-item">
+                                <a href="/Railroad.aspx?id=LN">LN</a>
+                                <span>Louisville and Nashville Railroad</span>
+                            </div>
+                            <div class="railroad-item">
+                                <a href="/Railroad.aspx?id=RF&P">RF&P</a>
+                                <span>Richmond, Fredericksburg and Potomac Railroad</span>
+                            </div>
+                            <div class="railroad-item">
+                                <a href="/Railroad.aspx?id=SAL">SAL</a>
+                                <span>Seaboard Air Line Railroad</span>
+                            </div>
+                            <div class="railroad-item">
+                                <a href="/Railroad.aspx?id=SD">SD</a>
+                                <span>Seaboard Coast Line Railroad</span>
+                            </div>
+                            <div class="railroad-item">
+                                <a href="/Railroad.aspx?id=WM">WM</a>
+                                <span>Western Maryland Railway</span>
+                            </div>
+                        </div>
+                    </div>
+                
+
+                    <div class="roster-info">
+                        <div class="locomotive-roster">
+                            <h3>Locomotive Roster</h3>
+                            <table class="info-table">
+                                <tr>
+                                    <th>Photographed:</th>
+                                    <td><a href="/locoList.aspx?id=BNSF">10,724</a></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><span class="note">Last Photograph added 1/3/2025 11:29 AM</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Model List:</th>
+                                    <td><a href="modelListRRid=CSX.html">View</a></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="rolling-stock-roster">
+                            <h3>Rolling Stock Roster</h3>
+                            <table class="info-table">
+                                <tr>
+                                    <th>Photographed:</th>
+                                    <td><a href="/rsList.aspx?id=BNSF">46,129</a></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><span class="note">Last Photograph added 1/3/2025 4:14 PM</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Type List:</th>
+                                    <td><a href="/rsClassListRR.aspx?id=BNSF">View</a></td>
+                                </tr>
+                                <tr>
+                                    <th>AAR Type List:</th>
+                                    <td><a href="/rsAARTypes.aspx?rid=BNSF">View</a></td>
+                                </tr>
+                                <tr>
+                                    <th>Car# Ranges:</th>
+                                    <td><a href="/rsRange.aspx?id=BNSF">View</a></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<style>
+.railroad-details {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.railroad-logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.railroad-info-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.info-table th {
+    text-align: right;
+    padding: 8px;
+    color: #666;
+    width: 40%;
+}
+
+.info-table td {
+    padding: 8px;
+}
+
+.related-railroads {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.railroad-item {
+    display: flex;
+    gap: 10px;
+    padding: 5px;
+}
+
+.railroad-item a {
+    min-width: 50px;
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.note {
+    color: #666;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+h3 {
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 8px;
+    margin: 20px 0 15px 0;
+}
+</style>
