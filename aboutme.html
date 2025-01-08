@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head id="ctl00_Head1">
+	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
+	<title>Railhub Pictures.com</title>
+	<meta id="ctl00_metaDescription" name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script>
+			// Save to userdata.json using fetch
+			fetch('/saveUserData', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					username: 'Test User',
+					profilePic: 'images/default-avatar.png'
+				})
+			});
+		} else {
+			// Load user data from server
+			fetch('/getUserData')
+				.then(response => response.json())
+				.then(data => {
+					localStorage.setItem('username', data.username);
+					localStorage.setItem('profilePic', data.profilePic);
+				});
+		}
+	</script>
+</head>
+<body>
+	<script src="includes/wz_dragdrop.js"></script> 
+	<script src="Scripts/jquery-1.4.2.min.js"></script>
+	<script src="Scripts/jquery-ui-1.8.6.custom.min.js"></script>
+
+	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+		<div style="display: flex; justify-content: space-between; align-items: center;">
+			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
+			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
+				<div id="userInfo">
+					<script>
+						const loggedIn = localStorage.getItem('loggedIn');
+						const username = localStorage.getItem('username');
+						if (loggedIn) {
+							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
+						}
+					</script>
+				</div>
+				<div id="userProfile" style="cursor: pointer;">
+					<script>
+						if (loggedIn) {
+							document.write(`
+								<a href="aboutme.html">
+									<img src="${localStorage.getItem('profilePic') || 'images/default-avatar.png'}" 
+										 alt="Profile" 
+										 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+								</a>
+							`);
+						}
+					</script>
+				</div>
+				<script>
+					var today = new Date();
+					var dd = String(today.getDate()).padStart(2, '0');
+					var mm = String(today.getMonth() + 1).padStart(2, '0');
+					var yyyy = today.getFullYear();
+					document.write(mm + '/' + dd + '/' + yyyy);
+				</script>
+			</div>
+		</div>
+	</header>
+
+	<div style="display: flex; min-height: 100vh;">
+		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
+			<div class="menu">
+				<div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0;">View Photos</div>
+				<ul class="menu" style="list-style: none; padding: 0;">
+					<li><a href="index.html" style="padding: 0.5rem 0; display: block;">Home</a></li>
+					<li><a href="newestphotos.html" style="padding: 0.5rem 0; display: block;">Newest Photos</a></li>
+					<li><a href="contribPicks.html" style="padding: 0.5rem 0; display: block;">Contributor Picks</a></li>
+					<li><a href="photoCalendar.html" style="padding: 0.5rem 0; display: block;">By Date</a></li>
+					<li><a href="railroadList.html" style="padding: 0.5rem 0; display: block;">By Railroad</a></li>
+					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
+					<li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
+				</ul>
+
+				<div id="memberMenu">
+					<script>
+						if (loggedIn) {
+							document.write(`
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
+									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
+									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
+									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
+								</ul>
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
+									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
+									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
+								</ul>
+							`);
+						} else {
+							document.write(`
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
+								</ul>
+							`);
+						}
+					</script>
+				</div>
+			</div>
+		</nav>
+
+		<main style="flex: 1; padding: 1rem;">
+			<div class="profile-container" style="max-width: 640px; margin: 0 auto;">
+				<div class="profile-header" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+					<div class="profile-image" style="width: 120px; height: 120px; position: relative;">
+						<img id="profileImage" src="" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+						<button onclick="changeProfilePic()" style="position: absolute; bottom: 0; right: 0; padding: 0.25rem; border-radius: 50%; background: #fff; border: 1px solid #ddd;">📷</button>
+					</div>
+					<div class="profile-info">
+						<div style="display: flex; align-items: center; gap: 0.5rem;">
+							<h2 id="displayUsername" onclick="editUsername()" style="margin: 0; padding: 0.25rem; border: 1px solid transparent; cursor: pointer;"></h2>
+							<button onclick="editUsername()" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit Username</button>
+							<span id="usernameEdit" style="color: #666; font-size: 0.8rem; display: none;">Editing...</span>
+						</div>
+						<p>Member since: <span id="accountCreated"></span></p>
+						<p>Email: <span id="userEmail"></span></p>
+						<div style="display: flex; align-items: center; gap: 0.5rem;">
+							<p>Password: <span id="userPassword">••••••••</span></p>
+							<button onclick="changePassword()" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Change</button>
+						</div>
+					</div>
+				</div>
+
+				<div id="saveChanges" style="display: none; padding: 0.5rem; background: #f0f9ff; border-radius: 4px; margin-bottom: 1rem;">
+					<p style="margin: 0 0 0.5rem 0;">You have unsaved changes!</p>
+					<button onclick="saveChanges()" style="padding: 0.25rem 0.5rem; background: #0066cc; color: white; border: none; border-radius: 4px;">Save Changes</button>
+					<button onclick="discardChanges()" style="padding: 0.25rem 0.5rem; background: #fff; border: 1px solid #ddd; border-radius: 4px;">Discard</button>
+				</div>
+
+				<div class="user-stats" style="margin-bottom: 2rem;">
+					<h2>Statistics</h2>
+					<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+						<div class="stat-card" style="padding: 1rem; background: #f5f5f5; border-radius: 8px;">
+							<h3>Total Photos</h3>
+							<p id="totalPhotos">0</p>
+						</div>
+						<div class="stat-card" style="padding: 1rem; background: #f5f5f5; border-radius: 8px;">
+							<h3>Total Views</h3>
+							<p id="totalViews">0</p>
+						</div>
+						<div class="stat-card" style="padding: 1rem; background: #f5f5f5; border-radius: 8px;">
+							<h3>Total Likes</h3>
+							<p id="totalLikes">0</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="recent-uploads">
+					<h2>Recent Uploads</h2>
+					<div id="photoGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+						<!-- Photos will be dynamically inserted here -->
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+
+	<script>
+		let hasUnsavedChanges = false;
+		let originalData = {};
+
+		function editUsername() {
+			const newUsername = prompt('Enter new username:', document.getElementById('displayUsername').textContent);
+			if (newUsername) {
+				document.getElementById('displayUsername').textContent = newUsername;
+				handleEdit('username');
+			}
+		}
+
+		function handleEdit(field) {
+			const saveBar = document.getElementById('saveChanges');
+			if (!hasUnsavedChanges) {
+				originalData[field] = localStorage.getItem(field);
+			}
+			hasUnsavedChanges = true;
+			saveBar.style.display = 'block';
+			const editSpan = document.getElementById(field + 'Edit');
+			if (editSpan) {
+				editSpan.style.display = 'inline';
+			}
+		}
+
+		function changeProfilePic() {
+			const input = document.createElement('input');
+			input.type = 'file';
+			input.accept = 'image/*';
+			input.onchange = (e) => {
+				const file = e.target.files[0];
+				const reader = new FileReader();
+				reader.onload = (event) => {
+					document.getElementById('profileImage').src = event.target.result;
+					handleEdit('profilePic');
+				};
+				reader.readAsDataURL(file);
+			};
+			input.click();
+		}
+
+		function changePassword() {
+			const newPassword = prompt('Enter new password:');
+			if (newPassword) {
+				document.getElementById('userPassword').textContent = '••••••••';
+				handleEdit('password');
+				localStorage.setItem('password', newPassword);
+			}
+		}
+
+		function saveChanges() {
+			const username = document.getElementById('displayUsername').textContent;
+			const profilePic = document.getElementById('profileImage').src;
+			
+			localStorage.setItem('username', username);
+			localStorage.setItem('profilePic', profilePic);
+			
+			fetch('includes/userdata.json', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					username: username,
+					profilePic: profilePic
+				})
+			});
+			
+			hasUnsavedChanges = false;
+			document.getElementById('saveChanges').style.display = 'none';
+			const usernameEdit = document.getElementById('usernameEdit');
+			if (usernameEdit) {
+				usernameEdit.style.display = 'none';
+			}
+			
+			alert('Changes saved successfully!');
+			location.reload();
+		}
+
+		function discardChanges() {
+			if (originalData.username) {
+				document.getElementById('displayUsername').textContent = originalData.username;
+			}
+			if (originalData.profilePic) {
+				document.getElementById('profileImage').src = originalData.profilePic;
+			}
+			
+			hasUnsavedChanges = false;
+			document.getElementById('saveChanges').style.display = 'none';
+			const usernameEdit = document.getElementById('usernameEdit');
+			if (usernameEdit) {
+				usernameEdit.style.display = 'none';
+			}
+			location.reload();
+		}
+
+		function populateUserProfile() {
+			fetch('includes/userdata.json')
+				.then(response => response.json())
+				.then(data => {
+					document.getElementById('profileImage').src = data.profilePic || 'images/default-avatar.png';
+					document.getElementById('displayUsername').textContent = data.username || 'Username';
+					document.getElementById('accountCreated').textContent = data.accountCreated || 'Date';
+					document.getElementById('userEmail').textContent = data.email || 'email@example.com';
+					
+					document.getElementById('totalPhotos').textContent = data.totalPhotos || '0';
+					document.getElementById('totalViews').textContent = data.totalViews || '0';
+					document.getElementById('totalLikes').textContent = data
