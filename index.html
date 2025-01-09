@@ -122,23 +122,30 @@
 							<div class="homePageText">
 								<script>
 									const images = [
-										"images/cachedImage (2).jpg", "images/cachedImage (1).jpg", "images/DSC_1560.jpg",
-										"images/DSC00948.jpg", "images/DSC_1708.JPG", "images/DSC_2014.JPG",
-										"images/DSC_2073.JPG", "images/DSC_2565.JPG", "images/IMG_1768.jpg",
-										"images/IMG_1908.jpg", "images/IMG_8337.jpg", "images/MG_1848.jpg",
-										"images/MG_1865.jpg", "images/MG_1886.jpg", "images/MG_2066.jpg",
-										"images/MG_3173.jpg", "images/MG_3256.jpg", "images/P1000313.JPG"
+										{src: "images/IMG_8337.jpg", link: "showpictureid=1.html"},
+										{src: "images/dji_fly_20240610.jpg", link: "showpictureid=2.html"},
+										{src: "images/DSC_1560.jpg", link: "showpictureid=8.html"},
+										{src: "images/DSC00948.jpg", link: "showpictureid=4.html"},
+										{src: "images/DSC_1708.JPG", link: "showpictureid=5.html"},
+										{src: "images/DSC_2014.JPG", link: "showpictureid=6.html"},
+										{src: "images/DSC_2073.JPG", link: "showpictureid=7.html"},
+										{src: "images/DSC_1560.JPG", link: "showpictureid=8.html"},
+										{src: "images/DSC_2565.JPG", link: "showpictureid=13.html"},
+										{src: "images/MG_3182.jpg", link: "showpictureid=14.html"},
+										{src: "images/MG_3173.jpg", link: "showpictureid=15.html"},
+										{src: "images/DSC_4337.JPG", link: "showpictureid=19.html"}
 									];
 
 									function getRandomImage() {
 										return images[Math.floor(Math.random() * images.length)];
 									}
 
+									const randomImage = getRandomImage();
 									document.write(`
-										<a href="showpictureid=5.html" target="_blank">
+										<a href="${randomImage.link}" target="_blank">
 											<img style="float: right; border: solid 1px #000; width: 315px; height: auto; margin: 0 0 1rem 1rem;" 
 												alt="Front Page Pic" 
-												src="${getRandomImage()}">
+												src="${randomImage.src}">
 										</a>
 									`);
 								</script>
