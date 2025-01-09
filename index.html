@@ -124,20 +124,44 @@
 									const images = [
 										{src: "images/IMG_8337.jpg", link: "showpictureid=1.html"},
 										{src: "images/dji_fly_20240610.jpg", link: "showpictureid=2.html"},
-										{src: "images/DSC_1560.jpg", link: "showpictureid=8.html"},
 										{src: "images/DSC00948.jpg", link: "showpictureid=4.html"},
+										{src: "images/DSC_1560.jpg", link: "showpictureid=8.html"},
 										{src: "images/DSC_1708.JPG", link: "showpictureid=5.html"},
 										{src: "images/DSC_2014.JPG", link: "showpictureid=6.html"},
 										{src: "images/DSC_2073.JPG", link: "showpictureid=7.html"},
-										{src: "images/DSC_1560.JPG", link: "showpictureid=8.html"},
 										{src: "images/DSC_2565.JPG", link: "showpictureid=13.html"},
-										{src: "images/MG_3182.jpg", link: "showpictureid=14.html"},
+										{src: "images/DSC_2572.JPG", link: "showpictureid=9.html"},
+										{src: "images/DSC_3856.JPG", link: "showpictureid=12.html"},
+										{src: "images/DSC_4027.JPG", link: "showpictureid=18.html"},
+										{src: "images/DSC_4139.JPG", link: "showpictureid=10.html"},
+										{src: "images/DSC_4337.JPG", link: "showpictureid=19.html"},
+										{src: "images/IMG_3526.jpg", link: "showpictureid=25.html"},
 										{src: "images/MG_3173.jpg", link: "showpictureid=15.html"},
-										{src: "images/DSC_4337.JPG", link: "showpictureid=19.html"}
-									];
-
-									function getRandomImage() {
-										return images[Math.floor(Math.random() * images.length)];
+										{src: "images/MG_3182.jpg", link: "showpictureid=14.html"},
+										{src: "images/MG_3203.jpg", link: "showpictureid=3.html"},
+										{src: "images/MG_3220.jpg", link: "showpictureid=27.html"},
+										{src: "images/MG_3256.jpg", link: "showpictureid=17.html"},
+										{src: "images/MG_3312.jpg", link: "showpictureid=11.html"},
+										{src: "images/MG_3316.jpg", link: "showpictureid=16.html"},
+										{src: "images/P1010715.JPG", link: "showpictureid=20.html"},
+										{src: "images/MG_3220.jpg", link: "showpictureid=21.html"},								];									function getRandomImage() {
+										const recentImages = JSON.parse(localStorage.getItem('recentImages') || '[]');
+										let availableImages = images.filter(img => !recentImages.includes(img.src));
+										
+										if (availableImages.length === 0) {
+											availableImages = images;
+											localStorage.setItem('recentImages', '[]');
+										}
+										
+										const randomImage = availableImages[Math.floor(Math.random() * availableImages.length)];
+										
+										recentImages.push(randomImage.src);
+										if (recentImages.length > 10) {
+											recentImages.shift();
+										}
+										
+										localStorage.setItem('recentImages', JSON.stringify(recentImages));
+										return randomImage;
 									}
 
 									const randomImage = getRandomImage();
@@ -148,8 +172,7 @@
 												src="${randomImage.src}">
 										</a>
 									`);
-								</script>
-							<p>Welcome to Railhub Pictures, your premier destination for railroad photography enthusiasts! Our growing collection showcases the beauty and diversity of railroads across the country.</p>
+								</script>							<p>Welcome to Railhub Pictures, your premier destination for railroad photography enthusiasts! Our growing collection showcases the beauty and diversity of railroads across the country.</p>
 							<p>Explore our extensive photo gallery by browsing through different <a href="railroadList.html"><strong>railroad companies</strong></a>, or finding your favorite locomotive <a href="modelList.html"><strong>models</strong></a>. Check out our featured <a href="contribPicks.html"><strong>contributor selections</strong></a> for exceptional photography.</p>
 							<p><strong>Share Your Photos:</strong> Join our community by registering for a free account using the 'Register' link in the menu. Once registered, you can start sharing your own railroad photography with enthusiasts worldwide!</p>
 							<p>Our dedicated team regularly features outstanding photographs on the site. Look for specially marked featured images that represent the best of our collection. You can view our curated selections through the Contributor Picks link in the navigation menu.</p>
