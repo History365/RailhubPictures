@@ -124,44 +124,41 @@
 									const images = [
 										{src: "images/IMG_8337.jpg", link: "showpictureid=1.html"},
 										{src: "images/dji_fly_20240610.jpg", link: "showpictureid=2.html"},
+										{src: "images/MG_3203.jpg", link: "showpictureid=3.html"},
 										{src: "images/DSC00948.jpg", link: "showpictureid=4.html"},
-										{src: "images/DSC_1560.jpg", link: "showpictureid=8.html"},
 										{src: "images/DSC_1708.JPG", link: "showpictureid=5.html"},
 										{src: "images/DSC_2014.JPG", link: "showpictureid=6.html"},
 										{src: "images/DSC_2073.JPG", link: "showpictureid=7.html"},
-										{src: "images/DSC_2565.JPG", link: "showpictureid=13.html"},
+										{src: "images/DSC_1560.jpg", link: "showpictureid=8.html"},
 										{src: "images/DSC_2572.JPG", link: "showpictureid=9.html"},
-										{src: "images/DSC_3856.JPG", link: "showpictureid=12.html"},
-										{src: "images/DSC_4027.JPG", link: "showpictureid=18.html"},
 										{src: "images/DSC_4139.JPG", link: "showpictureid=10.html"},
-										{src: "images/DSC_4337.JPG", link: "showpictureid=19.html"},
-										{src: "images/IMG_3526.jpg", link: "showpictureid=25.html"},
-										{src: "images/MG_3173.jpg", link: "showpictureid=15.html"},
-										{src: "images/MG_3182.jpg", link: "showpictureid=14.html"},
-										{src: "images/MG_3203.jpg", link: "showpictureid=3.html"},
-										{src: "images/MG_3220.jpg", link: "showpictureid=27.html"},
-										{src: "images/MG_3256.jpg", link: "showpictureid=17.html"},
 										{src: "images/MG_3312.jpg", link: "showpictureid=11.html"},
+										{src: "images/DSC_3856.JPG", link: "showpictureid=12.html"},
+										{src: "images/DSC_2565.JPG", link: "showpictureid=13.html"},
+										{src: "images/MG_3182.jpg", link: "showpictureid=14.html"},
+										{src: "images/MG_3173.jpg", link: "showpictureid=15.html"},
 										{src: "images/MG_3316.jpg", link: "showpictureid=16.html"},
+										{src: "images/MG_3256.jpg", link: "showpictureid=17.html"},
+										{src: "images/DSC_4027.JPG", link: "showpictureid=18.html"},
+										{src: "images/DSC_4337.JPG", link: "showpictureid=19.html"},
 										{src: "images/P1010715.JPG", link: "showpictureid=20.html"},
-										{src: "images/MG_3220.jpg", link: "showpictureid=21.html"},								];									function getRandomImage() {
-										const recentImages = JSON.parse(localStorage.getItem('recentImages') || '[]');
-										let availableImages = images.filter(img => !recentImages.includes(img.src));
+										{src: "images/MG_3220.jpg", link: "showpictureid=21.html"},
+										{src: "images/IMG_1908.jpg", link: "showpictureid=22.html"},							];									function getRandomImage() {
+										let usedImages = JSON.parse(localStorage.getItem('usedImages') || '[]');
 										
-										if (availableImages.length === 0) {
-											availableImages = images;
-											localStorage.setItem('recentImages', '[]');
+										if (usedImages.length >= images.length) {
+											usedImages = [];
+											localStorage.setItem('usedImages', '[]');
 										}
 										
-										const randomImage = availableImages[Math.floor(Math.random() * availableImages.length)];
+										const availableImages = images.filter(img => !usedImages.includes(img.src));
+										const randomIndex = Math.floor(Math.random() * availableImages.length);
+										const selectedImage = availableImages[randomIndex];
 										
-										recentImages.push(randomImage.src);
-										if (recentImages.length > 10) {
-											recentImages.shift();
-										}
+										usedImages.push(selectedImage.src);
+										localStorage.setItem('usedImages', JSON.stringify(usedImages));
 										
-										localStorage.setItem('recentImages', JSON.stringify(recentImages));
-										return randomImage;
+										return selectedImage;
 									}
 
 									const randomImage = getRandomImage();
@@ -172,8 +169,8 @@
 												src="${randomImage.src}">
 										</a>
 									`);
-								</script>							<p>Welcome to Railhub Pictures, your premier destination for railroad photography enthusiasts! Our growing collection showcases the beauty and diversity of railroads across the country.</p>
-							<p>Explore our extensive photo gallery by browsing through different <a href="railroadList.html"><strong>railroad companies</strong></a>, or finding your favorite locomotive <a href="modelList.html"><strong>models</strong></a>. Check out our featured <a href="contribPicks.html"><strong>contributor selections</strong></a> for exceptional photography.</p>
+								</script>																					
+							<p>Welcome to Railhub Pictures, your premier destination for railroad photography enthusiasts! Our growing collection showcases the beauty and diversity of railroads across the country.</p>							<p>Explore our extensive photo gallery by browsing through different <a href="railroadList.html"><strong>railroad companies</strong></a>, or finding your favorite locomotive <a href="modelList.html"><strong>models</strong></a>. Check out our featured <a href="contribPicks.html"><strong>contributor selections</strong></a> for exceptional photography.</p>
 							<p><strong>Share Your Photos:</strong> Join our community by registering for a free account using the 'Register' link in the menu. Once registered, you can start sharing your own railroad photography with enthusiasts worldwide!</p>
 							<p>Our dedicated team regularly features outstanding photographs on the site. Look for specially marked featured images that represent the best of our collection. You can view our curated selections through the Contributor Picks link in the navigation menu.</p>
 							<p>Stay updated with the latest additions to our collection by visiting the <strong>Newest Photos</strong> section, where you can discover fresh content from our contributing photographers. It's the perfect way to see what's new in the world of railroad photography!</p>
@@ -185,7 +182,7 @@
 								<h2 class="Callout" style="border-bottom: 1px solid black; margin-bottom: 1rem;">Site Stats</h2>
 								<table style="width: 100%;">
 									<tr class="DefText">
-										<td><strong>Photos:</strong></td>
+										<td><strong><a href="newestphotos.html" style="text-decoration: none; font-weight: bold;">Photos:</a></strong></td>
 										<td style="text-align: right;">37</td>
 									</tr>
 									<tr class="DefText">
@@ -197,7 +194,7 @@
 										<td style="text-align: right;">0</td>
 									</tr>
 									<tr class="DefText">
-										<td><strong>Contributors:</strong></td>
+										<td><strong><a href="contributors.html" style="text-decoration: none; font-weight: bold;">Contributors:</a></strong></td>
 										<td style="text-align: right;">4</td>
 									</tr>
 								</table>

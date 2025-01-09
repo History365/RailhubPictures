@@ -2,7 +2,7 @@
 <html>
 <head id="ctl00_Head1">
 	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
-	<title>Contributor Picks</title>
+	<title>Railhub Pictures.com</title>
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script>
@@ -113,44 +113,30 @@
 						}
 					</script>
 				</div>
+
+				<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Top Contributors</div>
+				<div id="contributorsList" style="padding: 0.5rem 0;">
+					<script>
+						fetch('/getContributors')
+							.then(response => response.json())
+							.then(contributors => {
+								const contributorsList = document.getElementById('contributorsList');
+								contributors.forEach(contributor => {
+									const contributorElement = document.createElement('div');
+									contributorElement.style.padding = '0.5rem 0';
+									contributorElement.innerHTML = `
+										<a href="contributor-profile.html?id=${contributor.id}" style="text-decoration: none;">
+											<span>${contributor.username}</span>
+											<span style="color: #666; margin-left: 0.5rem;">(${contributor.photoCount} photos)</span>
+										</a>
+									`;
+									contributorsList.appendChild(contributorElement);
+								});
+							})
+							.catch(error => {
+								console.error('Error loading contributors:', error);
+							});
+					</script>
+				</div>
 			</div>
 		</nav>
-		<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
-			<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">Contributor Picks</h1>
-			<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
-			<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
-				<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-					<a href="showpictureid=3.html" target="_blank">
-						<img src="images/dji_fly_20240331.jpg" border="0" alt="Heritage " style="width: 225px; height: auto;">
-					</a>
-				</td>						<td align="left" valign="top" style="padding: .5rem;">
-					<table class="DefText" style="width: 100%;">
-						<tbody>
-							<tr>
-								<td align="right" width="100"><strong>Title:</strong></td>
-								<td>B unit in Centralia</td>
-							</tr>
-							<tr>
-								<td align="right" valign="top"><strong>Description:</strong></td>
-								<td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
-							</tr>
-							<tr>
-								<td align="right"><strong>Photo Date:</strong></td>
-								<td>6/10/24  <strong>Upload Date:</strong> 1/5/2024 1:37:27 PM</td>
-							</tr>
-							<tr>
-								<td align="right"><strong>Location:</strong></td>
-								<td>Centralia, IL</td>
-							</tr>
-							<tr>
-								<td align="right"><strong>Author:</strong></td>
-								<td>Bishop Smith</td>
-							</tr>
-							<tr>
-								<td align="right"><strong>Locomotives:</strong></td>
-								<td><a class="DefText" title="Model: SD40-2B Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 334(SD40-2B)</a></td>
-							</tr>
-						</tbody>
-					</table>
-				</td>
-			</tr>
