@@ -6,7 +6,7 @@
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script>
-			// Save to userdata.json using fetch
+		if (!localStorage.getItem('userDataSaved')) {
 			fetch('/saveUserData', {
 				method: 'POST',
 				headers: {
@@ -17,8 +17,8 @@
 					profilePic: 'images/default-avatar.png'
 				})
 			});
+			localStorage.setItem('userDataSaved', 'true');
 		} else {
-			// Load user data from server
 			fetch('/getUserData')
 				.then(response => response.json())
 				.then(data => {
@@ -67,7 +67,6 @@
 					document.write(mm + '/' + dd + '/' + yyyy);
 				</script>			</div>
 		</div>
-	</header>
 
 	<div style="display: flex; min-height: 100vh;">
 		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
@@ -112,147 +111,156 @@
 						}
 					</script>
 				</div>
-			</div>
-		</nav>
-	
-		<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
-			<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">View Pictures by Railroad</h1>
-			<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
+			</nav>
+			
+			<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
+				<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">View Pictures by Railroad</h1>
+				<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
 
-			<div style="display: flex; gap: 2rem;">
-				<div class="sidebar" style="min-width: 240px;">
-					<div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-						<div class="Tableheader" style="padding: 1rem; background: #f8f8f8; color: black; font-weight: bold;">Pick a Railroad Type</div>
-						<div class="type-menu" style="padding: 0.6rem;">
-							<div class="type-item" style="padding: 0.6rem 0;">
-								<a href="railroadList2a9b.html?tid=1" style="text-decoration: none; color: black;">Major Carriers</a>
-							</div>
-
-							<div class="type-item" style="padding: 0.6rem 0;">
-								<div class="type-header" onclick="toggleSubmenu(this)" style="cursor: pointer; color: black;">
-									<a href="railroadList4e24.html?tid=2" style="text-decoration: none; color: black;">Regionals</a>
+				<div style="display: flex; gap: 2rem;">
+					<div class="sidebar" style="min-width: 240px;">
+						<div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+							<div class="Tableheader" style="padding: 1rem; background: #f8f8f8; color: black; font-weight: bold;">Pick a Railroad Type</div>
+							<div class="type-menu" style="padding: 0.6rem;">
+								<div class="type-item" style="padding: 0.6rem 0;">
+									<a href="#" onclick="showRailroads('major')" style="text-decoration: none; color: black;">Major Carriers</a>
 								</div>
-								<div class="submenu" style="display: none; padding: 0.6rem 0 0.6rem 1rem; color: black;">
-									<div style="padding: 0.3rem 0;">Eastern Regionals</div>
-									<div style="padding: 0.3rem 0;">Western Regionals</div>
-									<div style="padding: 0.3rem 0;">Central Regionals</div>
+
+								<div class="type-item" style="padding: 0.6rem 0;">
+									<div class="type-header" style="cursor: pointer; color: black;">
+										<a href="#" onclick="showRailroads('regional')" style="text-decoration: none; color: black;">Regionals</a>
+									</div>
+								</div>
+
+								<div class="type-item" style="padding: 0.6rem 0;">
+									<a href="#" onclick="showRailroads('shortline')" style="text-decoration: none; color: black;">Short Lines</a>
+								</div>
+
+								<div class="type-item" style="padding: 0.6rem 0;">
+									<a href="#" onclick="showRailroads('leasing')" style="text-decoration: none; color: black;">Leasing Companies</a>
+								</div>
+
+								<div class="type-item" style="padding: 0.6rem 0;">
+									<a href="#" onclick="showRailroads('passenger')" style="text-decoration: none; color: black;">Passenger</a>
+								</div>
+
+								<div class="type-item" style="padding: 0.6rem 0;">
+									<a href="#" onclick="showRailroads('fallen')" style="text-decoration: none; color: black;">Fallen Flags</a>
 								</div>
 							</div>
+						</div>
+					</div>
 
-							<div class="type-item" style="padding: 0.6rem 0;">
-								<a href="railroadList8ab9.html?tid=3" style="text-decoration: none; color: black;">Short Lines</a>
-							</div>
+					<div class="main-content" style="flex: 1;">
+						<table id="railroad-table" class="railroad-list" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+							<thead>
+								<tr style="background: #f8f8f8;">
+									<th style="padding: 1rem; text-align: left; font-weight: bold; color: black;">Reporting Marks</th>
+									<th style="padding: 1rem; text-align: left; font-weight: bold; color: black;">Railroad Name</th>
+									<th style="padding: 1rem; text-align: right; font-weight: bold; color: black;">Locomotives</th>
+									<th style="padding: 1rem; text-align: right; font-weight: bold; color: black;">Rolling Stock</th>
+								</tr>
+							</thead>
+							<tbody id="railroad-list">
+								<!-- Railroad data will be populated here by JavaScript -->
+							</tbody>
+						</table>
 
-							<div class="type-item" style="padding: 0.6rem 0;">
-								<a href="railroadList5f04.html?tid=4" style="text-decoration: none; color: black;">Leasing Companies</a>
-							</div>
-
-							<div class="type-item" style="padding: 0.6rem 0;">
-								<a href="railroadList8954.html?tid=7" style="text-decoration: none; color: black;">Passenger</a>
-							</div>
-
-							<div class="type-item" style="padding: 0.6rem 0;">
-								<a href="railroadListfd56.html?tid=5" style="text-decoration: none; color: black;">Fallen Flags</a>
-							</div>
+						<div class="search-form" style="margin-top: 2rem;">
+							<form id="fmIDSearch" onsubmit="searchRailroad(event)" style="display: flex; gap: 1rem; align-items: center;">
+								<label for="id" style="font-weight: bold; color: black;">Search By Reporting Marks:</label>
+								<input type="text" name="id" id="id" style="padding: 0.6rem; border: 1px solid #ddd; border-radius: 4px;">
+								<input type="submit" name="search" value="Search" style="padding: 0.6rem 1.2rem; background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; color: black;">
+							</form>
 						</div>
 					</div>
 				</div>
 
-				<div class="main-content" style="flex: 1;">
-					<table class="railroad-list" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
-						<thead>
-							<tr style="background: #f8f8f8;">
-								<th style="padding: 1rem; text-align: left; font-weight: bold; color: black;">Reporting Marks</th>
-								<th style="padding: 1rem; text-align: left; font-weight: bold; color: black;">Railroad Name</th>
-								<th style="padding: 1rem; text-align: right; font-weight: bold; color: black;">Locomotives</th>
-								<th style="padding: 1rem; text-align: right; font-weight: bold; color: black;">Rolling Stock</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr style="border-bottom: 1px solid #ddd;">
-								<td style="padding: 1rem;"><a href="Railroadid=BNSF.html" style="text-decoration: none; color: black;">BNSF</a></td>
-								<td style="padding: 1rem; color: black;">BNSF Railway</td>
-								<td style="padding: 1rem; text-align: right;"><a href="locoListid=BNSF.html" style="text-decoration: none; color: black;">10,682</a></td>
-								<td style="padding: 1rem; text-align: right;"><a href="rsListid=BNSF.html" style="text-decoration: none; color: black;">46,059</a></td>
-							</tr>
+				<script>
+					const railroadData = {
+						major: [
+							{ marks: 'BNSF', name: 'BNSF Railway', locos: '10,682', stock: '46,059' },
+							{ marks: 'CN', name: 'Canadian National Railways', locos: '4,444', stock: '13,636' },
+							{ marks: 'CPKC', name: 'Canadian Pacific Kansas City', locos: '3,457', stock: '13,247' },
+							{ marks: 'CSX', name: 'CSX Railroad', locos: '7,960', stock: '39,840' },
+							{ marks: 'NS', name: 'Norfolk Southern', locos: '8,636', stock: '42,507' },
+							{ marks: 'UP', name: 'Union Pacific Railroad Company', locos: '14,928', stock: '20,376' }
+						],
+						regional: [
+							{ marks: 'FEC', name: 'Florida East Coast Railway', locos: '124', stock: '2,436' },
+							{ marks: 'PAR', name: 'Pan Am Railways', locos: '198', stock: '1,567' },
+							{ marks: 'KCS', name: 'Kansas City Southern', locos: '456', stock: '5,678' }
+						],
+						shortline: [
+							{ marks: 'KYLE', name: 'Kyle Railroad', locos: '45', stock: '234' },
+							{ marks: 'WTNN', name: 'West Tennessee Railroad', locos: '12', stock: '156' }
+						],
+						leasing: [
+							{ marks: 'GATX', name: 'GATX Corporation', locos: '654', stock: '12,345' },
+							{ marks: 'TILX', name: 'Trinity Industries Leasing', locos: '234', stock: '8,765' }
+						],
+						passenger: [
+							{ marks: 'AMTK', name: 'Amtrak', locos: '456', stock: '2,345' },
+							{ marks: 'VIA', name: 'VIA Rail Canada', locos: '234', stock: '1,567' }
+						],
+						fallen: [
+							{ marks: 'PRR', name: 'Pennsylvania Railroad', locos: '0', stock: '0' },
+							{ marks: 'NYC', name: 'New York Central', locos: '0', stock: '0' }
+						]
+					};
 
-							<tr style="border-bottom: 1px solid #ddd; background: #fafafa;">
-								<td style="padding: 1rem;"><a href="Railroadid=CN.html" style="text-decoration: none; color: black;">CN</a></td>
-								<td style="padding: 1rem; color: black;">Canadian National Railways</td>
-								<td style="padding: 1rem; text-align: right;"><a href="locoListid=CN.html" style="text-decoration: none; color: black;">4,444</a></td>
-								<td style="padding: 1rem; text-align: right;"><a href="rsListid=CN.html" style="text-decoration: none; color: black;">13,636</a></td>
-							</tr>
+					function showRailroads(type) {
+						const tbody = document.getElementById('railroad-list');
+						tbody.innerHTML = '';
+						
+						railroadData[type].forEach((railroad, index) => {
+							const row = document.createElement('tr');
+							row.style.borderBottom = '1px solid #ddd';
+							if (index % 2 !== 0) row.style.background = '#fafafa';
+							
+							row.innerHTML = `
+								<td style="padding: 1rem;"><a href="Railroadid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.marks}</a></td>
+								<td style="padding: 1rem; color: black;">${railroad.name}</td>
+								<td style="padding: 1rem; text-align: right;"><a href="locoListid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.locos}</a></td>
+								<td style="padding: 1rem; text-align: right;"><a href="rsListid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.stock}</a></td>
+							`;
+							
+							tbody.appendChild(row);
+						});
+					}
 
-							<tr style="border-bottom: 1px solid #ddd;">
-								<td style="padding: 1rem;"><a href="Railroadid=CPKC.html" style="text-decoration: none; color: black;">CPKC</a></td>
-								<td style="padding: 1rem; color: black;">Canadian Pacific Kansas City</td>
-								<td style="padding: 1rem; text-align: right;"><a href="locoListid=CPKC.html" style="text-decoration: none; color: black;">3,457</a></td>
-								<td style="padding: 1rem; text-align: right;"><a href="rsListcb2a.html?id=CPKC" style="text-decoration: none; color: black;">13,247</a></td>
-							</tr>
+					function searchRailroad(event) {
+						event.preventDefault();
+						const searchMark = document.getElementById('id').value.toUpperCase();
+						const tbody = document.getElementById('railroad-list');
+						tbody.innerHTML = '';
 
-							<tr style="border-bottom: 1px solid #ddd; background: #fafafa;">
-								<td style="padding: 1rem;"><a href="Railroadid=CSX.html" style="text-decoration: none; color: black;">CSX</a></td>
-								<td style="padding: 1rem; color: black;">CSX Railroad</td>
-								<td style="padding: 1rem; text-align: right;"><a href="locoListid=CSX.html" style="text-decoration: none; color: black;">7,960</a></td>
-								<td style="padding: 1rem; text-align: right;"><a href="rsList61db.html?id=CSX" style="text-decoration: none; color: black;">39,840</a></td>
-							</tr>
+						let found = false;
+						for (const type in railroadData) {
+							const railroad = railroadData[type].find(r => r.marks === searchMark);
+							if (railroad) {
+								const row = document.createElement('tr');
+								row.style.borderBottom = '1px solid #ddd';
+								
+								row.innerHTML = `
+									<td style="padding: 1rem;"><a href="Railroadid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.marks}</a></td>
+									<td style="padding: 1rem; color: black;">${railroad.name}</td>
+									<td style="padding: 1rem; text-align: right;"><a href="locoListid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.locos}</a></td>
+									<td style="padding: 1rem; text-align: right;"><a href="rsListid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.stock}</a></td>
+								`;
+								
+								tbody.appendChild(row);
+								found = true;
+								break;
+							}
+						}
 
-							<tr style="border-bottom: 1px solid #ddd; background: #fafafa;">
-								<td style="padding: 1rem;"><a href="Railroadid=NS.html" style="text-decoration: none; color: black;">NS</a></td>
-								<td style="padding: 1rem; color: black;">Norfolk Southern</td>
-								<td style="padding: 1rem; text-align: right;"><a href="locoListid=NS.html" style="text-decoration: none; color: black;">8,636</a></td>
-								<td style="padding: 1rem; text-align: right;"><a href="rsListe5a4.html?id=NS" style="text-decoration: none; color: black;">42,507</a></td>
-							</tr>
+						if (!found) {
+							tbody.innerHTML = '<tr><td colspan="4" style="padding: 1rem; text-align: center; color: black;">No railroad found with those reporting marks</td></tr>';
+						}
+					}
 
-							<tr style="border-bottom: 1px solid #ddd; background: #fafafa;">
-								<td style="padding: 1rem;"><a href="Railroadid=UP.html" style="text-decoration: none; color: black;">UP</a></td>
-								<td style="padding: 1rem; color: black;">Union Pacific Railroad Company</td>
-								<td style="padding: 1rem; text-align: right;"><a href="locoListid=UP.html" style="text-decoration: none; color: black;">14,928</a></td>
-								<td style="padding: 1rem; text-align: right;"><a href="rsList1a25.html?id=UP" style="text-decoration: none; color: black;">20,376</a></td>
-							</tr>
-						</tbody>
-					</table>
-
-					<div class="search-form" style="margin-top: 2rem;">
-						<form id="fmIDSearch" method="get" action="" style="display: flex; gap: 1rem; align-items: center;">
-							<label for="id" style="font-weight: bold; color: black;">Search By Reporting Marks (This feature hasn't been implemented):</label>
-							<input type="text" name="id" id="id" style="padding: 0.6rem; border: 1px solid #ddd; border-radius: 4px;">
-							<input type="submit" name="search" value="Search" style="padding: 0.6rem 1.2rem; background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; color: black;">
-						</form>
-					</div>
-				</div>
+					// Show major carriers by default
+					showRailroads('major');
+				</script>
 			</div>
-		</div>
-
-		<script>
-			function toggleSubmenu(element) {
-				const submenu = element.nextElementSibling;
-				if (submenu && submenu.classList.contains('submenu')) {
-					submenu.style.display = submenu.style.display === 'none' ? 'block' : 'none';
-				}
-			}
-		</script><hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
-</div>		
-<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
-	<div class="DefText" style="display: flex; justify-content: space-between;">
-		<div>Railhub Pictures © 2024-2025 
-			Photos © respective authors</div>
-		<div>Version 1.0</div>
-	</div>
-</footer>
-<script>
-	function confirmLogout() {
-		if (confirm("Are you sure you want to sign out?")) {
-			logout();
-		}
-	}
-
-	function logout() {
-		localStorage.removeItem('loggedIn');
-		localStorage.removeItem('username');
-		localStorage.removeItem('profilePic');
-		location.reload();
-	}
-</script>
-</body>
-</html>
