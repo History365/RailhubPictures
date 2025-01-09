@@ -113,30 +113,75 @@
 						}
 					</script>
 				</div>
+			</nav>
 
-				<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Top Contributors</div>
-				<div id="contributorsList" style="padding: 0.5rem 0;">
-					<script>
-						fetch('/getContributors')
-							.then(response => response.json())
-							.then(contributors => {
-								const contributorsList = document.getElementById('contributorsList');
-								contributors.forEach(contributor => {
-									const contributorElement = document.createElement('div');
-									contributorElement.style.padding = '0.5rem 0';
-									contributorElement.innerHTML = `
-										<a href="contributor-profile.html?id=${contributor.id}" style="text-decoration: none;">
-											<span>${contributor.username}</span>
-											<span style="color: #666; margin-left: 0.5rem;">(${contributor.photoCount} photos)</span>
-										</a>
-									`;
-									contributorsList.appendChild(contributorElement);
-								});
-							})
-							.catch(error => {
-								console.error('Error loading contributors:', error);
-							});
-					</script>
+				<div class="contributors-section">
+					<h2>Our Top Contributors</h2>
+					<div class="contributors-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; padding: 2rem;">
+						<div class="contributor-card" style="background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s;">
+							<div class="contributor-info" style="display: flex; align-items: center; margin-bottom: 1rem;">
+								<img src="images/avatars/brian.jpg" alt="Brian Ireland" class="contributor-avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-right: 1rem;">
+								<div class="contributor-details">
+									<h3 style="margin: 0; color: #333; font-size: 1.2rem;">Brian Ireland</h3>
+									<p style="margin: 0.5rem 0 0; color: #666;">157 photos</p>
+								</div>
+							</div>
+							<a href="contributor-profile.html?id=1" class="button" style="display: block; text-align: center; padding: 0.8rem; background: #2c3e50; color: white; text-decoration: none; border-radius: 6px; transition: background 0.2s;">View Profile</a>
+						</div>
+
+						<div class="contributor-card" style="background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s;">
+							<div class="contributor-info" style="display: flex; align-items: center; margin-bottom: 1rem;">
+								<img src="images/avatars/sequoia.jpg" alt="Sequoia C" class="contributor-avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-right: 1rem;">
+								<div class="contributor-details">
+									<h3 style="margin: 0; color: #333; font-size: 1.2rem;">Sequoia C</h3>
+									<p style="margin: 0.5rem 0 0; color: #666;">143 photos</p>
+								</div>
+							</div>
+							<a href="contributor-profile.html?id=2" class="button" style="display: block; text-align: center; padding: 0.8rem; background: #2c3e50; color: white; text-decoration: none; border-radius: 6px; transition: background 0.2s;">View Profile</a>
+						</div>
+
+						<div class="contributor-card" style="background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s;">
+							<div class="contributor-info" style="display: flex; align-items: center; margin-bottom: 1rem;">
+								<img src="images/avatars/bishop.jpg" alt="Bishop Smith" class="contributor-avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-right: 1rem;">
+								<div class="contributor-details">
+									<h3 style="margin: 0; color: #333; font-size: 1.2rem;">Bishop Smith</h3>
+									<p style="margin: 0.5rem 0 0; color: #666;">128 photos</p>
+								</div>
+							</div>
+							<a href="contributor-profile.html?id=3" class="button" style="display: block; text-align: center; padding: 0.8rem; background: #2c3e50; color: white; text-decoration: none; border-radius: 6px; transition: background 0.2s;">View Profile</a>
+						</div>
+
+						<div class="contributor-card" style="background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s;">
+							<div class="contributor-info" style="display: flex; align-items: center; margin-bottom: 1rem;">
+								<img src="images/avatars/sam.jpg" alt="Sam Lagusis" class="contributor-avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-right: 1rem;">
+								<div class="contributor-details">
+									<h3 style="margin: 0; color: #333; font-size: 1.2rem;">Sam Lagusis</h3>
+									<p style="margin: 0.5rem 0 0; color: #666;">112 photos</p>
+								</div>
+							</div>
+							<a href="contributor-profile.html?id=4" class="button" style="display: block; text-align: center; padding: 0.8rem; background: #2c3e50; color: white; text-decoration: none; border-radius: 6px; transition: background 0.2s;">View Profile</a>
+						</div>
+
+						<div class="contributor-card" style="background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s;">
+							<div class="contributor-info" style="display: flex; align-items: center; margin-bottom: 1rem;">
+								<img src="images/avatars/nc_yt.jpg" alt="NC_YT123" class="contributor-avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-right: 1rem;">
+								<div class="contributor-details">
+									<h3 style="margin: 0; color: #333; font-size: 1.2rem;">NC_YT123</h3>
+									<p style="margin: 0.5rem 0 0; color: #666;">98 photos</p>
+								</div>
+							</div>
+							<a href="contributor-profile.html?id=5" class="button" style="display: block; text-align: center; padding: 0.8rem; background: #2c3e50; color: white; text-decoration: none; border-radius: 6px; transition: background 0.2s;">View Profile</a>
+						</div>
+
+						<div class="contributor-card" style="background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s;">
+							<div class="contributor-info" style="display: flex; align-items: center; margin-bottom: 1rem;">
+								<img src="images/avatars/default.jpg" alt="Default Avatar" class="contributor-avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-right: 1rem;">
+								<div class="contributor-details">
+									<h3 style="margin: 0; color: #333; font-size: 1.2rem;">John Smith</h3>
+									<p style="margin: 0.5rem 0 0; color: #666;">87 photos</p>
+								</div>
+							</div>
+							<a href="contributor-profile.html?id=6" class="button" style="display: block; text-align: center; padding: 0.8rem; background: #2c3e50; color: white; text-decoration: none; border-radius: 6px; transition: background 0.2s;">View Profile</a>
+						</div>
+					</div>
 				</div>
-			</div>
-		</nav>
