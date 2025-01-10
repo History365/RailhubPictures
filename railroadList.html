@@ -2,11 +2,11 @@
 <html>
 <head id="ctl00_Head1">
 	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
-	<title>Railhub Pictures.com</title>
+	<title>Contributor Picks</title>
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script>
-		if (!localStorage.getItem('userDataSaved')) {
+			// Save to userdata.json using fetch
 			fetch('/saveUserData', {
 				method: 'POST',
 				headers: {
@@ -17,8 +17,8 @@
 					profilePic: 'images/default-avatar.png'
 				})
 			});
-			localStorage.setItem('userDataSaved', 'true');
 		} else {
+			// Load user data from server
 			fetch('/getUserData')
 				.then(response => response.json())
 				.then(data => {
@@ -65,8 +65,10 @@
 					var mm = String(today.getMonth() + 1).padStart(2, '0');
 					var yyyy = today.getFullYear();
 					document.write(mm + '/' + dd + '/' + yyyy);
-				</script>			</div>
+				</script>
+			</div>
 		</div>
+	</header>
 
 	<div style="display: flex; min-height: 100vh;">
 		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
@@ -104,14 +106,15 @@
 							document.write(`
 								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
 								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="404.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
 									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
 								</ul>
 							`);
 						}
 					</script>
 				</div>
-			</nav>
+			</div>
+		</nav>
 			
 			<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
 				<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">View Pictures by Railroad</h1>
