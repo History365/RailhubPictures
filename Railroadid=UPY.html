@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html><head id="ctl00_Head1">
+<html>
+<head id="ctl00_Head1">
 	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
-	<title>BNSF Railway Photographic Roster</title>
+	<title>Railhub Pictures.com</title>
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script>
@@ -64,8 +65,7 @@
 					var mm = String(today.getMonth() + 1).padStart(2, '0');
 					var yyyy = today.getFullYear();
 					document.write(mm + '/' + dd + '/' + yyyy);
-				</script>
-			</div>
+				</script>			</div>
 		</div>
 	</header>
 
@@ -105,57 +105,157 @@
 							document.write(`
 								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
 								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+									<li><a href="404.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
 									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
 								</ul>
 							`);
 						}
-					</script>		
+					</script>
 				</div>
 			</div>
 		</nav>
         <div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
             <div class="breadcrumbs" style="margin-bottom: 1rem;">
-                <a href="index.html" style="color: black;">Home</a> > <a href="Railroadid=UPY.html" style="color: black;">Union Pacific Yard</a> > <a href="modelListRRid=UPY.html" style="color: black;">Locomotive Models</a>
+                <a href="index.html" style="color: black;">Home</a> > <a href="Railroadid=UP.html">Union Pacific Yard</a>
             </div>
-            <table border="0" cellpadding="2" cellspacing="0" width="100%" style="border-bottom: black solid 1px; margin-top: 15px;">
-                <tbody><tr>
-                    <td width="1"><img src="images/logos/UP-logo.jfif" alt="UP-Logo" width="150"></td>                
-                    <td class="PageHeader" style="border-left: black solid 1px; padding: 10px;" valign="middle">
-                        <h1 style="margin: 0; font-size: 15px; color: black;">Union Pacific Yard Railway Photographic Roster</h1> 	
-						<h3 style="margin: 0; font-size: 12px; color: black;"></h3>Showing Locomotive Models</td>
-                </tr>
-                </tbody></table>
-                <table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse: collapse; margin-top: 20px; border: 1px solid #ddd;">
-                    <thead>                        <tr style="background-color: #f0f0f0; border-bottom: 2px solid #ddd;">
-                            <th class="Tableheader" style="text-align: left; padding: 7px;">Builder</th>
-                            <th class="Tableheader" style="text-align: left; padding: 7px;">Model</th>
-                            <th class="Tableheader" style="text-align: left; padding: 7px;"># Units</th>
-                            <th class="Tableheader" style="text-align: left; padding: 7px;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>                        
-                        <tr><td class="DefText" align="left">PR</td><td class="DefText" align="left">EMD24B</td><td class="DefText" align="left">1</td><td class="DefText"><a href="modelListid=UPY24B.html">View</a></td></tr>
-                </tbody></table>
-            </div>    </div><footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
-<div class="DefText" style="display: flex; justify-content: space-between;">
-    <div>Railhub Pictures © 2024-2025 </div>
-    <div>Version 1.0</div>
-</div>
-</footer>
-<script>
-function confirmLogout() {
-    if (confirm("Are you sure you want to sign out?")) {
-        logout();
-    }
+
+            <div class="railroad-details">
+                <div class="railroad-logo">
+                    <img src="images/logos/UP-logo.jfif" alt="UP Logo" style="width: 450px; height: auto;">
+                </div>
+                
+                <div class="railroad-info-container">
+                    <div class="main-info">
+                        <h3>Main Information</h3>
+                        <table class="info-table">
+                            <tr>
+                                <th>Reporting Mark:</th>
+                                <td>UPY</td>
+                            </tr>
+                            <tr>
+                                <th>Name:</th>
+                                <td>Union Pacific Yard</td>
+                            </tr>
+                            <tr>
+                                <th>Type:</th>
+                                <td>Subsidiary</td>
+                            </tr>
+                            <tr>                             
+                                </tr>                                
+                                <th>Web Site:</th>
+                                <td><a href="https://www.up.com/" target="_blank">www.up.com</a></td>
+                            </tr>
+                        </table>
+                
+                        <h3>Related Railroads</h3>
+                        <div class="related-railroads">
+                            <div class="railroad-item">
+                                <a href="Railroadid=UP.html">UP</a>
+                                <span>Union Pacific Railway</span>
+                            </div>
+                        </div>
+                    </div>
+                
+
+                    <div class="roster-info">
+                        <div class="locomotive-roster">
+                            <h3>Locomotive Roster</h3>
+                            <table class="info-table">
+                                <tr>
+                                    <th>Photographed:</th>
+                                    <td><a href="locoListid=UPY">1</a></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><span class="note">Last Photograph added 1/3/2025 11:29 AM</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Model List:</th>
+                                    <td><a href="modelListRRid=UPY.html">View</a></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<style>
+.railroad-details {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-function logout() {
-    localStorage.removeItem('loggedIn');
-    localStorage.removeItem('username');
-    localStorage.removeItem('profilePic');
-    location.reload();
+.railroad-logo {
+    text-align: center;
+    margin-bottom: 20px;
 }
-</script>
 
-</body></html>
+.railroad-info-container {
+    display: grid;
+    color: #000000;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.info-table {
+    width: 100%;
+    color: #000000;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.info-table th {
+    text-align: right;
+    color: #000000;
+    padding: 8px;
+    color: #666;
+    width: 40%;
+}
+
+.info-table td {
+    color: #000000;
+    padding: 8px;
+}
+
+.related-railroads {
+    display: grid;
+    color: #000000;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.railroad-item {
+    display: flex;
+    color: #000000;
+    gap: 10px;
+    padding: 5px;
+}
+
+.railroad-item a {
+    min-width: 50px;
+    color: #000000;
+    text-decoration: none;
+}
+
+.link {
+    min-width: 50px;
+    color: #000000;
+    text-decoration: none;
+}
+
+.note {
+    color: #666;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+h3 {
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 8px;
+    margin: 20px 0 15px 0;
+}
+</style>
