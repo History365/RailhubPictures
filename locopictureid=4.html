@@ -28,7 +28,7 @@
 		}
 	</script>
 </head>
-<body style="color: black;">
+<body>
 	<script src="includes/wz_dragdrop.js"></script> 
 	<script src="Scripts/jquery-1.4.2.min.js"></script>
 	<script src="Scripts/jquery-ui-1.8.6.custom.min.js"></script>
@@ -36,13 +36,13 @@
 	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 		<div style="display: flex; justify-content: space-between; align-items: center;">
 			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
-			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem; color: black;">
+			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
 				<div id="userInfo">
 					<script>
 						const loggedIn = localStorage.getItem('loggedIn');
 						const username = localStorage.getItem('username');
 						if (loggedIn) {
-							document.write(`<a href="aboutme.html" style="text-decoration: none; color: black;">Welcome, ${username}!</a>`);
+							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
 						}
 					</script>
 				</div>
@@ -73,41 +73,41 @@
 	<div style="display: flex; min-height: 100vh;">
 		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
 			<div class="menu">
-				<div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0; color: black;">View Photos</div>
+				<div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0;">View Photos</div>
 				<ul class="menu" style="list-style: none; padding: 0;">
-					<li><a href="index.html" style="padding: 0.5rem 0; display: block; color: black;">Home</a></li>
-					<li><a href="newestphotos.html" style="padding: 0.5rem 0; display: block; color: black;">Newest Photos</a></li>
-					<li><a href="contribPicks.html" style="padding: 0.5rem 0; display: block; color: black;">Contributor Picks</a></li>
-					<li><a href="photoCalendar.html" style="padding: 0.5rem 0; display: block; color: black;">By Date</a></li>
-					<li><a href="railroadList.html" style="padding: 0.5rem 0; display: block; color: black;">By Railroad</a></li>
-					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block; color: black;">By Locomotive Model</a></li>
-					<li><a href="search.html" style="padding: 0.5rem 0; display: block; color: black;">Search</a></li>
+					<li><a href="index.html" style="padding: 0.5rem 0; display: block;">Home</a></li>
+					<li><a href="newestphotos.html" style="padding: 0.5rem 0; display: block;">Newest Photos</a></li>
+					<li><a href="contribPicks.html" style="padding: 0.5rem 0; display: block;">Contributor Picks</a></li>
+					<li><a href="photoCalendar.html" style="padding: 0.5rem 0; display: block;">By Date</a></li>
+					<li><a href="railroadList.html" style="padding: 0.5rem 0; display: block;">By Railroad</a></li>
+					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
+					<li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
 				</ul>
 
 				<div id="memberMenu">
 					<script>
 						if (loggedIn) {
 							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0; color: black;">Members</div>
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
 								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="upload.html" style="padding: 0.5rem 0; display: block; color: black;">Upload Pictures</a></li>
-									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block; color: black;">View Pictures</a></li>
-									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block; color: black;">Manage Pictures</a></li>
-									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block; color: black;">Sign Out</a></li>
+									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
+									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
+									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
+									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
 								</ul>
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0; color: black;">My Account</div>
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
 								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block; color: black;">My Profile</a></li>
-									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block; color: black;">My Photos</a></li>
-									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block; color: black;">Account Settings</a></li>
+									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
+									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
+									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
 								</ul>
 							`);
 						} else {
 							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0; color: black;">Members</div>
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
 								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="login.html" style="padding: 0.5rem 0; display: block; color: black;">Log In</a></li>
-									<li><a href="register.html" style="padding: 0.5rem 0; display: block; color: black;">Register</a></li>
+									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
 								</ul>
 							`);
 						}

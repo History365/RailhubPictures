@@ -9,7 +9,7 @@
 					profilePic: 'images/default-avatar.png'
 				})
 			});
-		} else {
+		  {
 			// Load user data from server
 			fetch('/getUserData')
 				.then(response => response.json())
