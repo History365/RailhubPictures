@@ -140,7 +140,11 @@
                                 <th>Type:</th>
                                 <td>Major Carriers</td>
                             </tr>
-                            <tr>
+                            <tr>                                
+                                <tr>
+                                    <th>Subsidiary</th>
+                                    <td><a href="Railroadid=UPY" style="color: #000000; text-decoration: none;">Union Pacific Yard</a></td>
+                                </tr>                                
                                 <th>Web Site:</th>
                                 <td><a href="https://www.up.com/" target="_blank">www.up.com</a></td>
                             </tr>
@@ -148,10 +152,6 @@
                 
                         <h3>Related Railroads</h3>
                         <div class="related-railroads">
-                            <div class="railroad-item">
-                                <a href="/Railroad.aspx?id=ACL">ACL</a>
-                                <span>Atlantic Coast Line Railroad</span>
-                            </div>
                             <div class="railroad-item">
                                 <a href="/Railroad.aspx?id=BO">BO</a>
                                 <span>Baltimore and Ohio Railroad</span>
@@ -254,29 +254,34 @@
 
 .railroad-info-container {
     display: grid;
+    color: #000000;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
 }
 
 .info-table {
     width: 100%;
+    color: #000000;
     border-collapse: collapse;
     margin-bottom: 20px;
 }
 
 .info-table th {
     text-align: right;
+    color: #000000;
     padding: 8px;
     color: #666;
     width: 40%;
 }
 
 .info-table td {
+    color: #000000;
     padding: 8px;
 }
 
 .related-railroads {
     display: grid;
+    color: #000000;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 10px;
     margin-top: 10px;
@@ -284,11 +289,18 @@
 
 .railroad-item {
     display: flex;
+    color: #000000;
     gap: 10px;
     padding: 5px;
 }
 
 .railroad-item a {
+    min-width: 50px;
+    color: #000000;
+    text-decoration: none;
+}
+
+.link {
     min-width: 50px;
     color: #000000;
     text-decoration: none;
