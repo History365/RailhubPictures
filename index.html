@@ -160,7 +160,9 @@
 										{src: "images/P1000313.JPG"},
 										{src: "images/dji_fly_20240331.jpg"},
 										{src: "images/dji_fly_20240428.jpg"},
-										{src: "images/dji_fly_20240502.jpg"},							];									function getRandomImage() {										let usedImages = JSON.parse(localStorage.getItem('usedImages') || '[]');										
+										{src: "images/dji_fly_20240502.jpg"},
+										{src: "images/MG_3435.jpg", link: "showpictureid=23.html"},
+										{src: "images/MG_3452.jpg", link: "showpictureid=24.html"}							];									function getRandomImage() {										let usedImages = JSON.parse(localStorage.getItem('usedImages') || '[]');										
 										if (usedImages.length >= images.length) {
 											usedImages = [];
 											localStorage.setItem('usedImages', '[]');
