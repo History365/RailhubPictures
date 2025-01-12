@@ -17,7 +17,6 @@
 					profilePic: 'images/default-avatar.png'
 				})
 			});
-		} else {
 			// Load user data from server
 			fetch('/getUserData')
 				.then(response => response.json())
@@ -25,7 +24,7 @@
 					localStorage.setItem('username', data.username);
 					localStorage.setItem('profilePic', data.profilePic);
 				});
-		}
+		
 	</script>
 </head>
 <body>
@@ -35,7 +34,7 @@
 
 	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 		<div style="display: flex; justify-content: space-between; align-items: center;">
-			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
+			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto; margin: 0; padding: 0; display: block;"></a>
 			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
 				<div id="userInfo">
 					<script>
@@ -115,6 +114,7 @@
 				</div>
 			</div>
 		</nav>
+		
 		<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
 			<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">Newest Photos added to the Site</h1>
 			<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
