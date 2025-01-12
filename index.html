@@ -143,13 +143,29 @@
 										{src: "images/P1010715.JPG", link: "showpictureid=20.html"},
 										{src: "images/MG_3220.jpg", link: "showpictureid=21.html"},
 										{src: "images/IMG_1908.jpg", link: "showpictureid=22.html"},
-										{src: "images/IMG_4238.jpg", link: ""},							];									function getRandomImage() {
+										{src: "images/IMG_3526.jpg"},
+										{src: "images/IMG_3695.jpg"},
+										{src: "images/IMG_4046.jpg"},
+										{src: "images/IMG_8871.jpg"},
+										{src: "images/IMG_8879.jpg"},
+										{src: "images/MG_1848.jpg"},
+										{src: "images/MG_1865.jpg"},
+										{src: "images/MG_1886.jpg"},
+										{src: "images/MG_1956.jpg"},
+										{src: "images/MG_2066.jpg"},
+										{src: "images/MG_2179.jpg"},
+										{src: "images/MG_3215.jpg"},
+										{src: "images/MG_3280.jpg"},
+										{src: "images/P1000313.JPG"},
+										{src: "images/dji_fly_20240331.jpg"},
+										{src: "images/dji_fly_20240428.jpg"},
+										{src: "images/dji_fly_20240502.jpg"},
+										{src: "images/dji_fly_20240610.jpeg"}							];									function getRandomImage() {
 										let usedImages = JSON.parse(localStorage.getItem('usedImages') || '[]');										
 										if (usedImages.length >= images.length) {
 											usedImages = [];
 											localStorage.setItem('usedImages', '[]');
-										}
-										
+										}										
 										const availableImages = images.filter(img => !usedImages.includes(img.src));
 										const randomIndex = Math.floor(Math.random() * availableImages.length);
 										const selectedImage = availableImages[randomIndex];
