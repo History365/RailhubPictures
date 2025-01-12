@@ -17,7 +17,6 @@
 					profilePic: 'images/default-avatar.png'
 				})
 			});
-		} else {
 			// Load user data from server
 			fetch('/getUserData')
 				.then(response => response.json())
@@ -25,7 +24,7 @@
 					localStorage.setItem('username', data.username);
 					localStorage.setItem('profilePic', data.profilePic);
 				});
-		}
+		
 	</script>
 </head>
 <body>
@@ -35,7 +34,7 @@
 
 	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 		<div style="display: flex; justify-content: space-between; align-items: center;">
-			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
+			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto; margin: 0; padding: 0; display: block;"></a>
 			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
 				<div id="userInfo">
 					<script>
@@ -143,9 +142,9 @@
 										{src: "images/DSC_4337.JPG", link: "showpictureid=19.html"},
 										{src: "images/P1010715.JPG", link: "showpictureid=20.html"},
 										{src: "images/MG_3220.jpg", link: "showpictureid=21.html"},
-										{src: "images/IMG_1908.jpg", link: "showpictureid=22.html"},							];									function getRandomImage() {
-										let usedImages = JSON.parse(localStorage.getItem('usedImages') || '[]');
-										
+										{src: "images/IMG_1908.jpg", link: "showpictureid=22.html"},
+										{src: "images/IMG_4238.jpg", link: ""},							];									function getRandomImage() {
+										let usedImages = JSON.parse(localStorage.getItem('usedImages') || '[]');										
 										if (usedImages.length >= images.length) {
 											usedImages = [];
 											localStorage.setItem('usedImages', '[]');

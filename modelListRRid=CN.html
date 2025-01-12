@@ -30,7 +30,7 @@
 	<script src="Scripts/jquery-1.4.2.min.js"></script>
 	<script src="Scripts/jquery-ui-1.8.6.custom.min.js"></script>
 
-	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" id="draggable1" class="drag">
 		<div style="display: flex; justify-content: space-between; align-items: center;">
 			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
 			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
@@ -68,7 +68,7 @@
 	</header>
 
 	<div style="display: flex; min-height: 100vh;">
-		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
+		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;" id="draggable2" class="drag">
 			<div class="menu">
 				<div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0;">View Photos</div>
 				<ul class="menu" style="list-style: none; padding: 0;">
@@ -112,7 +112,7 @@
 				</div>
 			</div>
 		</nav>
-        <div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
+        <div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;" id="draggable3" class="drag">
             <div class="breadcrumbs" style="margin-bottom: 1rem;">
                 <a href="index.html" style="color: black;">Home</a> > <a href="Railroadid=CN.html" style="color: black;">Canadian National Railway</a> > <a href="modelListRRid=CN.html" style="color: black;">Locomotive Models</a>
             </div>
@@ -135,7 +135,7 @@
                     <tbody>                        
                         <tr><td class="DefText" align="left">GE</td><td class="DefText" align="left">C40-8</td><td class="DefText" align="left">1</td><td class="DefText"><a href="modelListid=CN40-8.html">View</a></td></tr>
                 </tbody></table>
-            </div>    </div><footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
+            </div>    </div><footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;" id="draggable4" class="drag">
 <div class="DefText" style="display: flex; justify-content: space-between;">
     <div>Railhub Pictures © 2024-2025 </div>
     <div>Version 1.0</div>
@@ -154,6 +154,9 @@ function logout() {
     localStorage.removeItem('profilePic');
     location.reload();
 }
+
+// Initialize drag and drop functionality
+SET_DHTML("draggable1", "draggable2", "draggable3", "draggable4");
 </script>
 
 </body></html>
