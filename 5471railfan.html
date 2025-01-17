@@ -39,9 +39,9 @@
 			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
 				<div id="userInfo">
 					<script>
-						localStorage.setItem('loggedIn', 'true');
-						localStorage.setItem('username', 'Test User');
-						const loggedIn = localStorage.getItem('loggedIn');
+						localStorage.setItem('loggedIn', 'false');
+						localStorage.setItem('username', '');
+						const loggedIn = localStorage.getItem('loggedIn') === 'true';
 						const username = localStorage.getItem('username');
 						if (loggedIn) {
 							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
@@ -50,7 +50,7 @@
 				</div>
 				<div id="userProfile" style="cursor: pointer;">
 					<script>
-						localStorage.setItem('profilePic', 'images/default-avatar.png');
+						localStorage.setItem('profilePic', '');
 						if (loggedIn) {
 							document.write(`
 								<a href="aboutme.html">
@@ -125,7 +125,7 @@
 					<tbody>
 						<tr>
 							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-								<a href="showpictureid=2.html" target="_blank">
+								<a href="showpictureid=55.html" target="_blank">
 									<img src="images/DSC_0260.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
 								</a>
 							</td>
@@ -162,7 +162,7 @@
 					<tbody>
 						<tr>
 							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-								<a href="showpictureid=2.html" target="_blank">
+								<a href="showpictureid=54.html" target="_blank">
 									<img src="images/DSC_0191.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
 								</a>
 							</td>
@@ -199,7 +199,7 @@
 					<tbody>
 						<tr>
 							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-								<a href="showpictureid=2.html" target="_blank">
+								<a href="showpictureid=53.html" target="_blank">
 									<img src="images/DSC_0018.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
 								</a>
 							</td>
@@ -236,7 +236,7 @@
 					<tbody>
 						<tr>
 							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-								<a href="showpictureid=2.html" target="_blank">
+								<a href="showpictureid=52.html" target="_blank">
 									<img src="images/CSC_0371.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
 								</a>
 							</td>
@@ -273,7 +273,7 @@
 					<tbody>
 						<tr>
 							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-								<a href="showpictureid=2.html" target="_blank">
+								<a href="showpictureid=51.html" target="_blank">
 									<img src="images/DSC_0601.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
 								</a>
 							</td>
@@ -311,7 +311,7 @@
 					<tbody>
 						<tr>
 							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-								<a href="showpictureid=2.html" target="_blank">
+								<a href="showpictureid=50.html" target="_blank">
 									<img src="images/DSC_0431.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
 								</a>
 							</td>
@@ -349,7 +349,7 @@
 					<tbody>
 						<tr>
 							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-								<a href="showpictureid=2.html" target="_blank">
+								<a href="showpictureid=49.html" target="_blank">
 									<img src="images/DSC_0286.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
 								</a>
 							</td>
@@ -388,7 +388,7 @@
 					<tbody>
 						<tr>
 							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
-								<a href="showpictureid=2.html" target="_blank">
+								<a href="showpictureid=48.html" target="_blank">
 									<img src="images/CSC_0302.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
 								</a>
 							</td>
