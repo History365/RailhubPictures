@@ -1,0 +1,928 @@
+<html><head id="ctl00_Head1">
+	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
+	<title>5471 Railfan Submissions | Railhub Pictures.com</title>
+	<meta id="ctl00_metaDescription" name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script>
+			// Save to userdata.json using fetch
+			fetch('/saveUserData', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					username: 'Test User',
+					profilePic: 'images/default-avatar.png'
+				})
+			});
+		} else {
+			// Load user data from server
+			fetch('/getUserData')
+				.then(response => response.json())
+				.then(data => {
+					localStorage.setItem('username', data.username);
+					localStorage.setItem('profilePic', data.profilePic);
+				});
+		}
+	</script>
+</head>
+<body>
+	<script src="includes/wz_dragdrop.js"></script> 
+	<script src="Scripts/jquery-1.4.2.min.js"></script>
+	<script src="Scripts/jquery-ui-1.8.6.custom.min.js"></script>
+
+	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+		<div style="display: flex; justify-content: space-between; align-items: center;">
+			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
+			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
+				<div id="userInfo">
+					<script>
+						const loggedIn = localStorage.getItem('loggedIn');
+						const username = localStorage.getItem('username');
+						if (loggedIn) {
+							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
+						}
+					</script>
+				</div>
+				<div id="userProfile" style="cursor: pointer;">
+					<script>
+						if (loggedIn) {
+							document.write(`
+								<a href="aboutme.html">
+									<img src="${localStorage.getItem('profilePic') || 'images/default-avatar.png'}" 
+										 alt="Profile" 
+										 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+								</a>
+							`);
+						}
+					</script>
+				</div>
+				<script>
+					var today = new Date();
+					var dd = String(today.getDate()).padStart(2, '0');
+					var mm = String(today.getMonth() + 1).padStart(2, '0');
+					var yyyy = today.getFullYear();
+					document.write(mm + '/' + dd + '/' + yyyy);
+				</script>
+			</div>
+		</div>
+	</header>
+
+	<div style="display: flex; min-height: 100vh;">
+		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
+			<div class="menu">
+				<div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0;">View Photos</div>
+				<ul class="menu" style="list-style: none; padding: 0;">
+					<li><a href="index.html" style="padding: 0.5rem 0; display: block;">Home</a></li>
+					<li><a href="newestphotos.html" style="padding: 0.5rem 0; display: block;">Newest Photos</a></li>
+					<li><a href="contribPicks.html" style="padding: 0.5rem 0; display: block;">Contributor Picks</a></li>
+					<li><a href="photoCalendar.html" style="padding: 0.5rem 0; display: block;">By Date</a></li>
+					<li><a href="railroadList.html" style="padding: 0.5rem 0; display: block;">By Railroad</a></li>
+					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
+					<li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
+				</ul>
+
+				<div id="memberMenu">
+					<script>
+						if (loggedIn) {
+							document.write(`
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
+									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
+									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
+									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
+								</ul>
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
+									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
+									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
+								</ul>
+							`);
+						} else {
+							document.write(`
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
+								</ul>
+							`);
+						}
+					</script>									
+				</div>
+			</div></nav>
+			<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
+				<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem; margin-top: 0.25rem;">5471 Railfan's Photo Collection</h1>
+				<div style="font-size: 14px; color: #666; margin-top: 0.25rem;">Showcasing railroad photography by 5471 Railfan (20 Photos)</div>				
+                <hr style="border: none; border-bottom: 1px solid black; margin: .4rem 0;">
+				<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_0260.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>Phase VII on the Zephyr! - Amtrak 75</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">With a salute from the engineer, Amtrak 75 leads the California Zephyr up the Moffat Route!</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>12/14/2024  <strong>Upload Date:</strong> 1/07/2025 9:32:21 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Coal Creek, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: P42DC Click to view other pictures of this engine." href="locopictureid=2.html">Amtrak 75(P42DC)</a></td>										</tr>									</tbody>								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table><div style="margin: 0.7rem 0;"></div><table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_0191.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>Crispy - BNSF 4145</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">BNSF 4145 is trailing second on the Z-DENCHC. This locomotive has seen some wear and tear, noted by the lack of paint on part of the long hood.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>12/14/2024  <strong>Upload Date:</strong> 1/07/2025 9:32:21 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Denver, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: C44-9W Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 4125(C44-9W)</a></td>										</tr>									</tbody>								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table><div style="margin: 0.7rem 0;"></div><table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_0018.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>Double Stacks into Denver! - BNSF 5671</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">An uncommon BNSF AC4400CW leads a Q-ALTPTL through Denver, Colorado after getting a crew a mile south.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>10/19/2024  <strong>Upload Date:</strong> 1/07/2025 9:32:21 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Denver, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: AC4400CW Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 5671(AC4400CW)</a></td>										</tr>									</tbody>								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table><div style="margin: 0.7rem 0;"></div><table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images\CSC_0371.jpg" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>H1 Haven - BNSF 1041</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">BNSF C44-9Ws 1041 and 5192 lead the H-DDCDEN through Highlands Ranch, CO.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>11/23/2024  <strong>Upload Date:</strong> 1/07/2025 9:32:21 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Highlands Ranch, Colorado</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: C44-9W Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 1041(C44-9W)</a>, <a class="DefText" title="Model: C44-9W Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 5192(C44-9W)</a></td>										</tr>									</tbody>								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table><div style="margin: 0.7rem 0;"></div><table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_0601.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>MAC Twilight - BNSF 9653</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">BNSF SD70MAC 9653 leads the C-RWMSLP through Denver, Colorado. Around this time, it was extremely rare to catch one leading a mainline train.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>12/30/2024  <strong>Upload Date:</strong> 1/07/2025 9:32:21 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Denver, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: SD70MAC Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 9653(SD70MAC)</a></td>										</tr>									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table><div style="margin: 0.7rem 0;"></div><table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_0431.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>Dash-9 on the Q-ALTPTL!</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">BNSF D9-44CW 5289 leads the Q-ALTPTL through Sedalia, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>12/27/2024  <strong>Upload Date:</strong> 1/07/2025 9:32:21 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Sedalia, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: C44-9W Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 5289(C44-9W)</a></td>										</tr>									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table><div style="margin: 0.7rem 0;"></div><table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_0286.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>BNSF 6279 - Rocky, CO</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">BNSF 6279 leads a massive 10 engine H-PVODEN into the Denver Metro Area.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>12/27/2024  <strong>Upload Date:</strong> 1/07/2025 9:32:21 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Denver, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: C44-9W Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 1061(C44-9W)</a></td>										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table><div style="margin: 0.7rem 0;"></div><table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/CSC_0302.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>Plainview EMDs! - BNSF 8597</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">BNSF 8597 and 9216 sit at Plainview, Colorado for the Winter Park Express.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>12/27/2024  <strong>Upload Date:</strong> 1/16/2025 10:22:55 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Plainview, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: SD70ACe Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 8597(SD70ACe)</a>, <a class="DefText" title="Model: SD70ACe Click to view other pictures of this engine." href="locopictureid=3.html">BNSF 9216(SD70ACe)</a></td>										</tr>									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table><div style="margin: 0.7rem 0;"></div><table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_3846.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>BNSF 1061 Roster (1)</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>8/18/2024  <strong>Upload Date:</strong> 1/07/2025 9:32:21 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Denver, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: C44-9W Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 1061(C44-9W)</a></td>										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+                <div style="margin: 0.7rem 0;"></div>
+				<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_3856.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+                                    </a></td><td align="left" valign="top" style="padding: .45rem;">
+                                        <table class="DefText" style="width: 100%;">
+                                            <tbody>
+                                                <tr>
+                                                    <td align="right" width="100"><strong>Title:</strong></td>
+                                                    <td>BNSF 1061 Roster</td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="right" valign="top"><strong>Description:</strong></td>
+                                                    <td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="right"><strong>Photo Date:</strong></td>
+                                                    <td>8/18/2024  <strong>Upload Date:</strong> 1/07/2025 9:32:21 PM</td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="right"><strong>Location:</strong></td>
+                                                    <td>Denver, CO</td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="right"><strong>Author:</strong></td>
+                                                    <td>5471 Railfan</td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="right"><strong>Locomotives:</strong></td>
+                                                    <td><a class="DefText" title="Model: C44-9W Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 1061(C44-9W)</a></td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+                <div style="margin: 0.7rem 0;"></div>
+				<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_4027.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>UP 695 - Roster</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">UP GP38N 695 is resting after a long day of work at UP's North Yard.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>8/31/2024  <strong>Upload Date:</strong> 1/07/2025 9:31:34 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Denver, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: GP38N Click to view other pictures of this engine." href="locopictureid=2.html">UP 695(GP38N)</a></td>										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+                <div style="margin: 0.7rem 0;"></div>
+				<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=19.html" target="_blank">
+									<img src="images/DSC_4337.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>BNSF 4125</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">BNSF C44-9W 4125 sports a flashy Leslie RS3K as it trails second on H-DENLAU.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>9/15/2024     <strong>Upload Date:</strong> 1/07/2025 9:31:14 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Denver, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: C44-9W Click to view other pictures of this engine." href="locopictureid=10.html">BNSF 4125(C44-9W)</a></td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+                <div style="margin: 0.7rem 0;"></div>
+				<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_4139.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>BNSF 5647 - Roster</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">BNSF 5647 leads a northbound empty coal train past Derby, CO.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>9/7/2024   <strong>Upload Date:</strong> 1/07/2025 9:31:02 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Derby, CO</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>5471 Railfan</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: AC4400CW Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 5647(AC4400CW)</a></td>										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+                <div style="margin: 0.7rem 0;"></div>
+				<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/P1010715.jpg" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>B unit in Centralia</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>6/10/24  <strong>Upload Date:</strong> 12/23/2024 9:26:10 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Centralia, IL</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>Bishop Smith</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: SD40-2B Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 334(SD40-2B)</a></td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+                <div style="margin: 0.7rem 0;"></div>
+				<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_2014.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>B unit in Centralia</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>6/10/24  <strong>Upload Date:</strong> 12/23/2024 9:26:10 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Centralia, IL</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>Bishop Smith</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: SD40-2B Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 334(SD40-2B)</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="margin: 0.7rem 0;"></div>
+				<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_1708.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>B unit in Centralia</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>6/10/24  <strong>Upload Date:</strong> 12/23/2024 9:26:10 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Centralia, IL</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>Bishop Smith</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: SD40-2B Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 334(SD40-2B)</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="margin: 0.7rem 0;"></div>
+				<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_2073.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>B unit in Centralia</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>6/10/24  <strong>Upload Date:</strong> 12/23/2024 12:26:54 AM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Centralia, IL</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>Bishop Smith</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: SD40-2B Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 334(SD40-2B)</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table><div style="margin: 0.7rem 0;"></div><table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_2565.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>B unit in Centralia</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>6/10/24  <strong>Upload Date:</strong> 12/23/2024 12:26:38 AM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Centralia, IL</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>Bishop Smith</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: SD40-2B Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 334(SD40-2B)</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table><div style="margin: 0.7rem 0;"></div><table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_2572.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>B unit in Centralia</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>6/10/24  <strong>Upload Date:</strong> 12/23/2024 12:26:28 AM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Centralia, IL</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>Bishop Smith</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: SD40-2B Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 334(SD40-2B)</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+				
+                <div style="margin: 0.7rem 0;"></div>
+				
+                
+				<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+					<tbody>
+						<tr>
+							<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+								<a href="showpictureid=2.html" target="_blank">
+									<img src="images/DSC_1560.JPG" border="0" alt="Heritage " style="width: 225px; height: auto;">
+								</a>
+							</td>
+							<td align="left" valign="top" style="padding: .45rem;">
+								<table class="DefText" style="width: 100%;">
+									<tbody>
+										<tr>
+											<td align="right" width="100"><strong>Title:</strong></td>
+											<td>B unit in Centralia</td>
+										</tr>
+										<tr>
+											<td align="right" valign="top"><strong>Description:</strong></td>
+											<td class="SmallText">The Paducah KY local sits in the yard waiting to go south, so I got an opportunity to snap a rare EMD GP60B.</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Photo Date:</strong></td>
+											<td>6/10/24  <strong>Upload Date:</strong> 12/23/2024 12:25:51 PM</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Location:</strong></td>
+											<td>Centralia, IL</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Author:</strong></td>
+											<td>Bishop Smith</td>
+										</tr>
+										<tr>
+											<td align="right"><strong>Locomotives:</strong></td>
+											<td><a class="DefText" title="Model: SD40-2B Click to view other pictures of this engine." href="locopictureid=2.html">BNSF 334(SD40-2B)</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: .45rem;">
+            <div class="DefText" style="display: flex; justify-content: space-between;">
+                <div>Railhub Pictures © 2024-2025 Photos © respective authors</div>
+                <div>Version 1.0</div>
+            </div>
+        </footer>
+    
+</body></html>
