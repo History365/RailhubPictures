@@ -13,7 +13,7 @@
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					username: 'Test User',
+					username: 'History',
 					profilePic: 'images/default-avatar.png'
 				})
 			});
@@ -39,6 +39,8 @@
 			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
 				<div id="userInfo">
 					<script>
+						localStorage.setItem('loggedIn', 'true');
+						localStorage.setItem('username', 'Test User');
 						const loggedIn = localStorage.getItem('loggedIn');
 						const username = localStorage.getItem('username');
 						if (loggedIn) {
@@ -48,6 +50,7 @@
 				</div>
 				<div id="userProfile" style="cursor: pointer;">
 					<script>
+						localStorage.setItem('profilePic', 'images/default-avatar.png');
 						if (loggedIn) {
 							document.write(`
 								<a href="aboutme.html">
@@ -69,7 +72,6 @@
 			</div>
 		</div>
 	</header>
-
 	<div style="display: flex; min-height: 100vh;">
 		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
 			<div class="menu">

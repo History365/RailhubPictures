@@ -121,6 +121,10 @@
 				<div class="profile-header" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
 					<div class="profile-image" style="width: 120px; height: 120px; position: relative;">
 						<img id="profileImage" src="" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+						<div id="previewContainer" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); padding: 20px; border-radius: 8px; display: none; z-index: 1000;">
+							<img id="previewImage" src="" alt="Preview" style="max-width: 80vw; max-height: 80vh; object-fit: contain;">
+							<button onclick="closePreview()" style="position: absolute; top: 10px; right: 10px; background: white; border: none; border-radius: 50%; padding: 5px 10px; cursor: pointer;">×</button>
+						</div>
 						<button onclick="changeProfilePic()" style="position: absolute; bottom: 0; right: 0; padding: 0.25rem; border-radius: 50%; background: #fff; border: 1px solid #ddd;">📷</button>
 					</div>
 					<div class="profile-info">
@@ -132,7 +136,7 @@
 						<p>Member since: <span id="accountCreated"></span></p>
 						<p>Email: <span id="userEmail"></span></p>
 						<div style="display: flex; align-items: center; gap: 0.5rem;">
-							<p>Password: <span id="userPassword">••••••••</span></p>
+							<p>Password: <span id="userPassword"></span></p>
 							<button onclick="changePassword()" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Change</button>
 						</div>
 					</div>
@@ -178,24 +182,36 @@
 
 		function editUsername() {
 			const newUsername = prompt('Enter new username:', document.getElementById('displayUsername').textContent);
-			if (newUsername) {
-				document.getElementById('displayUsername').textContent = newUsername;
-				handleEdit('username');
+			if (newUsername && newUsername.trim()) {
+				document.getElementById('displayUsername').textContent = newUsername.trim();
+				handleEdit();
 			}
 		}
 
-		function handleEdit(field) {
+		function handleEdit() {
 			const saveBar = document.getElementById('saveChanges');
 			if (!hasUnsavedChanges) {
-				originalData[field] = localStorage.getItem(field);
+				originalData = {
+					username: document.getElementById('displayUsername').textContent,
+					profilePic: document.getElementById('profileImage').src
+				};
 			}
 			hasUnsavedChanges = true;
 			saveBar.style.display = 'block';
-			const editSpan = document.getElementById(field + 'Edit');
-			if (editSpan) {
-				editSpan.style.display = 'inline';
-			}
 		}
+
+		function showPreview(src) {
+			document.getElementById('previewImage').src = src;
+			document.getElementById('previewContainer').style.display = 'block';
+		}
+
+		function closePreview() {
+			document.getElementById('previewContainer').style.display = 'none';
+		}
+
+		document.getElementById('profileImage').addEventListener('click', function() {
+			showPreview(this.src);
+		});
 
 		function changeProfilePic() {
 			const input = document.createElement('input');
@@ -203,80 +219,131 @@
 			input.accept = 'image/*';
 			input.onchange = (e) => {
 				const file = e.target.files[0];
-				const reader = new FileReader();
-				reader.onload = (event) => {
-					document.getElementById('profileImage').src = event.target.result;
-					handleEdit('profilePic');
-				};
-				reader.readAsDataURL(file);
+				if (file && file.type.startsWith('image/')) {
+					const reader = new FileReader();
+					reader.onload = (event) => {
+						document.getElementById('profileImage').src = event.target.result;
+						handleEdit();
+					};
+					reader.readAsDataURL(file);
+				}
 			};
 			input.click();
 		}
 
 		function changePassword() {
 			const newPassword = prompt('Enter new password:');
-			if (newPassword) {
+			if (newPassword && newPassword.trim()) {
+				if (newPassword.length < 8) {
+					alert('Password must be at least 8 characters long');
+					return;
+				}
 				document.getElementById('userPassword').textContent = '••••••••';
-				handleEdit('password');
+				handleEdit();
 				localStorage.setItem('password', newPassword);
 			}
 		}
 
-		function saveChanges() {
-			const username = document.getElementById('displayUsername').textContent;
-			const profilePic = document.getElementById('profileImage').src;
-			
-			localStorage.setItem('username', username);
-			localStorage.setItem('profilePic', profilePic);
-			
-			fetch('includes/userdata.json', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					username: username,
-					profilePic: profilePic
-				})
-			});
-			
-			hasUnsavedChanges = false;
-			document.getElementById('saveChanges').style.display = 'none';
-			const usernameEdit = document.getElementById('usernameEdit');
-			if (usernameEdit) {
-				usernameEdit.style.display = 'none';
+		async function saveChanges() {
+			try {
+				const username = document.getElementById('displayUsername').textContent;
+				const profilePic = document.getElementById('profileImage').src;
+				
+				const response = await fetch('/api/update-profile', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						username: username,
+						profilePic: profilePic
+					})
+				});
+
+				if (!response.ok) {
+					throw new Error('Failed to save changes');
+				}
+				
+				localStorage.setItem('username', username);
+				localStorage.setItem('profilePic', profilePic);
+				
+				hasUnsavedChanges = false;
+				document.getElementById('saveChanges').style.display = 'none';
+				
+				alert('Changes saved successfully!');
+				location.reload();
+			} catch (error) {
+				console.error('Error saving changes:', error);
+				alert('Failed to save changes. Please try again.');
+				
+				// Revert changes on failure
+				document.getElementById('displayUsername').textContent = originalData.username;
+				document.getElementById('profileImage').src = originalData.profilePic;
+				hasUnsavedChanges = false;
+				document.getElementById('saveChanges').style.display = 'none';
 			}
-			
-			alert('Changes saved successfully!');
-			location.reload();
 		}
 
 		function discardChanges() {
-			if (originalData.username) {
+			if (confirm('Are you sure you want to discard your changes?')) {
 				document.getElementById('displayUsername').textContent = originalData.username;
-			}
-			if (originalData.profilePic) {
 				document.getElementById('profileImage').src = originalData.profilePic;
+				
+				hasUnsavedChanges = false;
+				document.getElementById('saveChanges').style.display = 'none';
 			}
-			
-			hasUnsavedChanges = false;
-			document.getElementById('saveChanges').style.display = 'none';
-			const usernameEdit = document.getElementById('usernameEdit');
-			if (usernameEdit) {
-				usernameEdit.style.display = 'none';
-			}
-			location.reload();
 		}
 
-		function populateUserProfile() {
-			fetch('includes/userdata.json')
-				.then(response => response.json())
-				.then(data => {
-					document.getElementById('profileImage').src = data.profilePic || 'images/default-avatar.png';
-					document.getElementById('displayUsername').textContent = data.username || 'Username';
-					document.getElementById('accountCreated').textContent = data.accountCreated || 'Date';
-					document.getElementById('userEmail').textContent = data.email || 'email@example.com';
-					
-					document.getElementById('totalPhotos').textContent = data.totalPhotos || '0';
-					document.getElementById('totalViews').textContent = data.totalViews || '0';
-					document.getElementById('totalLikes').textContent = data
+		async function populateUserProfile() {
+			try {
+				const response = await fetch('/api/user-profile');
+				if (!response.ok) {
+					throw new Error('Failed to fetch user data');
+				}
+				
+				const data = await response.json();
+				
+				// Set default values if data is missing
+				const defaultData = {
+					profilePic: '/images/default-avatar.png',
+					username: 'Username',
+					accountCreated: 'Date',
+					email: 'email@example.com',
+					totalPhotos: '0',
+					totalViews: '0',
+					totalLikes: '0'
+				};
+
+				// Merge received data with default values
+				const mergedData = { ...defaultData, ...data };
+				
+				document.getElementById('profileImage').src = mergedData.profilePic;
+				document.getElementById('displayUsername').textContent = mergedData.username;
+				document.getElementById('accountCreated').textContent = mergedData.accountCreated;
+				document.getElementById('userEmail').textContent = mergedData.email;
+				document.getElementById('totalPhotos').textContent = mergedData.totalPhotos;
+				document.getElementById('totalViews').textContent = mergedData.totalViews;
+				document.getElementById('totalLikes').textContent = mergedData.totalLikes;
+
+			} catch (error) {
+				console.error('Error loading user data:', error);
+				// Load default values instead of showing error
+				document.getElementById('profileImage').src = '/images/default-avatar.png';
+				document.getElementById('displayUsername').textContent = 'Username';
+				document.getElementById('accountCreated').textContent = 'Date';
+				document.getElementById('userEmail').textContent = 'email@example.com';
+				document.getElementById('totalPhotos').textContent = '0';
+				document.getElementById('totalViews').textContent = '0';
+				document.getElementById('totalLikes').textContent = '0';
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', populateUserProfile);
+
+		window.addEventListener('beforeunload', (e) => {
+			if (hasUnsavedChanges) {
+				e.preventDefault();
+				e.returnValue = '';
+			}
+		});
+	</script>
