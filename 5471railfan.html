@@ -39,13 +39,11 @@
 			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
 				<div id="userInfo">
 					<script>
-						localStorage.setItem('loggedIn', 'false');
-						localStorage.setItem('username', '');
-						const loggedIn = localStorage.getItem('loggedIn') === 'true';
-						const username = localStorage.getItem('username');
-						if (loggedIn) {
-							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
-						}
+						const loggedIn = false;
+						const username = null;
+						localStorage.removeItem('loggedIn');
+						localStorage.removeItem('username');
+						localStorage.removeItem('profilePic');
 					</script>
 				</div>
 				<div id="userProfile" style="cursor: pointer;">
