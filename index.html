@@ -93,8 +93,7 @@
 									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
 									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
 									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
-									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
-								</ul>
+									<li><a href="#" onclick="localStorage.removeItem('loggedIn'); window.location.href = 'index.html'; return false;" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>								</ul>
 								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
 								<ul class="menu" style="list-style: none; padding: 0;">
 									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>

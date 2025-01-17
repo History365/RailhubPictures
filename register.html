@@ -141,12 +141,12 @@
                               welcomeSpan.appendChild(document.createTextNode('Welcome, '));
                               welcomeSpan.appendChild(safeUsername);
                               welcomeSpan.appendChild(document.createTextNode('! '));
-                          
+                        
                               const logoutLink = document.createElement('a');
                               logoutLink.href = '#';
                               logoutLink.onclick = logout;
                               logoutLink.textContent = 'Logout';
-                          
+                        
                               const container = document.getElementById('userInfo');
                               container.appendChild(welcomeSpan);
                               container.appendChild(logoutLink);
@@ -188,7 +188,7 @@
 
           <div class="register-container">
               <h2>Create an Account</h2>
-          
+        
               <div class="error-messages" style="display: none;">
                   <p class="error"></p>
               </div>
@@ -277,21 +277,21 @@
               const length = 12;
               const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
               let password = '';
-              
+            
               // Ensure at least one of each required character type
               password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)]; // Uppercase
               password += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]; // Lowercase
               password += '0123456789'[Math.floor(Math.random() * 10)]; // Number
               password += '!@#$%^&*'[Math.floor(Math.random() * 8)]; // Special char
-              
+            
               // Fill the rest randomly
               for (let i = password.length; i < length; i++) {
                   password += charset[Math.floor(Math.random() * charset.length)];
               }
-              
+            
               // Shuffle the password
               password = password.split('').sort(() => Math.random() - 0.5).join('');
-              
+            
               document.getElementById('password').value = password;
               document.getElementById('confirm_password').value = password;
           }
@@ -348,47 +348,4 @@
                   });
                   return true;
               } catch (error) {
-                  console.error
-                  if (file.size > maxSize) {
-                          alert('The file size exceeds 5MB. Please upload a smaller file.');
-                          input.value = '';
-                          preview.style.display = 'none';
-                          return;
-                      }
-
-                      const reader = new FileReader();
-                      reader.onload = function (e) {
-                          preview.src = e.target.result;
-                          preview.style.display = 'block';
-                      };
-                      reader.readAsDataURL(file);
-                  } else {
-                      preview.style.display = 'none';
-                  }
-              }
-          }
-
-          // Form submission handling
-          document.getElementById('registerForm').addEventListener('submit', function (event) {
-              event.preventDefault();
-
-              const username = sanitizeInput(document.getElementById('username').value);
-              const email = sanitizeInput(document.getElementById('email').value);
-              const password = sanitizeInput(document.getElementById('password').value);
-              const confirmPassword = sanitizeInput(document.getElementById('confirm_password').value);
-
-              if (password !== confirmPassword) {
-                  showError('Passwords do not match. Please try again.');
-                  return;
-              }
-
-              const successMessage = document.querySelector('.success-message');
-              successMessage.style.display = 'block';
-
-              setTimeout(() => {
-                  window.location.href = 'index.html';
-              }, 3000);
-          });
-      </script>
-  </body>
-  </html>
+                  console.
