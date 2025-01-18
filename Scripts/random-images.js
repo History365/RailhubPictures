@@ -90,10 +90,10 @@ function displayRandomImage() {
     const img = document.createElement('img');
     img.style.cssText = 'float: right; border: solid 1px #000; width: 315px; height: auto; margin: 0 0 1rem 1rem;';
     img.alt = 'Front Page Pic';
-    img.src = `${randomImage.src}?quality=40`;
-    img.loading = 'lazy';
-    img.decoding = 'async';
-    img.fetchPriority = 'low';
+    img.src = randomImage.src;
+    img.loading = 'eager';
+    img.decoding = 'sync';
+    img.fetchPriority = 'high';
     
     link.appendChild(img);
     container.appendChild(link);
