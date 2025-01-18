@@ -5,248 +5,50 @@
 	<title>Railhub Pictures.com</title>
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<script>
-			// Save to userdata.json using fetch
-			fetch('/saveUserData', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					username: 'Test User',
-					profilePic: 'images/default-avatar.png'
-				})
-			});
-		} else {
-			// Load user data from server
-			fetch('/getUserData')
-				.then(response => response.json())
-				.then(data => {
-					localStorage.setItem('username', data.username);
-					localStorage.setItem('profilePic', data.profilePic);
-				});
-		}
-	</script>
-</head>
+	<script src="Scripts/header-nav.js"></script>
+	<script src="Scripts/random-images.js"></script>
+	<script src="Scripts/user-auth.js"></script></head>
 <body>
-	<script src="includes/wz_dragdrop.js"></script> 
-	<script src="Scripts/jquery-1.4.2.min.js"></script>
-	<script src="Scripts/jquery-ui-1.8.6.custom.min.js"></script>
-
-	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-		<div style="display: flex; justify-content: space-between; align-items: center;">
-			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
-			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
-				<div id="userInfo">
-					<script>
-						const loggedIn = false;
-						const username = null;
-						localStorage.removeItem('loggedIn');
-						localStorage.removeItem('username');
-						localStorage.removeItem('profilePic');
-					</script>
-				</div>
-				<div id="userProfile" style="cursor: pointer;">
-					<script>
-						if (loggedIn) {
-							document.write(`
-								<a href="aboutme.html">
-									<img src="${localStorage.getItem('profilePic') || 'images/default-avatar.png'}" 
-										 alt="Profile" 
-										 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-								</a>
-							`);
-						}
-					</script>
-				</div>
-				<script>
-					var today = new Date();
-					var dd = String(today.getDate()).padStart(2, '0');
-					var mm = String(today.getMonth() + 1).padStart(2, '0');
-					var yyyy = today.getFullYear();
-					document.write(mm + '/' + dd + '/' + yyyy);
-				</script>
-			</div>
-		</div>
-	</header>
-
-	<div style="display: flex; min-height: 100vh;">
-		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
-			<div class="menu">
-				<div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0;">View Photos</div>
-				<ul class="menu" style="list-style: none; padding: 0;">
-					<li><a href="index.html" style="padding: 0.5rem 0; display: block;">Home</a></li>
-					<li><a href="newestphotos.html" style="padding: 0.5rem 0; display: block;">Newest Photos</a></li>
-					<li><a href="contribPicks.html" style="padding: 0.5rem 0; display: block;">Contributor Picks</a></li>
-					<li><a href="photoCalendar.html" style="padding: 0.5rem 0; display: block;">By Date</a></li>
-					<li><a href="railroadList.html" style="padding: 0.5rem 0; display: block;">By Railroad</a></li>
-					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
-					<li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
-				</ul>
-
-				<div id="memberMenu">
-					<script>
-						if (loggedIn) {
-							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
-									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
-									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
-									<li><a href="#" onclick="localStorage.removeItem('loggedIn'); window.location.href = 'index.html'; return false;" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>								</ul>
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
-									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
-									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
-								</ul>
-							`);
-						} else {
-							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
-									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
-								</ul>
-							`);
-						}
-					</script>
-				</div>
-			</div>
-		</nav>
-
-				<main style="flex: 1; padding: 2rem;">
-					<div style="display: flex; gap: 2rem;">
-						<div style="flex: 2;">
-							<h1 class="CallOut" style="border-bottom: solid 1px black; margin-bottom: 1rem; font-size: 14px;">Welcome to Railhub Pictures!</h1>
-							<div class="homePageText">
-								<script>
-									const images = [
-										{src: "images/IMG_8337.jpg", link: "showpictureid=1.html"},
-										{src: "images/dji_fly_20240610.jpg", link: "showpictureid=2.html"},
-										{src: "images/MG_3203.jpg", link: "showpictureid=3.html"},
-										{src: "images/DSC00948.jpg", link: "showpictureid=4.html"},
-										{src: "images/DSC_1708.JPG", link: "showpictureid=5.html"},
-										{src: "images/DSC_2014.JPG", link: "showpictureid=6.html"},
-										{src: "images/DSC_2073.JPG", link: "showpictureid=7.html"},
-										{src: "images/DSC_1560.JPG", link: "showpictureid=8.html"},
-										{src: "images/DSC_2572.JPG", link: "showpictureid=9.html"},
-										{src: "images/DSC_4139.JPG", link: "showpictureid=10.html"},
-										{src: "images/MG_3312.jpg", link: "showpictureid=11.html"},
-										{src: "images/DSC_3856.JPG", link: "showpictureid=12.html"},
-										{src: "images/DSC_2565.JPG", link: "showpictureid=13.html"},
-										{src: "images/MG_3182.jpg", link: "showpictureid=14.html"},
-										{src: "images/MG_3173.jpg", link: "showpictureid=15.html"},
-										{src: "images/MG_3316.jpg", link: "showpictureid=16.html"},
-										{src: "images/MG_3256.jpg", link: "showpictureid=17.html"},
-										{src: "images/DSC_4027.JPG", link: "showpictureid=18.html"},
-										{src: "images/DSC_4337.JPG", link: "showpictureid=19.html"},
-										{src: "images/P1010715.JPG", link: "showpictureid=20.html"},
-										{src: "images/MG_3220.jpg", link: "showpictureid=21.html"},
-										{src: "images/IMG_1908.jpg", link: "showpictureid=22.html"},
-										{src: "images/IMG_3526.jpg", link: "showpictureid=25.html"},
-										{src: "images/IMG_3695.jpg", link: "showpictureid=26.html"},
-										{src: "images/IMG_4046.jpg", link: "showpictureid=27.html"},
-										{src: "images/IMG_8871.jpg", link: "showpictureid=29.html"},
-										{src: "images/IMG_8879.jpg", link: "showpictureid=30.html"},
-										{src: "images/MG_1848.jpg", link: "showpictureid=31.html"},
-										{src: "images/MG_1865.jpg", link: "showpictureid=32.html"},
-										{src: "images/MG_1886.jpg", link: "showpictureid=33.html"},
-										{src: "images/MG_1956.jpg", link: "showpictureid=34.html"},
-										{src: "images/MG_2066.jpg", link: "showpictureid=35.html"},
-										{src: "images/MG_2179.jpg", link: "showpictureid=36.html"},
-										{src: "images/MG_3215.jpg", link: "showpictureid=37.html"},
-										{src: "images/MG_3280.jpg", link: "showpictureid=38.html"},
-										{src: "images/P1000313.JPG", link: "showpictureid=39.html"},
-										{src: "images/dji_fly_20240331.jpg", link: "showpictureid=40.html"},
-										{src: "images/dji_fly_20240428.jpg", link: "showpictureid=41.html"},
-										{src: "images/dji_fly_20240502.jpg", link: "showpictureid=42.html"},
-										{src: "images/MG_3435.jpg", link: "showpictureid=23.html"},
-										{src: "images/MG_3452.jpg", link: "showpictureid=24.html"},
-										{src: "images/DSC_0260.JPG", link: "showpictureid=55.html"},
-										{src: "images/DSC_0191.JPG", link: "showpictureid=54.html"},
-										{src: "images/DSC_0018.JPG", link: "showpictureid=53.html"},
-										{src: "images/CSC_0371.JPG", link: "showpictureid=52.html"},
-										{src: "images/DSC_0601.JPG", link: "showpictureid=51.html"},
-										{src: "images/DSC_0431.JPG", link: "showpictureid=50.html"},
-										{src: "images/DSC_0286.JPG", link: "showpictureid=49.html"},
-										{src: "images/CSC_0302.JPG", link: "showpictureid=48.html"}									];
-
-									function getRandomImage() {
-										let usedImages = JSON.parse(localStorage.getItem('usedImages') || '[]');										if (usedImages.length >= images.length) {
-											usedImages = [];
-											localStorage.setItem('usedImages', '[]');
-										}										
-										const availableImages = images.filter(img => !usedImages.includes(img.src));
-										const randomIndex = Math.floor(Math.random() * availableImages.length);
-										const selectedImage = availableImages[randomIndex];
-										
-										usedImages.push(selectedImage.src);
-										localStorage.setItem('usedImages', JSON.stringify(usedImages));
-										
-										return selectedImage;
-									}
-
-									const randomImage = getRandomImage();
-									document.write(`
-										<a href="${randomImage.link}" target="_blank">
-											<img style="float: right; border: solid 1px #000; width: 315px; height: auto; margin: 0 0 1rem 1rem;" 
-												alt="Front Page Pic" 
-												src="${randomImage.src}?quality=40"
-												loading="lazy"
-												decoding="async"
-												fetchpriority="low">
-										</a>
-									`);
-								</script>																												<p>Welcome to Railhub Pictures, your premier destination for railroad photography enthusiasts! Our growing collection showcases the beauty and diversity of railroads across the country.</p>							<p>Explore our extensive photo gallery by browsing through different <a href="railroadList.html"><strong>railroad companies</strong></a>, or finding your favorite locomotive <a href="modelList.html"><strong>models</strong></a>. Check out our featured <a href="contribPicks.html"><strong>contributor selections</strong></a> for exceptional photography.</p>
-							<p><strong>Share Your Photos:</strong> Join our community by registering for a free account using the 'Register' link in the menu. Once registered, you can start sharing your own railroad photography with enthusiasts worldwide!</p>
-							<p>Our dedicated team regularly features outstanding photographs on the site. Look for specially marked featured images that represent the best of our collection. You can view our curated selections through the Contributor Picks link in the navigation menu.</p>
-							<p>Stay updated with the latest additions to our collection by visiting the <strong>Newest Photos</strong> section, where you can discover fresh content from our contributing photographers. It's the perfect way to see what's new in the world of railroad photography!</p>
-						</div>
+		<main style="flex: 1; padding: 2rem;">
+			<div style="display: flex; gap: 2rem;">
+				<div style="flex: 2;">
+					<h1 class="CallOut" style="border-bottom: solid 1px black; margin-bottom: 1rem; font-size: 14px;">Welcome to Railhub Pictures!</h1>
+					<div class="homePageText">
+						<script>
+							displayRandomImage();
+						</script>
+						<p>Welcome to Railhub Pictures, your premier destination for railroad photography enthusiasts! Our growing collection showcases the beauty and diversity of railroads across the country.</p>
+						<p>Explore our extensive photo gallery by browsing through different <a href="railroadList.html"><strong>railroad companies</strong></a>, or finding your favorite locomotive <a href="modelList.html"><strong>models</strong></a>. Check out our featured <a href="contribPicks.html"><strong>contributor selections</strong></a> for exceptional photography.</p>
+						<p><strong>Share Your Photos:</strong> Join our community by registering for a free account using the 'Register' link in the menu. Once registered, you can start sharing your own railroad photography with enthusiasts worldwide!</p>
+						<p>Our dedicated team regularly features outstanding photographs on the site. Look for specially marked featured images that represent the best of our collection. You can view our curated selections through the Contributor Picks link in the navigation menu.</p>
+						<p>Stay updated with the latest additions to our collection by visiting the <strong>Newest Photos</strong> section, where you can discover fresh content from our contributing photographers. It's the perfect way to see what's new in the world of railroad photography!</p>
 					</div>
-
-						<aside style="flex: 1;">
-							<div style="background: #f8f8f8; padding: 1rem; border-radius: 4px;">
-								<h2 class="Callout" style="border-bottom: 1px solid black; margin-bottom: 1rem;">Site Stats</h2>
-								<table style="width: 100%;">
-									<tr class="DefText">
-										<td><strong><a href="newestphotos.html" style="text-decoration: none; font-weight: bold;">Photos:</a></strong></td>
-										<td style="text-align: right;">54</td>
-									</tr>
-									<tr class="DefText">
-										<td><strong>Locomotives:</strong></td>
-										<td style="text-align: right;">42</td>
-									</tr>
-									<tr class="DefText">
-										<td><strong>Rolling Stock:</strong></td>
-										<td style="text-align: right;">0</td>
-									</tr>
-									<tr class="DefText">
-										<td><strong><a href="contributors.html" style="text-decoration: none; font-weight: bold;">Contributors:</a></strong></td>
-										<td style="text-align: right;">6</td>
-									</tr>
-								</table>
-							</div>
-						</aside>
-					</div>
-				</main>
-			</div>
-
-			<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
-				<div class="DefText" style="display: flex; justify-content: space-between;">
-					<div>Railhub Pictures © 2024-2025 Photos © respective authors</div>
-					<div>Version 1.0</div>
 				</div>
-			</footer>
-			<script>
-				const logout = () => {
-					if (confirm("Are you sure you want to sign out?")) {
-						localStorage.removeItem('loggedIn');
-						localStorage.removeItem('username');
-						localStorage.removeItem('profilePic');
-						location.reload();
-					}
-				}
-			</script>
-		</body>
-		</html>
+				<aside style="flex: 1;">
+					<div style="background: #f8f8f8; padding: 1rem; border-radius: 4px;">
+						<h2 class="Callout" style="border-bottom: 1px solid black; margin-bottom: 1rem;">Site Stats</h2>
+						<table style="width: 100%;">
+							<tr class="DefText">
+								<td><strong><a href="newestphotos.html" style="text-decoration: none; font-weight: bold;">Photos:</a></strong></td>
+								<td style="text-align: right;">54</td>
+							</tr>
+							<tr class="DefText">
+								<td><strong>Locomotives:</strong></td>
+								<td style="text-align: right;">42</td>
+							</tr>
+							<tr class="DefText">
+								<td><strong>Rolling Stock:</strong></td>
+								<td style="text-align: right;">0</td>
+							</tr>
+							<tr class="DefText">
+								<td><strong><a href="contributors.html" style="text-decoration: none; font-weight: bold;">Contributors:</a></strong></td>
+								<td style="text-align: right;">6</td>
+							</tr>
+						</table>
+					</div>
+				</aside>
+			</div>
+		</main>
+	</div>
+</body>
+</html>
