@@ -1,143 +1,439 @@
 <!DOCTYPE html>
 <html>
 <head id="ctl00_Head1">
-  <link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
-  <title>Railhub Pictures.com</title>
-  <meta id="ctl00_metaDescription" name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script>
-
-    
-    if (!loggedIn) {
-      // If user is not logged in, save user data and set loggedIn flag to true
-      fetch('/saveUserData', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: 'Test User',
-          profilePic: 'images/default-avatar.png'
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Save the user data and set loggedIn flag to true
-        localStorage.setItem('username', data.username);
-        localStorage.setItem('profilePic', data.profilePic);
-        localStorage.setItem('loggedIn', 'true'); // Set loggedIn to true
-      });
-    } else {
-      // If user is already logged in, load the user data from localStorage
-      fetch('/getUserData')
-        .then(response => response.json())
-        .then(data => {
-          localStorage.setItem('username', data.username);
-          localStorage.setItem('profilePic', data.profilePic);
-        });
-    }
-  </script>
-</head>
+	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
+	<title>Railhub Pictures.com</title>
+	<meta id="ctl00_metaDescription" name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="Scripts/header-nav.js"></script>
+	<script src="Scripts/random-images.js"></script>
+	<script src="Scripts/user-auth.js"></script>
+	<script src="Scripts/member-login.js"></script>
+	<script src="Scripts/photo-upload.js"></script></head>
 <body>
+	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+		<div style="display: flex; justify-content: space-between; align-items: center;">
+			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
+			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
+				<div id="userInfo">
+					<script>
+						const loggedIn = localStorage.getItem('loggedIn');
+						const username = localStorage.getItem('username');
+						if (loggedIn) {
+							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
+						}
+					</script>
+				</div>
+				<div id="userProfile" style="cursor: pointer;">
+					<script>
+						if (loggedIn) {
+							document.write(`
+								<a href="aboutme.html">
+									<img src="${localStorage.getItem('profilePic') || 'images/default-avatar.png'}" 
+										 alt="Profile" 
+										 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+								</a>
+							`);
+						}
+					</script>
+				</div>
+				<script>
+					var today = new Date();
+					var dd = String(today.getDate()).padStart(2, '0');
+					var mm = String(today.getMonth() + 1).padStart(2, '0');
+					var yyyy = today.getFullYear();
+					document.write(mm + '/' + dd + '/' + yyyy);
+				</script>
+			</div>
+		</div>
+	</header>
 
-  <script src="includes/wz_dragdrop.js"></script> 
-  <script src="Scripts/jquery-1.4.2.min.js"></script>
-  <script src="Scripts/jquery-ui-1.8.6.custom.min.js"></script>
+	<div style="display: flex; min-height: 100vh;">
+		<nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
+			<div class="menu">
+				<div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0;">View Photos</div>
+				<ul class="menu" style="list-style: none; padding: 0;">
+					<li><a href="index.html" style="padding: 0.5rem 0; display: block;">Home</a></li>
+					<li><a href="newestphotos.html" style="padding: 0.5rem 0; display: block;">Newest Photos</a></li>
+					<li><a href="contribPicks.html" style="padding: 0.5rem 0; display: block;">Contributor Picks</a></li>
+					<li><a href="photoCalendar.html" style="padding: 0.5rem 0; display: block;">By Date</a></li>
+					<li><a href="railroadList.html" style="padding: 0.5rem 0; display: block;">By Railroad</a></li>
+					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
+					<li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
+				</ul>
 
-  <header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
-      <div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
-        <div id="userInfo">
-          <script>
-            const loggedIn = localStorage.getItem('loggedIn');
-            const username = localStorage.getItem('username');
-            if (loggedIn) {
-              document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
-            }
-          </script>
+				<div id="memberMenu">
+					<script>
+						if (loggedIn) {
+							document.write(`
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
+									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
+									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
+									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
+								</ul>
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
+									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
+									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
+								</ul>
+							`);
+						} else {
+							document.write(`
+								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+								<ul class="menu" style="list-style: none; padding: 0;">
+									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
+								</ul>
+							`);
+						}
+					</script>
+				</div>
+			</div>
+		</nav>
+        <main style="flex: 1; padding: 1rem; color: black; font-size: 14px; margin-top: 6px;">
+            <div style="display: flex; gap: 2rem;">
+                <div style="flex: 2;">
+                    <h1 class="CallOut" style="border-bottom: solid 1px black; margin-bottom: 1rem; font-size: 14px;">Upload Your Photo</h1>
+                    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="railroad">Railroad:*</label>
+                            <select id="railroad" name="railroad" required style="width: 100%; padding: 0.5rem;" onchange="updateLocomotiveModels()">
+                                <option value="">Select Railroad</option>
+                                <optgroup label="Class 1">
+                                    <option value="AMTK">Amtrak</option>
+                                    <option value="BNSF">BNSF Railway</option>
+                                    <option value="CPKC">Canadian Pacific Kansas City</option>
+                                    <option value="CSX">CSX Transportation</option>
+                                    <option value="NS">Norfolk Southern</option>
+                                    <option value="UP">Union Pacific</option>
+                                    <option value="CN">Canadian National</option>
+                                    <option value="VIA">VIA Rail Canada</option>
+                                </optgroup>
+                                <optgroup label="Class 2">
+                                    <option value="FEC">Florida East Coast Railway</option>
+                                    <option value="PAR">Pan Am Railways</option>
+                                    <option value="RJ">R.J. Corman Railroad</option>
+                                    <option value="IC">Iowa Central Railway</option>
+                                    <option value="DME">Dakota, Minnesota & Eastern</option>
+                                    <option value="WC">Wisconsin Central</option>
+                                    <option value="ARR">Alaska Railroad</option>
+                                    <option value="GWRR">Genesee & Wyoming</option>
+                                    <option value="MNA">Missouri & Northern Arkansas</option>
+                                    <option value="IORY">Indiana & Ohio Railway</option>
+                                    <option value="PNWR">Portland & Western Railroad</option>
+                                    <option value="CFNR">California Northern Railroad</option>
+                                </optgroup>
+                                <optgroup label="Class 3">
+                                    <option value="BLE">Bessemer & Lake Erie Railroad</option>
+                                    <option value="KYLE">Kyle Railroad</option>
+                                    <option value="WTNN">West Tennessee Railroad</option>
+                                    <option value="INRD">Indiana Railroad</option>
+                                    <option value="PSWR">Pacific Southwest Railroad</option>
+                                    <option value="AZER">Arizona Eastern Railway</option>
+                                    <option value="BPRR">Buffalo & Pittsburgh Railroad</option>
+                                    <option value="CMGN">Central Michigan Railway</option>
+                                    <option value="CORP">Central Oregon & Pacific Railroad</option>
+                                    <option value="GEXR">Goderich-Exeter Railway</option>
+                                    <option value="GRR">Georgetown Railroad</option>
+                                    <option value="HESR">Huron & Eastern Railway</option>
+                                    <option value="IAIS">Iowa Interstate Railroad</option>
+                                    <option value="KBSR">Kankakee, Beaverville & Southern</option>
+                                    <option value="LAL">Lake State Railway</option>
+                                    <option value="LIRC">Louisville & Indiana Railroad</option>
+                                    <option value="MQT">Marquette Rail</option>
+                                    <option value="MSRW">Mississippi & Skuna Valley</option>
+                                    <option value="NECR">New England Central Railroad</option>
+                                    <option value="NOPB">New Orleans Public Belt</option>
+                                    <option value="OHCR">Ohio Central Railroad</option>
+                                    <option value="OMLX">Ohio & Lake Erie Railway</option>
+                                    <option value="PW">Providence & Worcester Railroad</option>
+                                </optgroup>
+                                <optgroup label="Passenger">
+                                    <option value="VRE">Virginia Railway Express</option>
+                                    <option value="METRA">Metra</option>
+                                    <option value="MBTA">MBTA</option>
+                                    <option value="LIRR">Long Island Rail Road</option>
+                                    <option value="NJT">New Jersey Transit</option>
+                                    <option value="SEPTA">SEPTA</option>
+                                    <option value="MARC">MARC Train</option>
+                                    <option value="MNCR">Metro-North Railroad</option>
+                                    <option value="CALTRAIN">Caltrain</option>
+                                    <option value="METROLINK">Metrolink</option>
+                                    <option value="SOUNDER">Sounder Commuter Rail</option>
+                                    <option value="TRE">Trinity Railway Express</option>
+                                    <option value="COASTER">COASTER</option>
+                                    <option value="SLE">Shore Line East</option>
+                                    <option value="ACE">Altamont Corridor Express</option>
+                                    <option value="DART">Dallas Area Rapid Transit</option>
+                                    <option value="DCTA">Denton County Transit Authority</option>
+                                    <option value="RTD">RTD Commuter Rail</option>
+                                </optgroup>
+                                <optgroup label="Regional & Shortlines">
+                                    <option value="P&W">Providence & Worcester</option>
+                                    <option value="NYSW">New York, Susquehanna & Western</option>
+                                    <option value="RBMN">Reading & Northern</option>
+                                    <option value="WNYP">Western New York & Pennsylvania</option>
+                                    <option value="MMID">Maryland Midland Railway</option>
+                                    <option value="DGNO">Dallas, Garland & Northeastern</option>
+                                    <option value="BNSF">Brownsville & Rio Grande</option>
+                                    <option value="AKDN">Akron Barberton Cluster</option>
+                                    <option value="BRC">Belt Railway of Chicago</option>
+                                    <option value="CERA">Central Railroad of Indiana</option>
+                                    <option value="BAYL">Bay Line Railroad</option>
+                                    <option value="BDRV">Brandywine Valley Railroad</option>
+                                    <option value="CARR">Carrollton Railroad</option>
+                                    <option value="CSXT">Central California Traction</option>
+                                </optgroup>
+                                <optgroup label="Leasing Companies">
+                                    <option value="GATX">GATX Corporation</option>
+                                    <option value="TTGX">TTX Company</option>
+                                    <option value="GMTX">GMTX (GATX Rail)</option>
+                                    <option value="CEFX">CIT Rail</option>
+                                    <option value="CITX">CIT Group</option>
+                                    <option value="LTEX">LTE Logistics</option>
+                                    <option value="FURX">First Union Rail</option>
+                                    <option value="HLCX">Helm Leasing</option>
+                                    <option value="NREX">National Railway Equipment</option>
+                                </optgroup>
+                            </select>
+                        </div>                        
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="model">Locomotive Model:*</label>
+                            <select id="model" name="model" required style="width: 100%; padding: 0.5rem;">
+                                <option value="">Select Model</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="operatingNumber">Operating Number:*</label>
+                            <input type="text" id="operatingNumber" name="operatingNumber" required style="width: 100%; padding: 0.5rem;" pattern="[0-9A-Za-z-]+" title="Please enter a valid operating number">
+                        </div>                        
+                        <script src="Scripts/locomotive-models.js"></script>                        
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="city">City:*</label>
+                            <input type="text" id="city" name="city" required style="width: 100%; padding: 0.5rem;" pattern="[A-Za-z\s-]+" title="Please enter a valid city name">
+                        </div>                        
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="state">State/Province:*</label>
+                            <select id="state" name="state" required style="width: 100%; padding: 0.5rem;">
+                                <option value="">Select State/Province</option>
+                                <optgroup label="United States">
+                                    <option value="AL">Alabama</option>
+                                    <option value="AK">Alaska</option>
+                                    <option value="AZ">Arizona</option>
+                                    <option value="AR">Arkansas</option>
+                                    <option value="CA">California</option>
+                                    <option value="CO">Colorado</option>
+                                    <option value="CT">Connecticut</option>
+                                    <option value="DE">Delaware</option>
+                                    <option value="FL">Florida</option>
+                                    <option value="GA">Georgia</option>
+                                    <option value="HI">Hawaii</option>
+                                    <option value="ID">Idaho</option>
+                                    <option value="IL">Illinois</option>
+                                    <option value="IN">Indiana</option>
+                                    <option value="IA">Iowa</option>
+                                    <option value="KS">Kansas</option>
+                                    <option value="KY">Kentucky</option>
+                                    <option value="LA">Louisiana</option>
+                                    <option value="ME">Maine</option>
+                                    <option value="MD">Maryland</option>
+                                    <option value="MA">Massachusetts</option>
+                                    <option value="MI">Michigan</option>
+                                    <option value="MN">Minnesota</option>
+                                    <option value="MS">Mississippi</option>
+                                    <option value="MO">Missouri</option>
+                                    <option value="MT">Montana</option>
+                                    <option value="NE">Nebraska</option>
+                                    <option value="NV">Nevada</option>
+                                    <option value="NH">New Hampshire</option>
+                                    <option value="NJ">New Jersey</option>
+                                    <option value="NM">New Mexico</option>
+                                    <option value="NY">New York</option>
+                                    <option value="NC">North Carolina</option>
+                                    <option value="ND">North Dakota</option>
+                                    <option value="OH">Ohio</option>
+                                    <option value="OK">Oklahoma</option>
+                                    <option value="OR">Oregon</option>
+                                    <option value="PA">Pennsylvania</option>
+                                    <option value="RI">Rhode Island</option>
+                                    <option value="SC">South Carolina</option>
+                                    <option value="SD">South Dakota</option>
+                                    <option value="TN">Tennessee</option>
+                                    <option value="TX">Texas</option>
+                                    <option value="UT">Utah</option>
+                                    <option value="VT">Vermont</option>
+                                    <option value="VA">Virginia</option>
+                                    <option value="WA">Washington</option>
+                                    <option value="WV">West Virginia</option>
+                                    <option value="WI">Wisconsin</option>
+                                    <option value="WY">Wyoming</option>
+                                </optgroup>
+                                <optgroup label="Canada">
+                                    <option value="AB">Alberta</option>
+                                    <option value="BC">British Columbia</option>
+                                    <option value="MB">Manitoba</option>
+                                    <option value="NB">New Brunswick</option>
+                                    <option value="NL">Newfoundland and Labrador</option>
+                                    <option value="NS">Nova Scotia</option>
+                                    <option value="ON">Ontario</option>
+                                    <option value="PE">Prince Edward Island</option>
+                                    <option value="QC">Quebec</option>
+                                    <option value="SK">Saskatchewan</option>
+                                    <option value="NT">Northwest Territories</option>
+                                    <option value="NU">Nunavut</option>
+                                    <option value="YT">Yukon</option>
+                                </optgroup>
+                            </select>
+                        </div>                        
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="title">Title:*</label>
+                            <input type="text" id="title" name="title" required style="width: 100%; padding: 0.5rem;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="description">Description (optional, max <span id="maxWords">30</span> words):</label>
+                            <textarea id="description" name="description" maxlength="200" style="width: 100%; padding: 0.5rem; height: 100px;" onkeyup="updateWordCount(this)"></textarea>
+                            <div id="wordCount" style="font-size: 0.8rem; color: #666;">Words remaining: <span id="wordsLeft">30</span></div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="photo">Photo:*</label>
+                            <input type="file" id="photo" name="photo" accept="image/*" required style="width: 100%; padding: 0.5rem;" onchange="previewImage(this)">
+                        </div>
+
+                        <button type="submit" style="background: #007bff; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">Upload Photo</button>
+                    </form>
+                </div>
+
+                <div class="preview" style="flex: 1;">
+                    <h2>Preview</h2>
+                    <img id="photoPreview" src="#" alt="Preview" style="max-width: 100%; display: none;">
+                    <div id="photoDetails" style="margin-top: 1rem;"></div>
+                </div>
+            </div>
+            <script>
+                function compressImage(file) {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = function(e) {
+                            const img = new Image();
+                            img.src = e.target.result;
+                            img.onload = function() {
+                                const canvas = document.createElement('canvas');
+                                let width = img.width;
+                                let height = img.height;
+                                
+                                // Keep original dimensions but use quality setting for compression
+                                canvas.width = width;
+                                canvas.height = height;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, width, height);
+                                
+                                // Start with higher quality and reduce if needed
+                                let quality = 0.7;
+                                const compress = (q) => {
+                                    canvas.toBlob((blob) => {
+                                        const fileSize = blob.size / (1024 * 1024); // Size in MB
+                                        if (fileSize > 8 && q > 0.1) {
+                                            // If file is still too large, reduce quality and try again
+                                            compress(q - 0.1);
+                                        } else {
+                                            resolve(new File([blob], file.name, {
+                                                type: 'image/jpeg',
+                                                lastModified: Date.now()
+                                            }));
+                                        }
+                                    }, 'image/jpeg', q);
+                                };
+                                compress(quality);
+                            };
+                        };
+                    });
+                }
+
+                function previewImage(input) {
+                    const preview = document.getElementById('photoPreview');
+                    const details = document.getElementById('photoDetails');
+                    
+                    if (input.files && input.files[0]) {
+                        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                        if (!allowedTypes.includes(input.files[0].type)) {
+                            alert('Only JPG, JPEG and PNG images are allowed.');
+                            input.value = '';
+                            preview.style.display = 'none';
+                            details.innerHTML = '';
+                            return;
+                        }
+
+                        const fileSize = input.files[0].size / (1024 * 1024); // Convert to MB
+                        if (fileSize > 8) {
+                            compressImage(input.files[0]).then(compressedFile => {
+                                const dataTransfer = new DataTransfer();
+                                dataTransfer.items.add(compressedFile);
+                                input.files = dataTransfer.files;
+                                
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    preview.src = e.target.result;
+                                    preview.style.display = 'block';
+                                    preview.setAttribute('download', compressedFile.name);
+                                    details.innerHTML = `
+                                        <p>Filename: ${compressedFile.name}</p>
+                                        <p>Size: ${(compressedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                                    `;
+                                }
+                                reader.readAsDataURL(compressedFile);
+                            });
+                            return;
+                        }
+                        
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
+                            preview.setAttribute('download', input.files[0].name);
+                            details.innerHTML = `
+                                <p>Filename: ${input.files[0].name}</p>
+                                <p>Size: ${(input.files[0].size / (1024 * 1024)).toFixed(2)} MB</p>                            `;
+                        }
+                        
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    
+                    try {
+                        const response = await fetch('/api/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        if (response.ok) {
+                            alert('Photo uploaded successfully!');
+                            window.location.href = '/my-photos.html';
+                        } else {
+                            alert('Failed to upload photo. Please try again.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while uploading the photo.');
+                    }
+                });
+            </script>
+        </main>
+    </div>			
+    <footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 0rem;">
+        <div class="DefText" style="display: flex; justify-content: space-between;">
+            <div>Railhub Pictures © 2024-2025 Photos © respective authors</div>
+            <div>Version 1.0</div>
         </div>
-        <div id="userProfile" style="cursor: pointer;">
-          <script>
-            if (loggedIn) {
-              document.write(`
-                <a href="aboutme.html">
-                  <img src="${localStorage.getItem('profilePic') || 'images/default-avatar.png'}" 
-                       alt="Profile" 
-                       style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                </a>
-              `);
-            }
-          </script>
-        </div>
-        <script>
-          var today = new Date();
-          var dd = String(today.getDate()).padStart(2, '0');
-          var mm = String(today.getMonth() + 1).padStart(2, '0');
-          var yyyy = today.getFullYear();
-          document.write(mm + '/' + dd + '/' + yyyy);
-        </script>
-        <script>
-          function updateClock() {
-            var now = new Date();
-            var hours = String(now.getHours()).padStart(2, '0');
-            var minutes = String(now.getMinutes()).padStart(2, '0');
-            var seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('clock').innerHTML = hours + ':' + minutes + ':' + seconds;
-            setTimeout(updateClock, 1000);
-          }
-          document.write('<div id="clock"></div>');
-          updateClock();
-        </script>      
-      </div>
-    </div>
-  </header>
-
-  <div style="display: flex; min-height: 100vh;">
-    <nav style="width: 240px; padding: 1rem; border-right: 1px solid #eee;">
-      <div class="menu">
-        <div class="CallOut" style="border-bottom: solid black 1px; padding: 0.5rem 0;">View Photos</div>
-        <ul class="menu" style="list-style: none; padding: 0;">
-          <li><a href="index.html" style="padding: 0.5rem 0; display: block;">Home</a></li>
-          <li><a href="newestphotos.html" style="padding: 0.5rem 0; display: block;">Newest Photos</a></li>
-          <li><a href="contribPicks.html" style="padding: 0.5rem 0; display: block;">Contributor Picks</a></li>
-          <li><a href="photoCalendar.html" style="padding: 0.5rem 0; display: block;">By Date</a></li>
-          <li><a href="railroadList.html" style="padding: 0.5rem 0; display: block;">By Railroad</a></li>
-          <li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
-          <li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
-        </ul>
-
-        <div id="memberMenu">
-          <script>
-            if (loggedIn) {
-              document.write(`
-                <div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-                <ul class="menu" style="list-style: none; padding: 0;">
-                  <li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
-                  <li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
-                  <li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
-                  <li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
-                </ul>
-                <div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
-                <ul class="menu" style="list-style: none; padding: 0;">
-                  <li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
-                  <li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
-                  <li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
-                </ul>
-              `);
-            } else {
-              document.write(`
-                <div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-                <ul class="menu" style="list-style: none; padding: 0;">
-                  <li><a href="404.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
-                  <li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
-                </ul>
-              `);
-            }
-          </script>
-        </div>
-      </div>
-    </nav>
-  </div>
+    </footer>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html>
 <head id="ctl00_Head1">
 	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
-	<title>Railhub Pictures.com</title>
+	<title>Pictures of </title>
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script src="Scripts/header-nav.js"></script>
@@ -92,55 +92,100 @@
 				</div>
 			</div>
 		</nav>
-				<main style="flex: 1; padding: 1rem; color: black; font-size: 14px; margin-top: 6px;">
-					<div style="display: flex; gap: 2rem;">
-						<div style="flex: 2;">
-							<h1 class="CallOut" style="border-bottom: solid 1px black; margin-bottom: 1rem; font-size: 14px;">Welcome to Railhub Pictures!</h1>
-							<div class="homePageText">
-								<script>
-									displayRandomImage();
-								</script>
-							<p>Welcome to Railhub Pictures, your premier destination for railroad photography enthusiasts! Our growing collection showcases the beauty and diversity of railroads across the country.</p>							<p>Explore our extensive photo gallery by browsing through different <a href="railroadList.html"><strong>railroad companies</strong></a>, or finding your favorite locomotive <a href="modelList.html"><strong>models</strong></a>. Check out our featured <a href="contribPicks.html"><strong>contributor selections</strong></a> for exceptional photography.</p>
-							<p><strong>Share Your Photos:</strong> Join our community by registering for a free account using the 'Register' link in the menu. Once registered, you can start sharing your own railroad photography with enthusiasts worldwide!</p>
-							<p>Our dedicated team regularly features outstanding photographs on the site. Look for specially marked featured images that represent the best of our collection. You can view our curated selections through the Contributor Picks link in the navigation menu.</p>
-							<p>Stay updated with the latest additions to our collection by visiting the <strong>Newest Photos</strong> section, where you can discover fresh content from our contributing photographers. It's the perfect way to see what's new in the world of railroad photography!</p>
-						</div>
-					</div>
 
-							<aside style="flex: 1; padding: 1rem; color: black; font-size: 14px; margin-top: 1px;">
-								<div style="display: flex; gap: 2rem;">
-									<div style="flex: 2;">
-										<h2 class="CallOut" style="border-bottom: solid 1px black; margin-bottom: 1rem; font-size: 14px;">Site Stats</h2>
-										<div class="homePageText">
-									<table style="width: 100%;">
-										<tr class="DefText">
-											<td><strong><a href="newestphotos.html" style="text-decoration: none; font-weight: bold;">Photos:</a></strong></td>
-											<td style="text-align: right;">52</td>
-										</tr>
-										<tr class="DefText">
-											<td><strong>Locomotives:</strong></td>
-											<td style="text-align: right;">12</td>
-										</tr>
-										<tr class="DefText">
-											<td><strong>Rolling Stock:</strong></td>
-											<td style="text-align: right;">0</td>
-										</tr>
-										<tr class="DefText">
-											<td><strong><a href="contributors.html" style="text-decoration: none; font-weight: bold;">Contributors:</a></strong></td>
-											<td style="text-align: right;">7</td>
-										</tr>
-									</table>
-								</div>
-							</div>
-						</aside>
-					</div>
-				</main>
-			</div>			
-			<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 0rem;">
-				<div class="DefText" style="display: flex; justify-content: space-between;">
-					<div>Railhub Pictures © 2024-2025 Photos © respective authors</div>
-					<div>Version 1.0</div>
+		<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
+			<div class="breadcrumbs" style="margin-bottom: 0rem;">
+				<a href="index.html" style="color: black;">Home</a> > <a href="Railroadid={{locomotive.owner.id}}.html" style="color: black;">{{locomotive.owner.name}}</a> > <a href="modelListRRid={{locomotive.owner.id}}.html" style="color: black;">Locomotives</a> > <a href="modelListid={{locomotive.modelId}}.html" style="color: black;">{{locomotive.model}}</a> > {{locomotive.number}}			</div>
+			<div class="content-header" style="margin-bottom: 1rem;">
+				<div style="display: flex; align-items: center; gap: .5rem;">
+					<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.7rem;">Pictures of {{locomotive.fullName}}</h1>
 				</div>
-			</footer>
-		</body>
-	</html>
+				<div class="locomotive-details" style="margin-top: -0rem; max-width: 520px;">
+					<span id="ctl00_ContentPlaceHolder1_Thumbnails_SubTitle" class="CallOutSmall">
+						<table width="500" class="CallOutSmall">
+							<tbody>
+								<tr>
+									<td align="right"><strong>Owner:</strong></td>
+									<td colspan="3"><a href="locoListid={{locomotive.owner.id}}.html" title="Click for full Loco Roster">{{locomotive.owner.name}}</a></td>
+								</tr>
+								<tr>
+									<td align="right">Model:</td>
+									<td class="DefText">{{locomotive.model}}</td>
+									<td align="right">Built As:</td>
+									<td class="DefText">{{locomotive.builtAs}}</td>
+								</tr>
+								<tr>
+									<td align="right">Built:</td>
+									<td class="DefText">{{locomotive.builtDate}}</td>
+								</tr>
+								<tr>
+									<td align="right">Notes:</td>
+									<td class="DefText" colspan="3">{{locomotive.notes}}</td>
+								</tr>
+							</tbody>
+						</table>
+						Other locos with this serial: {{#each locomotive.serialMatches}}
+							<a href="locopictureid={{id}}.html" class="DefText" title="Model: {{model}} Click to view other pictures of this engine.">{{number}}({{model}})</a>
+						{{/each}}
+					</span>
+				</div>
+			</div>
+			<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
+			
+			{{#each photos}}
+			<table cellspacing="0" cellpadding="6" style="border:2px solid #8F8F8F" align="center" width="100%" bgcolor="#E6E6E6">
+				<tbody>
+					<tr>
+						<td align="left" width="150" nowrap="nowrap" style="border-right:solid black 1px">
+							<a href="showpictureid={{id}}.html" target="_blank">
+								<img src="{{imageUrl}}" border="0" alt="{{title}}" style="width: 225px; height: auto;">
+							</a>
+						</td>
+						<td align="left" valign="top" style="padding: .5rem;">
+							<table class="DefText" style="width: 100%;">
+								<tbody>
+									<tr>
+										<td align="right" width="100"><strong>Title:</strong></td>
+										<td>{{title}}</td>
+									</tr>
+									<tr>
+										<td align="right" valign="top"><strong>Description:</strong></td>
+										<td class="SmallText">{{description}}</td>
+									</tr>
+									<tr>
+										<td align="right"><strong>Photo Date:</strong></td>
+										<td>{{photoDate}} <strong>Upload Date:</strong> {{uploadDate}}</td>
+									</tr>
+									<tr>
+										<td align="right"><strong>Location:</strong></td>
+										<td>{{location}}</td>
+									</tr>
+									<tr>
+										<td align="right"><strong>Author:</strong></td>
+										<td>{{author}}</td>
+									</tr>
+									<tr>
+										<td align="right"><strong>Locomotives:</strong></td>
+										<td>
+												<a class="DefText" title="Model: {{model}} Click to view other pictures of this engine." href="locopictureid={{id}}.html">{{number}}({{model}})</a>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>	
+			<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
+		</div>		
+	</div>
+	
+</div>			
+<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 0rem;">
+    <div class="DefText" style="display: flex; justify-content: space-between;">
+        <div>Railhub Pictures © 2024-2025 Photos © respective authors</div>
+        <div>Version 1.0</div>
+    </div>
+</footer>
+</body>
+</html>
