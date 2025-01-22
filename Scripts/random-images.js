@@ -47,8 +47,15 @@ const images = [
     {src: "images/DSC_0601.JPG", link: "showpictureid=51.html"},
     {src: "images/DSC_0431.JPG", link: "showpictureid=50.html"},
     {src: "images/DSC_0286.JPG", link: "showpictureid=49.html"},
-    {src: "images/CSC_0302.JPG", link: "showpictureid=48.html"}
-];
+    {src: "images/CSC_0302.JPG", link: "showpictureid=48.html"},
+    {src: "images/472070735_1580262769264924_2326834061653819060_n.jpg", link: "showpictureid=56.html"},
+    {src: "images/DSC_0386.JPG", link: "showpictureid=57.html"},
+    {src: "images/DSC_0744.JPG", link: "showpictureid=58.html"},
+    {src: "images/DSC_1033.JPG", link: "showpictureid=59.html"},
+    {src: "images/DSC_0434.JPG", link: "showpictureid=60.html"},
+    {src: "images/DSC_0534.JPG", link: "showpictureid=61.html"},
+    {src: "images/CSC_0693.JPG", link: "showpictureid=62.html"},
+    {src: "images/CSC_0694.JPG", link: "showpictureid=63.html"}];
 
 function getRandomImage() {
     const STORAGE_KEY = 'usedImages';
@@ -94,6 +101,14 @@ function displayRandomImage() {
     img.loading = 'eager';
     img.decoding = 'sync';
     img.fetchPriority = 'high';
+    
+    // Add srcset for responsive images with different sizes
+    img.srcset = `${randomImage.src}?size=small 315w, 
+                  ${randomImage.src}?size=medium 630w, 
+                  ${randomImage.src}?size=large 945w`;
+    img.sizes = '(max-width: 315px) 315px, 
+                 (max-width: 630px) 630px, 
+                 945px';
     
     link.appendChild(img);
     container.appendChild(link);
