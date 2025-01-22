@@ -102,14 +102,6 @@ function displayRandomImage() {
     img.decoding = 'sync';
     img.fetchPriority = 'high';
     
-    // Add srcset for responsive images with different sizes
-    img.srcset = `${randomImage.src}?size=small 315w, 
-                  ${randomImage.src}?size=medium 630w, 
-                  ${randomImage.src}?size=large 945w`;
-    img.sizes = '(max-width: 315px) 315px, 
-                 (max-width: 630px) 630px, 
-                 945px';
-    
     link.appendChild(img);
     container.appendChild(link);
     
