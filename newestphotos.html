@@ -2,10 +2,9 @@
 <html>
 <head id="ctl00_Head1">
 	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
-	<title>Railhub Pictures.com</title>
+	<title>Newest Photos | Railhub Pictures.com</title>
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<script src="Scripts/header-nav.js"></script>
 	<script src="Scripts/random-images.js"></script>
 	<script src="Scripts/user-auth.js"></script>
 	<script src="Scripts/member-login.js"></script></head>
@@ -15,26 +14,6 @@
 			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
 			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
 				<div id="userInfo">
-					<script>
-						const loggedIn = localStorage.getItem('loggedIn');
-						const username = localStorage.getItem('username');
-						if (loggedIn) {
-							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
-						}
-					</script>
-				</div>
-				<div id="userProfile" style="cursor: pointer;">
-					<script>
-						if (loggedIn) {
-							document.write(`
-								<a href="aboutme.html">
-									<img src="${localStorage.getItem('profilePic') || 'images/default-avatar.png'}" 
-										 alt="Profile" 
-										 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-								</a>
-							`);
-						}
-					</script>
 				</div>
 				<script>
 					var today = new Date();
@@ -60,36 +39,11 @@
 					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
 					<li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
 				</ul>
-
-				<div id="memberMenu">
-					<script>
-						if (loggedIn) {
-							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
-									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
-									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
-									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
-								</ul>
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
-									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
-									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
-								</ul>
-							`);
-						} else {
-							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
-									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
-								</ul>
-							`);
-						}
-					</script>
-				</div>
+				<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+				<ul class="menu" style="list-style: none; padding: 0;">
+					<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+					<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
+				</ul>
 			</div>
 		</nav>
 		<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">

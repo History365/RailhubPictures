@@ -2,62 +2,18 @@
 <html>
 <head id="ctl00_Head1">
 	<link rel="stylesheet" href="stylesheet/stylesheet.css" type="text/css">
-	<title>Railhub Pictures.com</title>
+	<title>Search | Railhub Pictures.com</title>
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<script>
-			// Save to userdata.json using fetch
-			fetch('/saveUserData', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					username: 'Test User',
-					profilePic: 'images/default-avatar.png'
-				})
-			});
-		} else {
-			// Load user data from server
-			fetch('/getUserData')
-				.then(response => response.json())
-				.then(data => {
-					localStorage.setItem('username', data.username);
-					localStorage.setItem('profilePic', data.profilePic);
-				});
-		}
-	</script>
-</head>
+	<script src="Scripts/random-images.js"></script>
+	<script src="Scripts/user-auth.js"></script>
+	<script src="Scripts/member-login.js"></script></head>
 <body>
-	<script src="includes/wz_dragdrop.js"></script> 
-	<script src="Scripts/jquery-1.4.2.min.js"></script>
-	<script src="Scripts/jquery-ui-1.8.6.custom.min.js"></script>
-
 	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 		<div style="display: flex; justify-content: space-between; align-items: center;">
 			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
 			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
 				<div id="userInfo">
-					<script>
-						const loggedIn = localStorage.getItem('loggedIn');
-						const username = localStorage.getItem('username');
-						if (loggedIn) {
-							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
-						}
-					</script>
-				</div>
-				<div id="userProfile" style="cursor: pointer;">
-					<script>
-						if (loggedIn) {
-							document.write(`
-								<a href="aboutme.html">
-									<img src="${localStorage.getItem('profilePic') || 'images/default-avatar.png'}" 
-										 alt="Profile" 
-										 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-								</a>
-							`);
-						}
-					</script>
 				</div>
 				<script>
 					var today = new Date();
@@ -83,39 +39,13 @@
 					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
 					<li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
 				</ul>
-
-				<div id="memberMenu">
-					<script>
-						if (loggedIn) {
-							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
-									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
-									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
-									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
-								</ul>
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
-									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
-									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
-								</ul>
-							`);
-						} else {
-							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
-									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
-								</ul>
-							`);
-						}
-					</script>
-				</div>
+				<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+				<ul class="menu" style="list-style: none; padding: 0;">
+					<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+					<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
+				</ul>
 			</div>
 		</nav>
-		
 		<main style="flex-grow: 1; padding: 1rem;">
 			<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">Advanced Locomotive Search (This Feature is not functional at the moment)</h1>
 			<div class="search-container" style="background: #f5f5f5; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
