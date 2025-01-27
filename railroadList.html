@@ -46,9 +46,11 @@
 				</ul>
 			</div>
 		</nav>
-			<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
-				<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">View Pictures by Railroad</h1>
-				<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
+			<main style="flex: 1; padding: 1rem; color: black; font-size: 14px; margin-top: 6px;">
+				<div style="display: flex; gap: 2rem;">
+					<div style="flex: 2;">
+						<h1 class="CallOut" style="border-bottom: solid 1px black; margin-bottom: 1rem; font-size: 14px;">View Pictures by Railroad</h1>
+						<div class="homePageText">
 
 				<div style="display: flex; gap: 2rem;">
 					<div class="sidebar" style="min-width: 240px;">
@@ -115,6 +117,7 @@
 							{ marks: 'BNSF', name: 'BNSF Railway', locos: '10,682', stock: '46,059' },
 							{ marks: 'CN', name: 'Canadian National Railways', locos: '4,444', stock: '13,636' },
 							{ marks: 'CPKC', name: 'Canadian Pacific Kansas City', locos: '3,457', stock: '13,247' },
+							{ marks: 'CPRS', name: 'Canadian Pacific Rail System', locos: '2,345', stock: '11,234' },
 							{ marks: 'CSX', name: 'CSX Railroad', locos: '7,960', stock: '39,840' },
 							{ marks: 'NS', name: 'Norfolk Southern', locos: '8,636', stock: '42,507' },
 							{ marks: 'UP', name: 'Union Pacific Railroad Company', locos: '14,928', stock: '20,376' }
@@ -154,8 +157,8 @@
 							row.innerHTML = `
 								<td style="padding: 1rem;"><a href="Railroadid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.marks}</a></td>
 								<td style="padding: 1rem; color: black;">${railroad.name}</td>
-								<td style="padding: 1rem; text-align: right;"><a href="locoListid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.locos}</a></td>
-								<td style="padding: 1rem; text-align: right;"><a href="rsListid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.stock}</a></td>
+								<td style="padding: 1rem; text-align: right;"><a href="modelListRRid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.locos}</a></td>
+								<td style="padding: 1rem; text-align: right;"><a href="modelListRRid=${railroad.marks}.html" style="text-decoration: none; color: black;">${railroad.stock}</a></td>
 							`;
 							
 							tbody.appendChild(row);
@@ -196,4 +199,21 @@
 					// Show major carriers by default
 					showRailroads('major');
 				</script>
+										</tr>
+										<tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</main>
+		</div>			
+		<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 0rem;">
+			<div class="DefText" style="display: flex; justify-content: space-between;">
+				<div>Railhub Pictures © 2024-2025 Photos © respective authors</div>
+				<div>Version 1.0</div>
 			</div>
+		</footer>
+	</body>
+</html>

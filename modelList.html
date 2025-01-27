@@ -7,7 +7,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script src="Scripts/random-images.js"></script>
 	<script src="Scripts/user-auth.js"></script>
-	<script src="Scripts/member-login.js"></script></head>
+	<script src="Scripts/member-login.js"></script>
+</head>
 <body>
 	<header style="padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 		<div style="display: flex; justify-content: space-between; align-items: center;">
@@ -46,46 +47,38 @@
 				</ul>
 			</div>
 		</nav>
-		<div class="main-content" style="flex: 1; padding: 1rem; color: black; font-size: 14px;">
-			<h1 class="PageHeader" style="color: black; font-size: 20px; margin-bottom: 0.0rem;">Locomotive Models</h1>
-			<hr style="border: none; border-bottom: 1px solid black; margin: .5rem 0;">
-
-                <table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse: collapse; margin-top: 20px; border: 1px solid #ddd;">
-                    <thead>                        <tr style="background-color: #f0f0f0; border-bottom: 2px solid #ddd;">
-                            <th class="Tableheader" style="text-align: left; padding: 7px; border: 1px solid #ddd;">Builder</th>
-                            <th class="Tableheader" style="text-align: left; padding: 7px; border: 1px solid #ddd;">Model</th>
-                            <th class="Tableheader" style="text-align: left; padding: 7px; border: 1px solid #ddd;"># Units</th>
-                            <th class="Tableheader" style="text-align: left; padding: 7px; border: 1px solid #ddd;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>                        
-                        <tr><td class="DefText" align="left" style="border: 1px solid #ddd;">EMD</td><td class="DefText" align="left" style="border: 1px solid #ddd;">SD40-2B</td><td class="DefText" align="left" style="border: 1px solid #ddd;">1</td><td class="DefText" style="border: 1px solid #ddd;"><a href="modelListid=BNSF4-2B.html">View</a></td></tr>
-                        <tr class="DefTextAlt"><td class="DefText" align="left" style="border: 1px solid #ddd;">GE</td><td class="DefText" align="left" style="border: 1px solid #ddd;">B40-8W</td><td class="DefText" align="left" style="border: 1px solid #ddd;">1</td><td class="DefText" style="border: 1px solid #ddd;"><a href="modelListid=BNSF4-8W.html">View</a></td></tr>
-                        <tr><td class="DefText" align="left" style="border: 1px solid #ddd;">GE</td><td class="DefText" align="left" style="border: 1px solid #ddd;">C44-9W</td><td class="DefText" align="left" style="border: 1px solid #ddd;">4</td><td class="DefText" style="border: 1px solid #ddd;"><a href="modelListid=BNSF4-9W.html">View</a></td></tr>
-                        <tr class="DefTextAlt"><td class="DefText" align="left" style="border: 1px solid #ddd;">GE</td><td class="DefText" align="left" style="border: 1px solid #ddd;">ES44DC</td><td class="DefText" align="left" style="border: 1px solid #ddd;">1</td><td class="DefText" style="border: 1px solid #ddd;"><a href="modelListid=BNSF4DC.html">View</a></td></tr>
-                        <tr class="DefText"><td class="DefText" align="left" style="border: 1px solid #ddd;">GE</td><td class="DefText" align="left" style="border: 1px solid #ddd;">ET44C4</td><td class="DefText" align="left" style="border: 1px solid #ddd;">1</td><td class="DefText" style="border: 1px solid #ddd;"><a href="locoList.aspx?id=BNSF">View</a></td></tr>           
-                </tbody></table>
-            </div>
-    </div>
-<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 2rem;">
-<div class="DefText" style="display: flex; justify-content: space-between;">
-    <div>Railhub Pictures © 2024-2025 </div>
-    <div>Version 1.0</div>
-</div>
-</footer>
-<script>
-function confirmLogout() {
-    if (confirm("Are you sure you want to sign out?")) {
-        logout();
-    }
-}
-
-function logout() {
-    localStorage.removeItem('loggedIn');
-    localStorage.removeItem('username');
-    localStorage.removeItem('profilePic');
-    location.reload();
-}
-</script>
-
-</body></html>
+		<main style="flex: 1; padding: 1rem; color: black; font-size: 14px; margin-top: 6px;">
+			<div style="display: flex; gap: 2rem;">
+				<div style="flex: 2;">
+					<h1 class="CallOut" style="border-bottom: solid 1px black; margin-bottom: 1rem; font-size: 14px;">View Pictures by Locomotive Models</h1>
+					<div class="homePageText">
+						<table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse: collapse; margin-top: 20px; border: 1px solid #ddd;">
+							<thead>
+								<tr style="background-color: #f0f0f0; border-bottom: 2px solid #ddd;">
+									<th class="Tableheader" style="text-align: left; padding: 7px; border: 1px solid #ddd;">Builder</th>
+									<th class="Tableheader" style="text-align: left; padding: 7px; border: 1px solid #ddd;">Model</th>
+									<th class="Tableheader" style="text-align: left; padding: 7px; border: 1px solid #ddd;"># Units</th>
+									<th class="Tableheader" style="text-align: left; padding: 7px; border: 1px solid #ddd;">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr><td class="DefText" align="left" style="border: 1px solid #ddd;">EMD</td><td class="DefText" align="left" style="border: 1px solid #ddd;">SD40-2B</td><td class="DefText" align="left" style="border: 1px solid #ddd;">1</td><td class="DefText" style="border: 1px solid #ddd;"><a href="modelListid=BNSF4-2B.html">View</a></td></tr>
+								<tr class="DefTextAlt"><td class="DefText" align="left" style="border: 1px solid #ddd;">GE</td><td class="DefText" align="left" style="border: 1px solid #ddd;">B40-8W</td><td class="DefText" align="left" style="border: 1px solid #ddd;">1</td><td class="DefText" style="border: 1px solid #ddd;"><a href="modelListid=BNSF4-8W.html">View</a></td></tr>
+								<tr><td class="DefText" align="left" style="border: 1px solid #ddd;">GE</td><td class="DefText" align="left" style="border: 1px solid #ddd;">C44-9W</td><td class="DefText" align="left" style="border: 1px solid #ddd;">4</td><td class="DefText" style="border: 1px solid #ddd;"><a href="modelListid=BNSF4-9W.html">View</a></td></tr>
+								<tr class="DefTextAlt"><td class="DefText" align="left" style="border: 1px solid #ddd;">GE</td><td class="DefText" align="left" style="border: 1px solid #ddd;">ES44DC</td><td class="DefText" align="left" style="border: 1px solid #ddd;">1</td><td class="DefText" style="border: 1px solid #ddd;"><a href="modelListid=BNSF4DC.html">View</a></td></tr>
+								<tr class="DefText"><td class="DefText" align="left" style="border: 1px solid #ddd;">GE</td><td class="DefText" align="left" style="border: 1px solid #ddd;">ET44C4</td><td class="DefText" align="left" style="border: 1px solid #ddd;">1</td><td class="DefText" style="border: 1px solid #ddd;"><a href="locoList.aspx?id=BNSF">View</a></td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+	<footer style="border-top: 1px solid #eee; padding: 1rem; margin-top: 0rem;">
+		<div class="DefText" style="display: flex; justify-content: space-between;">
+			<div>Railhub Pictures © 2024-2025 Photos © respective authors</div>
+			<div>Version 1.0</div>
+		</div>
+	</footer>
+</body>
+</html>
