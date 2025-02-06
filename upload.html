@@ -5,7 +5,6 @@
 	<title>Railhub Pictures.com</title>
 	<meta id="ctl00_metaDescription" name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<script src="Scripts/header-nav.js"></script>
 	<script src="Scripts/random-images.js"></script>
 	<script src="Scripts/user-auth.js"></script>
 	<script src="Scripts/member-login.js"></script>
@@ -16,26 +15,6 @@
 			<a href="index.html"><img src="images/logo.jpg" alt="Logo" style="max-width: 360px; height: auto;"></a>
 			<div class="DefText" style="text-align: right; display: flex; align-items: center; gap: 1rem;">
 				<div id="userInfo">
-					<script>
-						const loggedIn = localStorage.getItem('loggedIn');
-						const username = localStorage.getItem('username');
-						if (loggedIn) {
-							document.write(`<a href="aboutme.html" style="text-decoration: none;">Welcome, ${username}!</a>`);
-						}
-					</script>
-				</div>
-				<div id="userProfile" style="cursor: pointer;">
-					<script>
-						if (loggedIn) {
-							document.write(`
-								<a href="aboutme.html">
-									<img src="${localStorage.getItem('profilePic') || 'images/default-avatar.png'}" 
-										 alt="Profile" 
-										 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-								</a>
-							`);
-						}
-					</script>
 				</div>
 				<script>
 					var today = new Date();
@@ -61,43 +40,18 @@
 					<li><a href="modelList.html" style="padding: 0.5rem 0; display: block;">By Locomotive Model</a></li>
 					<li><a href="search.html" style="padding: 0.5rem 0; display: block;">Search</a></li>
 				</ul>
-
-				<div id="memberMenu">
-					<script>
-						if (loggedIn) {
-							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="upload.html" style="padding: 0.5rem 0; display: block;">Upload Pictures</a></li>
-									<li><a href="view-pictures.html" style="padding: 0.5rem 0; display: block;">View Pictures</a></li>
-									<li><a href="manage-pictures.html" style="padding: 0.5rem 0; display: block;">Manage Pictures</a></li>
-									<li><a href="#" onclick="confirmLogout()" style="padding: 0.5rem 0; display: block;">Sign Out</a></li>
-								</ul>
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">My Account</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="aboutme.html" style="padding: 0.5rem 0; display: block;">My Profile</a></li>
-									<li><a href="my-photos.html" style="padding: 0.5rem 0; display: block;">My Photos</a></li>
-									<li><a href="account-settings.html" style="padding: 0.5rem 0; display: block;">Account Settings</a></li>
-								</ul>
-							`);
-						} else {
-							document.write(`
-								<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
-								<ul class="menu" style="list-style: none; padding: 0;">
-									<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
-									<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
-								</ul>
-							`);
-						}
-					</script>
-				</div>
+				<div class="CallOut" style="border-bottom: solid black 1px; margin-top: 1rem; padding: 0.5rem 0;">Members</div>
+				<ul class="menu" style="list-style: none; padding: 0;">
+					<li><a href="login.html" style="padding: 0.5rem 0; display: block;">Log In</a></li>
+					<li><a href="register.html" style="padding: 0.5rem 0; display: block;">Register</a></li>
+				</ul>
 			</div>
 		</nav>
         <main style="flex: 1; padding: 1rem; color: black; font-size: 14px; margin-top: 6px;">
             <div style="display: flex; gap: 2rem;">
                 <div style="flex: 2;">
                     <h1 class="CallOut" style="border-bottom: solid 1px black; margin-bottom: 1rem; font-size: 14px;">Upload Your Photo</h1>
-                    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload">
+                    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="http://127.0.0.1:5500/upload">
                         <div class="form-group" style="margin-bottom: 1rem;">
                             <label for="railroad">Railroad:*</label>
                             <select id="railroad" name="railroad" required style="width: 100%; padding: 0.5rem;" onchange="updateLocomotiveModels()">
@@ -111,92 +65,6 @@
                                     <option value="UP">Union Pacific</option>
                                     <option value="CN">Canadian National</option>
                                     <option value="VIA">VIA Rail Canada</option>
-                                </optgroup>
-                                <optgroup label="Class 2">
-                                    <option value="FEC">Florida East Coast Railway</option>
-                                    <option value="PAR">Pan Am Railways</option>
-                                    <option value="RJ">R.J. Corman Railroad</option>
-                                    <option value="IC">Iowa Central Railway</option>
-                                    <option value="DME">Dakota, Minnesota & Eastern</option>
-                                    <option value="WC">Wisconsin Central</option>
-                                    <option value="ARR">Alaska Railroad</option>
-                                    <option value="GWRR">Genesee & Wyoming</option>
-                                    <option value="MNA">Missouri & Northern Arkansas</option>
-                                    <option value="IORY">Indiana & Ohio Railway</option>
-                                    <option value="PNWR">Portland & Western Railroad</option>
-                                    <option value="CFNR">California Northern Railroad</option>
-                                </optgroup>
-                                <optgroup label="Class 3">
-                                    <option value="BLE">Bessemer & Lake Erie Railroad</option>
-                                    <option value="KYLE">Kyle Railroad</option>
-                                    <option value="WTNN">West Tennessee Railroad</option>
-                                    <option value="INRD">Indiana Railroad</option>
-                                    <option value="PSWR">Pacific Southwest Railroad</option>
-                                    <option value="AZER">Arizona Eastern Railway</option>
-                                    <option value="BPRR">Buffalo & Pittsburgh Railroad</option>
-                                    <option value="CMGN">Central Michigan Railway</option>
-                                    <option value="CORP">Central Oregon & Pacific Railroad</option>
-                                    <option value="GEXR">Goderich-Exeter Railway</option>
-                                    <option value="GRR">Georgetown Railroad</option>
-                                    <option value="HESR">Huron & Eastern Railway</option>
-                                    <option value="IAIS">Iowa Interstate Railroad</option>
-                                    <option value="KBSR">Kankakee, Beaverville & Southern</option>
-                                    <option value="LAL">Lake State Railway</option>
-                                    <option value="LIRC">Louisville & Indiana Railroad</option>
-                                    <option value="MQT">Marquette Rail</option>
-                                    <option value="MSRW">Mississippi & Skuna Valley</option>
-                                    <option value="NECR">New England Central Railroad</option>
-                                    <option value="NOPB">New Orleans Public Belt</option>
-                                    <option value="OHCR">Ohio Central Railroad</option>
-                                    <option value="OMLX">Ohio & Lake Erie Railway</option>
-                                    <option value="PW">Providence & Worcester Railroad</option>
-                                </optgroup>
-                                <optgroup label="Passenger">
-                                    <option value="VRE">Virginia Railway Express</option>
-                                    <option value="METRA">Metra</option>
-                                    <option value="MBTA">MBTA</option>
-                                    <option value="LIRR">Long Island Rail Road</option>
-                                    <option value="NJT">New Jersey Transit</option>
-                                    <option value="SEPTA">SEPTA</option>
-                                    <option value="MARC">MARC Train</option>
-                                    <option value="MNCR">Metro-North Railroad</option>
-                                    <option value="CALTRAIN">Caltrain</option>
-                                    <option value="METROLINK">Metrolink</option>
-                                    <option value="SOUNDER">Sounder Commuter Rail</option>
-                                    <option value="TRE">Trinity Railway Express</option>
-                                    <option value="COASTER">COASTER</option>
-                                    <option value="SLE">Shore Line East</option>
-                                    <option value="ACE">Altamont Corridor Express</option>
-                                    <option value="DART">Dallas Area Rapid Transit</option>
-                                    <option value="DCTA">Denton County Transit Authority</option>
-                                    <option value="RTD">RTD Commuter Rail</option>
-                                </optgroup>
-                                <optgroup label="Regional & Shortlines">
-                                    <option value="P&W">Providence & Worcester</option>
-                                    <option value="NYSW">New York, Susquehanna & Western</option>
-                                    <option value="RBMN">Reading & Northern</option>
-                                    <option value="WNYP">Western New York & Pennsylvania</option>
-                                    <option value="MMID">Maryland Midland Railway</option>
-                                    <option value="DGNO">Dallas, Garland & Northeastern</option>
-                                    <option value="BNSF">Brownsville & Rio Grande</option>
-                                    <option value="AKDN">Akron Barberton Cluster</option>
-                                    <option value="BRC">Belt Railway of Chicago</option>
-                                    <option value="CERA">Central Railroad of Indiana</option>
-                                    <option value="BAYL">Bay Line Railroad</option>
-                                    <option value="BDRV">Brandywine Valley Railroad</option>
-                                    <option value="CARR">Carrollton Railroad</option>
-                                    <option value="CSXT">Central California Traction</option>
-                                </optgroup>
-                                <optgroup label="Leasing Companies">
-                                    <option value="GATX">GATX Corporation</option>
-                                    <option value="TTGX">TTX Company</option>
-                                    <option value="GMTX">GMTX (GATX Rail)</option>
-                                    <option value="CEFX">CIT Rail</option>
-                                    <option value="CITX">CIT Group</option>
-                                    <option value="LTEX">LTE Logistics</option>
-                                    <option value="FURX">First Union Rail</option>
-                                    <option value="HLCX">Helm Leasing</option>
-                                    <option value="NREX">National Railway Equipment</option>
                                 </optgroup>
                             </select>
                         </div>                        
@@ -301,7 +169,6 @@
                             <label for="photo">Photo:*</label>
                             <input type="file" id="photo" name="photo" accept="image/*" required style="width: 100%; padding: 0.5rem;" onchange="previewImage(this)">
                         </div>
-
                         <button type="submit" style="background: #007bff; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">Upload Photo</button>
                     </form>
                 </div>
@@ -325,19 +192,16 @@
                                 let width = img.width;
                                 let height = img.height;
                                 
-                                // Keep original dimensions but use quality setting for compression
                                 canvas.width = width;
                                 canvas.height = height;
                                 const ctx = canvas.getContext('2d');
                                 ctx.drawImage(img, 0, 0, width, height);
                                 
-                                // Start with higher quality and reduce if needed
                                 let quality = 0.7;
                                 const compress = (q) => {
                                     canvas.toBlob((blob) => {
-                                        const fileSize = blob.size / (1024 * 1024); // Size in MB
+                                        const fileSize = blob.size / (1024 * 1024);
                                         if (fileSize > 8 && q > 0.1) {
-                                            // If file is still too large, reduce quality and try again
                                             compress(q - 0.1);
                                         } else {
                                             resolve(new File([blob], file.name, {
@@ -367,7 +231,7 @@
                             return;
                         }
 
-                        const fileSize = input.files[0].size / (1024 * 1024); // Convert to MB
+                        const fileSize = input.files[0].size / (1024 * 1024);
                         if (fileSize > 8) {
                             compressImage(input.files[0]).then(compressedFile => {
                                 const dataTransfer = new DataTransfer();
@@ -410,12 +274,13 @@
                     const formData = new FormData(this);
                     
                     try {
-                        const response = await fetch('/api/upload', {
+                        const response = await fetch('http://127.0.0.1:5500/api/upload/photos', {
                             method: 'POST',
                             body: formData
                         });
                         
                         if (response.ok) {
+                            handlePhotoUpload(formData); // Call the Scripts/photo-upload.js function
                             alert('Photo uploaded successfully!');
                             window.location.href = '/my-photos.html';
                         } else {
