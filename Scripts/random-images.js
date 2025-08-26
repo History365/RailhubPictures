@@ -58,32 +58,8 @@ const images = [
     {src: "images/CSC_0694.JPG", link: "showpictureid=63.html"}];
 
 function getRandomImage() {
-    const STORAGE_KEY = 'usedImages';
-    let usedImages = [];
-    
-    try {
-        usedImages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    } catch (error) {
-        console.error('Error parsing used images:', error);
-        localStorage.setItem(STORAGE_KEY, '[]');
-    }
-
-    if (usedImages.length >= images.length) {
-        usedImages = [];
-    }
-
-    const availableImages = images.filter(img => !usedImages.includes(img.src));
-    const randomIndex = Math.floor(Math.random() * availableImages.length);
-    const selectedImage = availableImages[randomIndex];
-
-    try {
-        usedImages.push(selectedImage.src);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(usedImages));
-    } catch (error) {
-        console.error('Error saving used images:', error);
-    }
-
-    return selectedImage;
+    const randomIndex = Math.floor(Math.random() * images.length);
+    return images[randomIndex];
 }
 
 function displayRandomImage() {
@@ -92,11 +68,10 @@ function displayRandomImage() {
     
     const link = document.createElement('a');
     link.href = randomImage.link;
-    link.target = '_blank';
     
     const img = document.createElement('img');
-    img.style.cssText = 'float: right; border: solid 1px #000; width: 315px; height: auto; margin: 0 0 1rem 1rem;';
-    img.alt = 'Front Page Pic';
+    img.style.cssText = 'max-width: 100%; max-height: 600px; object-fit: contain; border-radius: 8px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.1);';
+    img.alt = 'Featured Railroad Photo';
     img.src = randomImage.src;
     img.loading = 'eager';
     img.decoding = 'sync';
@@ -105,6 +80,34 @@ function displayRandomImage() {
     link.appendChild(img);
     container.appendChild(link);
     
-    const targetElement = document.currentScript?.parentElement || document.body;
-    targetElement.appendChild(container);
+    const scriptElement = document.currentScript;
+    if (scriptElement && scriptElement.parentElement) {
+        scriptElement.parentElement.appendChild(container);
+    }
+}
+
+function loadRandomImages(containerId, count) {
+    const container = document.getElementById(containerId);
+    const availableImages = [...images]; // Make a copy of the images array
+    const selectedImages = [];
+
+    // Select random images without repetition
+    while (selectedImages.length < count && availableImages.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableImages.length);
+        const image = availableImages.splice(randomIndex, 1)[0]; // Remove and get the selected image
+        selectedImages.push(image);
+        
+        // Create image element with link
+        const link = document.createElement('a');
+        link.href = image.link;
+        
+        const img = document.createElement('img');
+        img.src = image.src;
+        img.alt = 'Railroad Photo';
+        img.loading = 'lazy';
+        
+        link.appendChild(img);
+        container.appendChild(link);
+    }
+}
 }
