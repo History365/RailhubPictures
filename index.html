@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RailHub Pictures - Share Your Railroad Photography</title>
+    <title>Railhub Pictures</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="stylesheet/styles.css" rel="stylesheet">
     <link href="stylesheet/homepage.css" rel="stylesheet">
+    <link href="stylesheet/homepage2.css" rel="stylesheet">
     <script src="Scripts/random-images.js"></script>
     <style>
         * {
@@ -55,15 +56,19 @@
         .cta-button {
             display: inline-block;
             padding: 1em 2em;
-            background: #444;
+            background: rgba(68, 68, 68, 0.5);
             color: #fff;
             text-decoration: none;
             border-radius: 6px;
             font-weight: 500;
+            backdrop-filter: blur(5px);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .cta-button:hover {
-            background: #333;
+            background: rgba(51, 51, 51, 0.7);
+            transform: translateY(-1px);
         }
 
         .section {

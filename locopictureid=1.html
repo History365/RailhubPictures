@@ -3,266 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSX 4710 (SD70MAC) | RailHub Pictures</title>
+    <title>CSX 4710 (SD70MAC) | Railhub Pictures</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <link href="stylesheet/styles.css" rel="stylesheet">
+    <link href="stylesheet/locopicture.css" rel="stylesheet">
     <script src="Scripts/random-images.js"></script>
     <script src="Scripts/user-auth.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            line-height: 1.6;
-            color: #333;
-            background-color: #f5f5f5;
-            padding-top: 124px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: center;
-        }
-
-        .content {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            text-align: center;
-        }
-
-        .content h1,
-        .content h2,
-        .content .breadcrumb,
-        .content .locomotive-info,
-        .content .photo-grid {
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 800px;
-        }
-
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 2rem;
-            margin: 2rem auto;
-            max-width: 900px;
-            align-items: start;
-        }
-
-        @media (max-width: 768px) {
-            .photo-grid {
-                grid-template-columns: minmax(0, 600px);
-                justify-content: center;
-            }
-        }
-
-        .breadcrumb {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin: 0 auto 2rem;
-            color: #666;
-            font-size: 0.95rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .breadcrumb a {
-            color: #444;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .breadcrumb a:hover {
-            color: #000;
-        }
-
-        .breadcrumb span {
-            color: #999;
-        }
-
-        h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: #222;
-        }
-
-        .locomotive-info {
-            margin: 0 auto 2.5rem;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            overflow: hidden;
-            max-width: 600px;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: minmax(140px, auto) 1fr;
-            text-align: left;
-        }
-
-        .info-grid dt {
-            padding: 1rem;
-            font-weight: 500;
-            color: #555;
-            background: #f8f8f8;
-            border-bottom: 1px solid #eee;
-            text-align: right;
-            width: 140px;
-        }
-
-        .info-grid dd {
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        .info-grid dt:last-of-type,
-        .info-grid dd:last-of-type {
-            border-bottom: none;
-        }
-
-        .photo-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #eee;
-            margin-bottom: 2rem;
-        }
-
-        .photo-image {
-            width: 100%;
-            max-height: 600px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .photo-details {
-            padding: 1.5rem;
-        }
-
-        .photo-details h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #222;
-        }
-
-        .photo-meta {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 0.5rem 2rem;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-
-        .photo-meta dt {
-            color: #666;
-            font-weight: 500;
-        }
-
-        .photo-meta a {
-            color: #444;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .photo-meta a:hover {
-            color: #000;
-            text-decoration: underline;
-        }
-
-        .photo-description {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
-        }
-
-        .photo-content img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .photo-info {
-            padding: 2rem;
-            border-top: 1px solid #eee;
-        }
-
-        .breadcrumb {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-bottom: 1rem;
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        .breadcrumb a {
-            color: #444;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .breadcrumb a:hover {
-            color: #000;
-            text-decoration: underline;
-        }
-
-        .breadcrumb span {
-            color: #999;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            color: #333;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 1rem;
-            }
-            
-            .locomotive-header {
-                padding: 1.5rem;
-                margin: 1rem auto;
-            }
-
-            .photo-info {
-                padding: 1.5rem;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee;">
         <div style="display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
-            <!-- Top Row with Logo and Account -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <a href="index.html" style="display: flex; align-items: center;">
                     <img src="images/logo.jpg" alt="Logo" style="max-width: 300px; height: auto;">
@@ -282,7 +34,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Bottom Row with Navigation and Search -->
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <nav style="display: flex; gap: 2.5rem;">
                     <a href="index.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em; transition: all 0.2s;">Home</a>
@@ -310,81 +61,132 @@
 
     <main class="container">
         <div class="content">
-            <!-- Breadcrumb -->
-            <div class="breadcrumb">
-                <a href="index.html">Home</a>
-                <span>›</span>
-                <a href="railroadList.html">Railroads</a>
-                <span>›</span>
-                <a href="Railroadid=CSX.html">CSX</a>
-                <span>›</span>
-                <a href="modelListRRid=CSX.html">Locomotives</a>
-                <span>›</span>
-                <a href="modelListid=70MAC.html">EMD SD70MAC</a>
-                <span>›</span>
-                <span>CSX 4710</span>
+            <div style="margin-bottom: 1rem;">
+                <div class="breadcrumb" style="justify-content: flex-start; margin: 0; padding-bottom: 0.5rem; border-bottom: 1px solid #eee;">
+                    <a href="index.html">Home</a>
+                    <span>›</span>
+                    <a href="railroadid=CSX.html">CSX Railway</a>
+                    <span>›</span>
+                    <a href="modelListRRid=CSX.html">Locomotives</a>
+                    <span>›</span>
+                    <a href="modelListid=70MAC.html">EMD SD70MAC</a>
+                    <span>›</span>
+                    <span>CSX 4710</span>
+                </div>
+
+                <h1 style="text-align: left; margin: 0.5rem 0;"><a href="locopictureid=1.html" style="text-decoration: none; color: #333; font-weight: 600;">CSX 4710 (EMD SD70MAC)</a></h1>
             </div>
+            <div class="locomotive-info" style="max-width: 100%;">
+                <div style="font-size: 0.85rem;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <span style="display: inline-block; width: 180px; text-align: right; font-weight: 600; color: #555;">Owner:</span>
+                        <span style="margin-left: 0.5rem;"><a href="locoListid=CSX.html" style="text-decoration: underline; color: #333; font-weight: 600;">CSX Railway</a></span>
+                    </div>
 
-            <h1>CSX 4710 (EMD SD70MAC)</h1>
+                    <div style="display: flex; margin-bottom: 0.5rem;">
+                        <div style="width: 300px;">
+                            <span style="display: inline-block; width: 180px; text-align: right; font-weight: 600; color: #555;">Model:</span>
+                            <span style="margin-left: 0.5rem;">EMD SD70MAC</span>
+                        </div>
+                        <div style="margin-left: 2rem;">
+                            <span style="display: inline-block; width: 80px; text-align: right; font-weight: 600; color: #555;">Built As:</span>
+                            <span style="margin-left: 0.5rem;">CSX 4710 (SD70MAC)</span>
+                        </div>
+                    </div>
 
-            <!-- Locomotive Info -->
-            <dl class="locomotive-info info-grid">
-                <dt>Owner</dt>
-                <dd><a href="locoListid=CSX.html" title="Click for full Loco Roster">CSX Railroad</a></dd>
-                
-                <dt>Model</dt>
-                <dd>EMD SD70MAC</dd>
-                
-                <dt>Built As</dt>
-                <dd>CSX 4710 (SD70MAC)</dd>
-                
-                <dt>Built Date</dt>
-                <dd>September 2003</dd>
-                
-                <dt>Notes</dt>
-                <dd>Repainted into YN3</dd>
-            </dl>
+                    <div style="display: flex; margin-bottom: 0.5rem;">
+                        <div style="width: 300px;">
+                            <span style="display: inline-block; width: 180px; text-align: right; font-weight: 600; color: #555;">Serial Number:</span>
+                            <span style="margin-left: 0.5rem;"><a href="serialNo=787227-18.html" style="text-decoration: underline; color: #333; font-weight: 600;">20026429-10</a></span>
+                        </div>
+                        <div style="margin-left: 2rem;">
+                            <span style="display: inline-block; width: 80px; text-align: right; font-weight: 600; color: #555;">Order No:</span>
+                            <span style="margin-left: 0.5rem;"><a href="orderNo=787227.html" style="text-decoration: underline; color: #333; font-weight: 600;">20026429</a></span>
+                        </div>
+                    </div>
 
-            <!-- Photos -->
-            <h2 style="font-size: 1.25rem; font-weight: 600; margin: 2rem 0 1rem; text-align: center;">Photos</h2>
+                    <div style="display: flex; margin-bottom: 0.5rem;">
+                        <div style="width: 300px;">
+                            <span style="display: inline-block; width: 180px; text-align: right; font-weight: 600; color: #555;">Frame Number:</span>
+                            <span style="margin-left: 0.5rem;">20026429-10</span>
+                        </div>
+                        <div style="margin-left: 2rem;">
+                            <span style="display: inline-block; width: 80px; text-align: right; font-weight: 600; color: #555;">Built:</span>
+                            <span style="margin-left: 0.5rem;">11/2003</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 0.5rem;">
+                        <span style="display: inline-block; width: 180px; text-align: right; font-weight: 600; color: #555;">Notes:</span>
+                        <span style="margin-left: 0.5rem;">-</span>
+                    </div>
+
+                    <div>
+                        <span style="display: inline-block; width: 180px; text-align: right; font-weight: 600; color: #555;">Other locos with this serial:</span>
+                        <span style="margin-left: 0.5rem;">
+                            <span style="color: #333;">-</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <h2 style="font-size: 1.25rem; font-weight: 600; margin: 1rem 0 0.5rem; text-align: left; border-bottom: 1px solid #ddd; padding-bottom: 0.5rem;"></h2>
             
             <div class="photo-grid">
                 <div class="photo-card">
                     <a href="showpictureid=1.html">
-                        <img src="images/IMG_8337.jpg" alt="CSX 4710 at Waycross, GA" class="photo-image">
+                        <img src="images/IMG_8337.jpg" alt="CSX 6238 at Plant City, FL" class="photo-image">
                     </a>
-                    <div class="photo-details">
-                        <h3>CSXT 4710 pushin' and pullin'</h3>
+                    <div class="photo-details" style="font-size: 0.9rem;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 0.25rem;">CSXT 4710 pushin' and pullin'</h3>
+                        <p style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #eee;">CSX I026 passes Brunel St in Waycross GA with an overhaul MAC rebuild as DPU.</p>
                         
-                        <dl class="photo-meta">
-                            <dt>Location</dt>
-                            <dd>Waycross, GA</dd>
-                            
-                            <dt>Date</dt>
-                            <dd>April 7, 2024</dd>
-                            
-                            <dt>Author</dt>
-                            <dd>Bishop Smith</dd>
-                            
-                            <dt>Locomotives</dt>
-                            <dd><a href="locopictureid=1.html" title="View other pictures of CSX 4710">CSX 4710 (SD70MAC)</a></dd>
-                        </dl>
-                        
-                        <div class="photo-description">
-                            CSX I026 passes Brunel St in Waycross GA with an overhaul MAC rebuild as DPU.
+                        <div class="photo-meta">
+                            <div>
+                                <p style="margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 600; color: #555;">Location:</span>
+                                    <span style="margin-left: 0.25rem;"><a href="search.html?location=Plant+City%2C+FL" style="text-decoration: none; color: #333;">Waycross, GA</a></span>
+                                    <span style="margin: 0 0.6rem;"></span>
+                                    <span style="font-weight: 600; color: #555;"> Stats:</span>
+                                    <span style="margin-left: 0.25rem;">0 views  0 comments</span>
+                                </p>
+                                
+                                <p style="margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 600; color: #555;">Author:</span>
+                                    <span style="margin-left: 0.25rem;"><a href="5471railfan.html" style="text-decoration: none; color: #333;">Bishop Smith</a></span>
+                                </p>
+                                
+                                <p style="margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 600; color: #555;">Photo Date:</span>
+                                    <span style="margin-left: 0.25rem;">4/07/2024</span>
+                                    <span style="margin: 0 0.5rem;">•</span>
+                                    <span style="font-weight: 600; color: #555;">Upload Date:</span>
+                                    <span style="margin-left: 0.25rem;">12/22/2024 8:39:15 PM</span>
+                                </p>
+                                
+                                <p style="margin-bottom: 0;">
+                                    <span style="font-weight: 600; color: #555;">Locomotives:</span>
+                                    <span style="margin-left: 0.25rem;"><a href="locopictureid=1.html" title="View other pictures of CSX 4710" style="text-decoration: underline; color: #333; font-weight: 600;">CSX 4710 (EMD SD70MAC)</a></span>
+                                </p>
+                                
+                            </div>
+
+                            <div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div style="text-align: center; font-size: 0.9em; color: #666; margin: 2rem auto; padding: 1rem; border-top: 1px solid #eee;">
-                Page 1 of 1
+            <div style="display: flex; justify-content: center; align-items: center; padding: 1rem 0; border-top: 1px solid #eee; margin: 2rem 0;">
+                <div style="text-align: center; font-size: 0.9rem; color: #666;">
+                    Page 1 of 1
+                </div>
             </div>
         </div>
     </main>
 
     <footer style="background: white; border-top: 1px solid #eee; padding: 1.5rem 0; margin-top: auto;">
-        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="width: 100%; padding: 0 2rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
             <div>Railhub Pictures © 2024-2025 Photos © respective authors</div>
             <div>Version 1.0</div>
         </div>
