@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,26 +13,57 @@
       crossorigin="anonymous"
       data-clerk-publishable-key="pk_test_Y29tbXVuYWwtY2F0LTI1LmNsZXJrLmFjY291bnRzLmRldiQ"
       src="https://communal-cat-25.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
-      type="text/javascript">
+      type="text/javascript"
+      onerror="handleClerkError()">
     </script>
-    <!-- Load our API client first -->
-    <script src="assets/scripts/cloudflare/api-client.js"></script>
-    <!-- Then load the Clerk integration -->
-    <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
-    <!-- Load diagnostic tools -->
-    <script src="assets/scripts/cloudflare/dns-checker.js"></script>
-    <script src="assets/scripts/cloudflare/cf-worker-checker.js"></script>
-    <script src="assets/scripts/cloudflare/api-troubleshooter.js"></script>
-    <script src="assets/scripts/cloudflare/worker-diagnostic.js"></script>
-    <!-- Initialize the API globally -->
-    <script src="assets/scripts/cloudflare/init.js"></script>
-    <!-- Load the rest of the scripts -->
-    <script src="assets/scripts/clerk-auth.js"></script>
-    <script src="assets/scripts/upload-auth.js"></script>
-    <script src="assets/scripts/cloudflare/photo-display.js"></script>
-    <script src="assets/scripts/cloudflare/cloudflare-integration.js"></script>
-    <script src="assets/scripts/cloudflare/photo-uploader.js"></script>
-    <script src="assets/scripts/cloudflare/upload-handler.js"></script>
+    <script>
+        // Global error handling
+        function handleClerkError() {
+            console.log("Clerk failed to load - providing fallback");
+            
+            // Show fallback when document is ready
+            document.addEventListener('DOMContentLoaded', function() {
+                const authButtons = document.getElementById('auth-buttons');
+                if (authButtons) {
+                    authButtons.innerHTML = '<a href="login.html" style="text-decoration: none; padding: 8px 16px; background: #444; color: white; border-radius: 4px;">Sign In</a>';
+                }
+                
+                const userInfo = document.getElementById('userInfo');
+                if (userInfo) {
+                    userInfo.textContent = 'Guest User';
+                }
+            });
+        }
+        
+        // Handle null element errors
+        window.addEventListener('error', function(event) {
+            if (event.message && event.message.includes('null')) {
+                console.log('Handled null reference error gracefully:', event.message);
+                // Let the error be logged but handle it gracefully
+            }
+        });
+        
+        // Add a fix for clerk.js loading issues
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                // If Clerk hasn't initialized after 3 seconds, provide a fallback
+                if (typeof window.Clerk === 'undefined') {
+                    handleClerkError();
+                }
+                
+                // Set the date display safely
+                var today = new Date();
+                var dd = String(today.getDate()).padStart(2, '0');
+                var mm = String(today.getMonth() + 1).padStart(2, '0');
+                var yyyy = today.getFullYear();
+                
+                const currentDateElement = document.getElementById('currentDate');
+                if (currentDateElement) {
+                    currentDateElement.textContent = mm + '/' + dd + '/' + yyyy;
+                }
+            }, 3000);
+        });
+    </script>
     <style>
         * {
             box-sizing: border-box;
@@ -48,59 +78,205 @@
             background-color: #f8f8f8;
         }
 
-        .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('images/CSC_0371.JPG');
-            background-size: cover;
-            background-position: center;
-            height: 500px;
+        .upload-section {
+            margin-top: 120px;
+            padding: 2rem 0 4rem;
+        }
+        
+        .upload-form-container {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .form-info {
+            padding: 15px;
+            background-color: #f0f7ff;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            color: #444;
+            font-size: 0.95rem;
+        }
+        
+        .upload-form {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            display: grid;
+            gap: 0.5rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .form-input {
+            padding: 0.8em 1em;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #666;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+        }
+        
+        textarea.form-input {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .submit-button {
+            background: #444;
+            color: #fff;
+            border: none;
+            padding: 0.9em 1.5em;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+        }
+        
+        .submit-button:hover {
+            background: #333;
+            transform: translateY(-1px);
+        }
+        
+        .locomotive-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .locomotive-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .number-group {
+                grid-column: span 2;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .locomotive-grid {
+                grid-template-columns: 1fr;
+            }
+            .number-group {
+                grid-column: span 1;
+            }
+        }
+        
+        .number-with-button {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .add-locomotive-btn {
+            background: #444;
+            color: #fff;
+            border: none;
+            padding: 0.7em 1.2em;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .add-locomotive-btn:hover {
+            background: #333;
+        }
+        
+        .locomotive-tags-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .locomotive-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            min-height: 40px;
+            padding: 0.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .empty-tag-message {
+            color: #999;
+            font-style: italic;
+            padding: 0.5rem;
+        }
+        
+        .locomotive-tag {
+            display: flex;
+            align-items: center;
+            background: #444;
+            color: #fff;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            gap: 0.5rem;
+            animation: tagAppear 0.3s ease-out;
+        }
+        
+        @keyframes tagAppear {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .remove-tag {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            color: #fff;
-            margin-top: 120px;
-        }
-
-        .hero-content {
-            max-width: 800px;
-            padding: 0 2rem;
-        }
-
-        .hero h1 {
-            font-size: 3em;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-
-        .hero p {
-            font-size: 1.2em;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-
-        .cta-button {
-            display: inline-block;
-            padding: 1em 2em;
-            background: rgba(68, 68, 68, 0.5);
-            color: #fff;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
-            backdrop-filter: blur(5px);
+            font-size: 0.9rem;
+            padding: 0;
+            margin-left: 0.3rem;
             transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .cta-button:hover {
-            background: rgba(51, 51, 51, 0.7);
-            transform: translateY(-1px);
+        
+        .remove-tag:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
-
-        .section {
-            padding: 4rem 0;
-            background: #fff;
+        
+        .railroad-color-tag {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
         }
-
+        
         .section-title {
             text-align: center;
             margin-bottom: 3rem;
@@ -122,116 +298,36 @@
             margin: 0 auto;
             padding: 0 2rem;
         }
-
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .photo-card {
-            background: #fff;
+        
+        .railroad-suggestions {
+            position: absolute;
+            background: white;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            transition: box-shadow 0.2s ease;
-        }
-
-        .photo-card:hover {
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-        }
-
-        .photo-card img {
+            margin-top: 4px;
             width: 100%;
-            height: 220px;
-            object-fit: cover;
+            max-height: 220px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
         }
-
-        .photo-info {
-            padding: 1.5rem;
+        
+        .suggestion-item {
+            padding: 0.8em 1.2em;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid #f0f0f0;
         }
-
-        .photo-info h3 {
-            font-size: 1.1em;
-            margin-bottom: 0.5rem;
-            color: #222;
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
         }
-
-        .photo-meta {
-            font-size: 0.9em;
-            color: #666;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        
+        .suggestion-item:hover {
+            background-color: #f5f5f5;
         }
-
-        .photo-meta a {
-            color: #444;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .photo-meta a:hover {
-            text-decoration: underline;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            text-align: center;
-            margin-top: 3rem;
-        }
-
-        .feature {
-            padding: 2rem;
-        }
-
-        .feature svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 1rem;
-            color: #444;
-        }
-
-        .feature h3 {
-            font-size: 1.2em;
-            margin-bottom: 1rem;
-            color: #222;
-        }
-
-        .feature p {
-            color: #666;
-            font-size: 0.95em;
-        }
-
-        .categories {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .category-card {
-            background: #f8f8f8;
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            transition: background-color 0.2s ease;
-        }
-
-        .category-card:hover {
-            background: #eee;
-        }
-
-        .category-card a {
-            color: inherit;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1.1em;
-        }
-    </style></head>
+    </style>
+</head>
 <body>
     <!-- Header -->
     <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee;">
@@ -243,13 +339,7 @@
                 </a>
                 <div style="display: flex; align-items: center; gap: 2rem;">
                     <span style="color: #666; font-size: 0.95em;" id="userInfo"></span>
-                    <script>
-                        var today = new Date();
-                        var dd = String(today.getDate()).padStart(2, '0');
-                        var mm = String(today.getMonth() + 1).padStart(2, '0');
-                        var yyyy = today.getFullYear();
-                        document.write('<span style="color: #666;">' + mm + '/' + dd + '/' + yyyy + '</span>');
-                    </script>
+                    <span id="currentDate" style="color: #666;"></span>
                     <div style="display: flex; gap: 1rem;" id="auth-buttons">
                         <!-- Auth buttons will be dynamically inserted by Clerk -->
                     </div>
@@ -294,101 +384,6 @@
                     📸 Upload high-quality photos of locomotives, trains, and railroad scenes. Make sure to include accurate details to help others find your photos.
                 </div>
                 
-                <div id="api-status" style="padding: 10px; margin-bottom: 20px; background-color: #f8f8f8; border-radius: 5px; display: none;">
-                    <h4>API Connection Status:</h4>
-                    <div id="api-status-message">Checking connection...</div>
-                    <button id="test-api" style="margin-top: 10px; padding: 5px 10px;">Test API Connection</button>
-                </div>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const statusDiv = document.getElementById('api-status');
-                        const statusMessage = document.getElementById('api-status-message');
-                        const testButton = document.getElementById('test-api');
-                        
-                        if (statusDiv && testButton) {
-                            statusDiv.style.display = 'block';
-                            
-                            testButton.addEventListener('click', async function() {
-                                statusMessage.textContent = 'Testing connection...';
-                                const api = window.railhubAPI || new RailHubAPI();
-                                
-                                // Add detailed info section
-                                let detailsDiv = document.getElementById('api-details');
-                                if (!detailsDiv) {
-                                    detailsDiv = document.createElement('div');
-                                    detailsDiv.id = 'api-details';
-                                    detailsDiv.style.marginTop = '10px';
-                                    detailsDiv.style.fontSize = '14px';
-                                    detailsDiv.style.whiteSpace = 'pre-wrap';
-                                    statusDiv.appendChild(detailsDiv);
-                                }
-                                
-                                detailsDiv.innerHTML = 'Testing both HTTPS and HTTP connections...\n';
-                                
-                                try {
-                                    // Use our comprehensive testing method
-                                    const result = await api.testConnection();
-                                    
-                                    if (result.success) {
-                                        statusMessage.textContent = `✅ Connected to API successfully via ${result.protocol.toUpperCase()}!`;
-                                        statusMessage.style.color = 'green';
-                                        detailsDiv.innerHTML += `\nConnection successful via ${result.protocol.toUpperCase()}\n`;
-                                        detailsDiv.innerHTML += `API URL: ${api.baseURL}\n`;
-                                        
-                                        // Update the page UI with the successful protocol
-                                        const infoMsg = document.createElement('div');
-                                        infoMsg.style.marginTop = '10px';
-                                        infoMsg.style.padding = '5px';
-                                        infoMsg.style.backgroundColor = '#e8f5e9';
-                                        infoMsg.style.borderRadius = '3px';
-                                        infoMsg.textContent = `Using ${result.protocol.toUpperCase()} for API communication`;
-                                        statusDiv.appendChild(infoMsg);
-                                        
-                                        // Let's also check DNS resolution
-                                        detailsDiv.innerHTML += `\nTrying to get more information about domain resolution...\n`;
-                                        
-                                        // Display an interactive ping button
-                                        const pingBtn = document.createElement('button');
-                                        pingBtn.textContent = 'Test Domain Resolution';
-                                        pingBtn.style.marginTop = '10px';
-                                        pingBtn.style.padding = '5px 10px';
-                                        statusDiv.appendChild(pingBtn);
-                                        
-                                        pingBtn.addEventListener('click', function() {
-                                            const startTime = new Date().getTime();
-                                            fetch('https://api.railhubpictures.org/ping', {
-                                                mode: 'no-cors' // This will allow us to test if the server exists even if it doesn't respond
-                                            })
-                                            .then(() => {
-                                                const endTime = new Date().getTime();
-                                                detailsDiv.innerHTML += `Domain reachable. Response time: ${endTime - startTime}ms\n`;
-                                            })
-                                            .catch(err => {
-                                                detailsDiv.innerHTML += `Domain resolution test error: ${err.message}\n`;
-                                            });
-                                        });
-                                    } else {
-                                        statusMessage.textContent = `❌ API Connection Failed`;
-                                        statusMessage.style.color = 'red';
-                                        detailsDiv.innerHTML += `\nBoth HTTPS and HTTP connections failed\n`;
-                                        
-                                        // Add a note about checking DNS
-                                        detailsDiv.innerHTML += `\nPossible issues:\n`;
-                                        detailsDiv.innerHTML += `- DNS not resolving api.railhubpictures.org\n`;
-                                        detailsDiv.innerHTML += `- Cloudflare worker not deployed correctly\n`;
-                                        detailsDiv.innerHTML += `- CORS policy blocking requests\n`;
-                                        detailsDiv.innerHTML += `- Network connectivity issues\n`;
-                                    }
-                                } catch (error) {
-                                    statusMessage.textContent = `❌ Connection Error: ${error.message}`;
-                                    statusMessage.style.color = 'red';
-                                    detailsDiv.innerHTML += `\nError during connection test: ${error.message}\n`;
-                                }
-                            });
-                        }
-                    });
-                </script>
-
                 <form id="photoUploadForm" action="javascript:void(0);" enctype="multipart/form-data" class="upload-form">
                     <div class="form-group">
                         <label class="form-label">Title</label>
@@ -453,284 +448,6 @@
                             <!-- This will be populated with hidden inputs by JavaScript -->
                         </div>
                     </div>
-                    
-                    <div id="locomotive-confirmation" class="locomotive-confirmation" style="display: none;">
-                        <div class="confirmation-content">
-                            <h3>New Locomotive Entry</h3>
-                            <p>This locomotive isn't in our database yet. Please confirm the details:</p>
-                            <div class="confirmation-details">
-                                <div class="detail-row">
-                                    <span class="detail-label">Railroad:</span>
-                                    <span id="confirm-railroad" class="detail-value"></span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Model:</span>
-                                    <span id="confirm-model" class="detail-value"></span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Number:</span>
-                                    <span id="confirm-number" class="detail-value"></span>
-                                </div>
-                            </div>
-                            <div class="confirmation-actions">
-                                <button type="button" class="btn-confirm">Yes, Add This Locomotive</button>
-                                <button type="button" class="btn-edit">No, Edit Details</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <style>
-                        .locomotive-grid {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr 1fr;
-                            gap: 1rem;
-                            background: #fff;
-                            padding: 1.5rem;
-                            border-radius: 8px;
-                            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                            margin-bottom: 1rem;
-                        }
-                        
-                        @media (max-width: 768px) {
-                            .locomotive-grid {
-                                grid-template-columns: 1fr 1fr;
-                            }
-                            .number-group {
-                                grid-column: span 2;
-                            }
-                        }
-                        
-                        @media (max-width: 480px) {
-                            .locomotive-grid {
-                                grid-template-columns: 1fr;
-                            }
-                            .number-group {
-                                grid-column: span 1;
-                            }
-                        }
-                        
-                        .number-with-button {
-                            display: flex;
-                            gap: 0.5rem;
-                        }
-                        
-                        .add-locomotive-btn {
-                            background: #444;
-                            color: #fff;
-                            border: none;
-                            padding: 0.7em 1.2em;
-                            border-radius: 6px;
-                            font-weight: 500;
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                            white-space: nowrap;
-                        }
-                        
-                        .add-locomotive-btn:hover {
-                            background: #333;
-                        }
-                        
-                        .locomotive-tags-container {
-                            position: relative;
-                            margin-bottom: 1rem;
-                        }
-                        
-                        .locomotive-tags {
-                            display: flex;
-                            flex-wrap: wrap;
-                            gap: 0.5rem;
-                            min-height: 40px;
-                            padding: 0.5rem;
-                            border: 1px solid #e0e0e0;
-                            border-radius: 8px;
-                            background: #f9f9f9;
-                        }
-                        
-                        .empty-tag-message {
-                            color: #999;
-                            font-style: italic;
-                            padding: 0.5rem;
-                        }
-                        
-                        .locomotive-tag {
-                            display: flex;
-                            align-items: center;
-                            background: #444;
-                            color: #fff;
-                            padding: 0.4rem 0.8rem;
-                            border-radius: 20px;
-                            font-size: 0.9rem;
-                            gap: 0.5rem;
-                            animation: tagAppear 0.3s ease-out;
-                        }
-                        
-                        @keyframes tagAppear {
-                            from {
-                                opacity: 0;
-                                transform: translateY(5px);
-                            }
-                            to {
-                                opacity: 1;
-                                transform: translateY(0);
-                            }
-                        }
-                        
-                        .remove-tag {
-                            background: none;
-                            border: none;
-                            color: #fff;
-                            cursor: pointer;
-                            width: 18px;
-                            height: 18px;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-size: 0.9rem;
-                            padding: 0;
-                            margin-left: 0.3rem;
-                            transition: all 0.2s ease;
-                        }
-                        
-                        .remove-tag:hover {
-                            background: rgba(255, 255, 255, 0.2);
-                        }
-                        
-                        .railroad-color-tag {
-                            width: 10px;
-                            height: 10px;
-                            border-radius: 50%;
-                            display: inline-block;
-                            margin-right: 4px;
-                        }
-                    </style>
-
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const container = document.getElementById('locomotives-container');
-                            const addBtn = document.getElementById('add-locomotive');
-                            const tagsContainer = document.getElementById('locomotive-tags');
-                            const railroadInput = document.getElementById('current-railroad');
-                            const modelInput = document.getElementById('current-model');
-                            const numberInput = document.getElementById('current-number');
-                            let locoCount = 0;
-                            let railroadColors = {};
-                            
-                            // Function to generate a color based on railroad name
-                            function getColorForRailroad(railroad) {
-                                if (!railroadColors[railroad]) {
-                                    // Generate a hash from the railroad name
-                                    let hash = 0;
-                                    for (let i = 0; i < railroad.length; i++) {
-                                        hash = railroad.charCodeAt(i) + ((hash << 5) - hash);
-                                    }
-                                    
-                                    // Convert hash to a color
-                                    const h = Math.abs(hash) % 360;
-                                    railroadColors[railroad] = `hsl(${h}, 65%, 40%)`;
-                                }
-                                return railroadColors[railroad];
-                            }
-                            
-                            // Function to add a locomotive
-                            function addLocomotive() {
-                                const railroad = railroadInput.value.trim();
-                                const model = modelInput.value.trim();
-                                const number = numberInput.value.trim();
-                                
-                                if (!railroad || !model || !number) {
-                                    alert("Please fill in all locomotive fields");
-                                    return;
-                                }
-                                
-                                // Create hidden inputs for form submission
-                                const railroadField = document.createElement('input');
-                                railroadField.type = 'hidden';
-                                railroadField.name = `locomotives[${locoCount}][railroad]`;
-                                railroadField.value = railroad;
-                                
-                                const modelField = document.createElement('input');
-                                modelField.type = 'hidden';
-                                modelField.name = `locomotives[${locoCount}][model]`;
-                                modelField.value = model;
-                                
-                                const numberField = document.createElement('input');
-                                numberField.type = 'hidden';
-                                numberField.name = `locomotives[${locoCount}][number]`;
-                                numberField.value = number;
-                                
-                                const unitIdField = document.createElement('input');
-                                unitIdField.type = 'hidden';
-                                unitIdField.name = `locomotives[${locoCount}][unit_id]`;
-                                unitIdField.value = 'new';
-                                
-                                container.appendChild(railroadField);
-                                container.appendChild(modelField);
-                                container.appendChild(numberField);
-                                container.appendChild(unitIdField);
-                                
-                                // Remove empty message if present
-                                const emptyMessage = tagsContainer.querySelector('.empty-tag-message');
-                                if (emptyMessage) {
-                                    emptyMessage.remove();
-                                }
-                                
-                                // Create locomotive tag
-                                const tag = document.createElement('div');
-                                tag.className = 'locomotive-tag';
-                                tag.dataset.index = locoCount;
-                                
-                                const color = getColorForRailroad(railroad);
-                                tag.style.background = color;
-                                
-                                tag.innerHTML = `
-                                    <span class="tag-text">${railroad} ${model} #${number}</span>
-                                    <button type="button" class="remove-tag" data-index="${locoCount}">&times;</button>
-                                `;
-                                
-                                tagsContainer.appendChild(tag);
-                                
-                                // Add event listener to remove button
-                                tag.querySelector('.remove-tag').addEventListener('click', function() {
-                                    const index = this.dataset.index;
-                                    
-                                    // Remove hidden inputs
-                                    const inputs = container.querySelectorAll(`input[name*="[${index}]"]`);
-                                    inputs.forEach(input => input.remove());
-                                    
-                                    // Remove tag
-                                    tag.remove();
-                                    
-                                    // If no tags left, show empty message
-                                    if (tagsContainer.childElementCount === 0) {
-                                        const emptyMessage = document.createElement('div');
-                                        emptyMessage.className = 'empty-tag-message';
-                                        emptyMessage.textContent = 'No locomotives added yet';
-                                        tagsContainer.appendChild(emptyMessage);
-                                    }
-                                });
-                                
-                                // Clear inputs for next locomotive
-                                railroadInput.value = '';
-                                modelInput.value = '';
-                                numberInput.value = '';
-                                railroadInput.focus();
-                                
-                                locoCount++;
-                            }
-                            
-                            // Add button click event
-                            addBtn.addEventListener('click', addLocomotive);
-                            
-                            // Also allow Enter key in the number field to add a locomotive
-                            numberInput.addEventListener('keypress', function(e) {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    addLocomotive();
-                                }
-                            });
-                        });
-                    </script>
 
                     <div class="form-group">
                         <label class="form-label">Photo</label>
@@ -749,508 +466,173 @@
                 <div>
                     <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #333;">Quick Links</h3>
                     <ul style="list-style: none; padding: 0;">
-                        <li style="margin-bottom: 0.5rem;"><a href="/newestphotos" style="color: #666; text-decoration: none;">Latest Photos</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/contribPicks" style="color: #666; text-decoration: none;">Popular Photos</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/railroadList" style="color: #666; text-decoration: none;">Railroad List</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/modelList" style="color: #666; text-decoration: none;">Locomotive Models</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="newestphotos.html" style="color: #666; text-decoration: none;">Latest Photos</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="contribPicks.html" style="color: #666; text-decoration: none;">Popular Photos</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="railroadList.html" style="color: #666; text-decoration: none;">Railroad List</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="modelList.html" style="color: #666; text-decoration: none;">Locomotive Models</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #333;">Major Railroads</h3>
                     <ul style="list-style: none; padding: 0;">
-                        <li style="margin-bottom: 0.5rem;"><a href="/Railroadid=UP" style="color: #666; text-decoration: none;">Union Pacific</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/Railroadid=BNSF" style="color: #666; text-decoration: none;">BNSF Railway</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/Railroadid=CSX" style="color: #666; text-decoration: none;">CSX Transportation</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/Railroadid=NS" style="color: #666; text-decoration: none;">Norfolk Southern</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="railroad.html?id=UP" style="color: #666; text-decoration: none;">Union Pacific</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="railroad.html?id=BNSF" style="color: #666; text-decoration: none;">BNSF Railway</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="railroad.html?id=CSX" style="color: #666; text-decoration: none;">CSX Transportation</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="railroad.html?id=NS" style="color: #666; text-decoration: none;">Norfolk Southern</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #333;">Help & Info</h3>
                     <ul style="list-style: none; padding: 0;">
-                        <li style="margin-bottom: 0.5rem;"><a href="/search" style="color: #666; text-decoration: none;">Advanced Search</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/photoCalendar" style="color: #666; text-decoration: none;">Calendar View</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/aboutme" style="color: #666; text-decoration: none;">About Us</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/upload" style="color: #666; text-decoration: none;">Upload Photos</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="search.html" style="color: #666; text-decoration: none;">Advanced Search</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="photoCalendar.html" style="color: #666; text-decoration: none;">Calendar View</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="aboutme.html" style="color: #666; text-decoration: none;">About Us</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="upload.html" style="color: #666; text-decoration: none;">Upload Photos</a></li>
                     </ul>
                 </div>
             </div>
             <div style="margin-top: 3rem; text-align: center; color: #888; font-size: 0.9rem; border-top: 1px solid #eee; padding-top: 2rem;">
-                <p>Railhub Pictures © 2024-2025 • All Photos © Respective Authors • <a href="/aboutme" style="color: #666; text-decoration: none;">About</a></p>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // Using an empty array as fallback if units is not defined by the server
-        let existingUnits = [];
-        try {
-            // This will only work on the server-side rendered page
-            if (typeof units !== 'undefined') {
-                existingUnits = units;
-            }
-        } catch(e) {
-            console.log("Units not defined, using empty array");
-        }
-        
-        let debounceTimer;
-        let currentRailroad = '';
-        let isConfirmed = false;
-
-        // Function to check if locomotive exists
-        function checkLocomotiveExists(railroad, model, number) {
-            return existingUnits.find(u => 
-                u?.railroad?.toLowerCase() === railroad?.toLowerCase() &&
-                u?.number === number
-            );
-        }
-
-        // Function to show confirmation dialog
-        function showConfirmation(railroad, model, number) {
-            document.getElementById('confirm-railroad').textContent = railroad;
-            document.getElementById('confirm-model').textContent = model;
-            document.getElementById('confirm-number').textContent = number;
-            document.getElementById('locomotive-confirmation').style.display = 'flex';
-        }
-
-        // Handle railroad input with suggestions
-        const railroadInput = document.getElementById('railroad');
-        const suggestionsDiv = document.querySelector('.railroad-suggestions');
-
-        railroadInput.addEventListener('input', function(e) {
-            clearTimeout(debounceTimer);
-            const value = e.target.value;
-            
-            debounceTimer = setTimeout(() => {
-                if (value.length < 2) {
-                    suggestionsDiv.style.display = 'none';
-                    return;
-                }
-
-                // Get unique railroads from existing units
-                const railroads = [...new Set(existingUnits.map(u => u.railroad))];
-                const matches = railroads.filter(r => 
-                    r.toLowerCase().includes(value.toLowerCase())
-                );
-
-                if (matches.length > 0) {
-                    suggestionsDiv.innerHTML = matches
-                        .map(r => `<div class="suggestion-item">${r}</div>`)
-                        .join('');
-                    suggestionsDiv.style.display = 'block';
-                } else {
-                    suggestionsDiv.style.display = 'none';
-                }
-            }, 300);
-        });
-
-        // Handle suggestion selection
-        suggestionsDiv.addEventListener('click', function(e) {
-            if (e.target.classList.contains('suggestion-item')) {
-                railroadInput.value = e.target.textContent;
-                suggestionsDiv.style.display = 'none';
-                currentRailroad = e.target.textContent;
-            }
-        });
-
-        // Handle form submission
-        document.querySelector('.upload-form').addEventListener('submit', function(e) {
-            if (isConfirmed) return true;
-
-            const railroad = document.getElementById('railroad').value;
-            const model = document.getElementById('model').value;
-            const number = document.getElementById('number').value;
-
-            if (railroad && number) {
-                const existingUnit = checkLocomotiveExists(railroad, model, number);
-                
-                if (existingUnit) {
-                    document.getElementById('unit_id').value = existingUnit.id;
-                } else {
-                    e.preventDefault();
-                    showConfirmation(railroad, model, number);
-                }
-            }
-        });
-
-        // Handle confirmation actions
-        document.querySelector('.btn-confirm').addEventListener('click', function() {
-            isConfirmed = true;
-            document.getElementById('locomotive-confirmation').style.display = 'none';
-            document.querySelector('.upload-form').submit();
-        });
-
-        document.querySelector('.btn-edit').addEventListener('click', function() {
-            document.getElementById('locomotive-confirmation').style.display = 'none';
-        });
-
-        // Close confirmation when clicking outside
-        document.getElementById('locomotive-confirmation').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.style.display = 'none';
-            }
-        });
-    </script>
-</body>
-</html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Photo | RailHub Pictures</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="/stylesheet/styles.css" rel="stylesheet">
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var today = new Date();
-            var dd = String(today.getDate()).padStart(2, '0');
-            var mm = String(today.getMonth() + 1).padStart(2, '0');
-            var yyyy = today.getFullYear();
-            document.getElementById('currentDate').textContent = mm + '/' + dd + '/' + yyyy;
-        });
-    </script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            height: 100%;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f5f5f5;
-            padding-top: 120px;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        .upload-form-container {
-            max-width: 800px;
-            margin: 0 auto 2rem;
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .upload-form {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            display: grid;
-            gap: 0.5rem;
-        }
-
-        .form-label {
-            font-weight: 500;
-            color: #444;
-        }
-
-        .form-input {
-            padding: 0.7em 1em;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.95em;
-            transition: border-color 0.2s;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #666;
-        }
-
-        textarea.form-input {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .new-unit-fields {
-            display: grid;
-            gap: 1rem;
-            padding: 1.5rem;
-            background: #f8f8f8;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-        }
-
-        .new-unit-title {
-            margin: 0;
-            font-size: 1rem;
-            color: #444;
-        }
-
-        .submit-button {
-            background: #444;
-            color: #fff;
-            border: none;
-            padding: 0.8em 1.5em;
-            border-radius: 8px;
-            font-size: 1em;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            transition: background-color 0.2s;
-            margin-top: 1rem;
-        }
-
-        .submit-button:hover {
-            background: #333;
-        }
-
-        .section-description {
-            color: #666;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .locomotive-search {
-            background: #f8f8f8;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-        }
-
-        .locomotive-confirmation {
-            background: rgba(0, 0, 0, 0.6);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(3px);
-        }
-
-        .confirmation-content {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            animation: modalFadeIn 0.3s ease-out;
-        }
-        
-        @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .confirmation-content h3 {
-            font-size: 1.4rem;
-            margin-bottom: 1rem;
-            color: #333;
-            font-weight: 600;
-        }
-
-        .confirmation-details {
-            background: #f8f8f8;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin: 1.5rem 0;
-            border: 1px solid #e0e0e0;
-        }
-
-        .detail-row {
-            display: flex;
-            margin-bottom: 0.8rem;
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-        
-        .detail-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .detail-label {
-            font-weight: 600;
-            width: 100px;
-            color: #555;
-        }
-
-        .detail-value {
-            color: #333;
-            font-weight: 500;
-        }
-
-        .confirmation-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.8rem;
-            justify-content: flex-end;
-        }
-
-        .btn-confirm, .btn-edit {
-            padding: 0.8em 1.5em;
-            border-radius: 8px;
-            font-size: 0.95em;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            border: none;
-            transition: all 0.2s;
-        }
-
-        .btn-confirm {
-            background: #444;
-            color: #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .btn-confirm:hover {
-            background: #333;
-            transform: translateY(-1px);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-        }
-
-        .btn-edit {
-            background: #f5f5f5;
-            color: #444;
-            border: 1px solid #e0e0e0;
-        }
-
-        .btn-edit:hover {
-            background: #eee;
-            transform: translateY(-1px);
-        }
-
-        .railroad-suggestions {
-            position: absolute;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            margin-top: 4px;
-            width: 100%;
-            max-height: 220px;
-            overflow-y: auto;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-        }
-
-        .suggestion-item {
-            padding: 0.8em 1.2em;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
-
-        .suggestion-item:hover {
-            background-color: #f5f5f5;
-        }
-
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-    </style>
-</head>
-<body>
-    <main class="main-content">
-        <div class="container">
-            <div class="section-header">
-                <h1 class="section-title">Upload New Photo</h1>
-                <p class="section-description">Share your railway photography with the community</p>
-            </div>
-            <div class="upload-form-container">
-                <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
-                    <div class="form-group">
-                        <label class="form-label">Title:</label>
-                        <input type="text" name="title" required class="form-input" placeholder="Enter a descriptive title">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Description:</label>
-                        <textarea name="description" required class="form-input" placeholder="Describe the photo and any interesting details"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Location:</label>
-                        <input type="text" name="location" required class="form-input" placeholder="Where was this photo taken?">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Photo Date:</label>
-                        <input type="date" name="photo_date" required class="form-input">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Your Username: <small style="color: #666;">(automatically filled from your account)</small></label>
-                        <input type="text" name="username" required class="form-input" placeholder="Automatically filled from your account">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Choose Existing Unit:</label>
-                        <select name="unit_id" class="form-input">
-                            <option value="new">-- Create New Unit --</option>
-                            <% units.forEach(u => { %>
-                                <option value="<%= u.id %>"><%= u.railroad %> <%= u.model %> #<%= u.number %></option>
-                            <% }) %>
-                        </select>
-                    </div>
-
-                    <div id="newUnitFields" class="new-unit-fields">
-                        <h3 class="new-unit-title">New Unit Details:</h3>
-                        <div class="form-group">
-                            <label class="form-label">Railroad:</label>
-                            <input type="text" name="railroad" class="form-input" placeholder="Railroad company name">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Model:</label>
-                            <input type="text" name="model" class="form-input" placeholder="Locomotive model">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Number:</label>
-                            <input type="text" name="number" class="form-input" placeholder="Unit number">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Photo:</label>
-                        <input type="file" name="photo" required accept="image/*" class="form-input">
-                    </div>
-
-                    <button type="submit" class="submit-button">Upload Photo</button>
-                </form>
-            </div>
-        </div>
-    </main>
-
-    <footer style="background: #f8f8f8; border-top: 1px solid #eee; padding: 3rem 0; margin-top: 2rem;">
-        <div class="container">
-            <div style="text-align: center; color: #888; font-size: 0.9rem; padding-top: 2rem;">
                 <p>Railhub Pictures © 2024-2025 • All Photos © Respective Authors • <a href="aboutme.html" style="color: #666; text-decoration: none;">About</a></p>
             </div>
         </div>
     </footer>
-</body>
-</html>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const container = document.getElementById('locomotives-container');
+                const addBtn = document.getElementById('add-locomotive');
+                const tagsContainer = document.getElementById('locomotive-tags');
+                const railroadInput = document.getElementById('current-railroad');
+                const modelInput = document.getElementById('current-model');
+                const numberInput = document.getElementById('current-number');
+                
+                // Make sure all required elements are present
+                if (!container || !addBtn || !tagsContainer || !railroadInput || !modelInput || !numberInput) {
+                    console.warn("Some required DOM elements for locomotive tagging not found");
+                    return; // Exit early to prevent errors
+                }
+                
+                let locoCount = 0;
+                let railroadColors = {};
+                
+                // Function to generate a color based on railroad name
+                function getColorForRailroad(railroad) {
+                    if (!railroadColors[railroad]) {
+                        // Generate a hash from the railroad name
+                        let hash = 0;
+                        for (let i = 0; i < railroad.length; i++) {
+                            hash = railroad.charCodeAt(i) + ((hash << 5) - hash);
+                        }
+                        
+                        // Convert hash to a color
+                        const h = Math.abs(hash) % 360;
+                        railroadColors[railroad] = `hsl(${h}, 65%, 40%)`;
+                    }
+                    return railroadColors[railroad];
+                }
+                
+                // Function to add a locomotive
+                function addLocomotive() {
+                    const railroad = railroadInput.value.trim();
+                    const model = modelInput.value.trim();
+                    const number = numberInput.value.trim();
+                    
+                    if (!railroad || !model || !number) {
+                        alert("Please fill in all locomotive fields");
+                        return;
+                    }
+                    
+                    // Create hidden inputs for form submission
+                    const railroadField = document.createElement('input');
+                    railroadField.type = 'hidden';
+                    railroadField.name = `locomotives[${locoCount}][railroad]`;
+                    railroadField.value = railroad;
+                    
+                    const modelField = document.createElement('input');
+                    modelField.type = 'hidden';
+                    modelField.name = `locomotives[${locoCount}][model]`;
+                    modelField.value = model;
+                    
+                    const numberField = document.createElement('input');
+                    numberField.type = 'hidden';
+                    numberField.name = `locomotives[${locoCount}][number]`;
+                    numberField.value = number;
+                    
+                    const unitIdField = document.createElement('input');
+                    unitIdField.type = 'hidden';
+                    unitIdField.name = `locomotives[${locoCount}][unit_id]`;
+                    unitIdField.value = 'new';
+                    
+                    container.appendChild(railroadField);
+                    container.appendChild(modelField);
+                    container.appendChild(numberField);
+                    container.appendChild(unitIdField);
+                    
+                    // Remove empty message if present
+                    const emptyMessage = tagsContainer.querySelector('.empty-tag-message');
+                    if (emptyMessage) {
+                        emptyMessage.remove();
+                    }
+                    
+                    // Create locomotive tag
+                    const tag = document.createElement('div');
+                    tag.className = 'locomotive-tag';
+                    tag.dataset.index = locoCount;
+                    
+                    const color = getColorForRailroad(railroad);
+                    tag.style.background = color;
+                    
+                    tag.innerHTML = `
+                        <span class="tag-text">${railroad} ${model} #${number}</span>
+                        <button type="button" class="remove-tag" data-index="${locoCount}">&times;</button>
+                    `;
+                    
+                    tagsContainer.appendChild(tag);
+                    
+                    // Add event listener to remove button
+                    tag.querySelector('.remove-tag').addEventListener('click', function() {
+                        const index = this.dataset.index;
+                        
+                        // Remove hidden inputs
+                        const inputs = container.querySelectorAll(`input[name*="[${index}]"]`);
+                        inputs.forEach(input => input.remove());
+                        
+                        // Remove tag
+                        tag.remove();
+                        
+                        // If no tags left, show empty message
+                        if (tagsContainer.childElementCount === 0) {
+                            const emptyMessage = document.createElement('div');
+                            emptyMessage.className = 'empty-tag-message';
+                            emptyMessage.textContent = 'No locomotives added yet';
+                            tagsContainer.appendChild(emptyMessage);
+                        }
+                    });
+                    
+                    // Clear inputs for next locomotive
+                    railroadInput.value = '';
+                    modelInput.value = '';
+                    numberInput.value = '';
+                    railroadInput.focus();
+                    
+                    locoCount++;
+                }
+                
+                // Add button click event
+                addBtn.addEventListener('click', addLocomotive);
+                
+                // Also allow Enter key in the number field to add a locomotive
+                numberInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addLocomotive();
+                    }
+                });
+            } catch(err) {
+                console.error("Error initializing locomotive form:", err);
+            }
+        });
+    </script>
 </body>
 </html>
