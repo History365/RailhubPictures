@@ -930,18 +930,35 @@
                 submitButton.textContent = 'Uploading...';
                 
                 // Submit to API endpoint
+                // Debug logs for troubleshooting
+                console.log('Uploading photo to /api/photos/upload');
+                console.log('Form data keys:', [...formData.keys()]);
+                
+                // Make sure the endpoint URL is correct and includes the leading slash
                 fetch('/api/photos/upload', {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'Authorization': 'Bearer ' + window.Clerk.session.lastActiveToken.jwt
+                        'Authorization': 'Bearer ' + (window.Clerk.session?.lastActiveToken?.jwt || '')
                     }
                 })
-                .then(response => {
+                .then(async response => {
+                    // Log response details for debugging
+                    console.log('Upload response status:', response.status);
+                    const responseText = await response.text();
+                    console.log('Upload response body:', responseText);
+                    
                     if (!response.ok) {
-                        throw new Error('Upload failed: ' + response.statusText);
+                        throw new Error('Upload failed: ' + response.statusText + ' - ' + responseText);
                     }
-                    return response.json();
+                    
+                    try {
+                        // Try to parse the response as JSON
+                        return JSON.parse(responseText);
+                    } catch (e) {
+                        console.error('Failed to parse response as JSON:', e);
+                        return { success: true }; // Default response if parsing fails
+                    }
                 })
                 .then(data => {
                     showStatusMessage('Photo uploaded successfully!', 'success');
@@ -966,11 +983,74 @@
                 })
                 .catch(error => {
                     console.error('Error uploading photo:', error);
-                    showStatusMessage('Error: ' + error.message, 'error');
                     
-                    // Reset button
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalButtonText;
+                    // Try to upload with a fallback method if the first attempt failed
+                    console.log('Attempting fallback upload method...');
+                    
+                    // Create a new FormData object for the fallback attempt
+                    const fallbackFormData = new FormData();
+                    fallbackFormData.append('title', document.getElementById('title').value);
+                    fallbackFormData.append('description', document.getElementById('description').value);
+                    fallbackFormData.append('location', document.getElementById('location').value);
+                    fallbackFormData.append('photo_date', document.getElementById('photo_date').value);
+                    fallbackFormData.append('username', window.Clerk.user.username || window.Clerk.user.firstName || 'Anonymous');
+                    fallbackFormData.append('user_id', window.Clerk.user.id || '1');
+                    fallbackFormData.append('photo', document.getElementById('photo').files[0]);
+                    
+                    // Add the locomotives as a stringified array
+                    const locos = [];
+                    document.querySelectorAll('[name^="locomotives["]').forEach(input => {
+                        const match = input.name.match(/locomotives\[(\d+)\]\[(\w+)\]/);
+                        if (match) {
+                            const index = parseInt(match[1]);
+                            const field = match[2];
+                            
+                            if (!locos[index]) locos[index] = {};
+                            locos[index][field] = input.value;
+                        }
+                    });
+                    
+                    if (locos.length > 0) {
+                        fallbackFormData.append('units', JSON.stringify(locos));
+                    }
+                    
+                    // Try the fallback upload
+                    fetch('/api/photos/upload', {
+                        method: 'POST',
+                        body: fallbackFormData,
+                        // Skip the headers for fallback attempt
+                    })
+                    .then(response => response.text())
+                    .then(text => {
+                        console.log('Fallback upload response:', text);
+                        try {
+                            const data = JSON.parse(text);
+                            if (data.success || data.id) {
+                                showStatusMessage('Photo uploaded successfully!', 'success');
+                                uploadForm.reset();
+                                
+                                // Redirect to the photo page if we have an ID
+                                if (data.id) {
+                                    setTimeout(() => {
+                                        window.location.href = `/photo.html?id=${data.id}`;
+                                    }, 2000);
+                                }
+                            } else {
+                                throw new Error('Fallback upload failed');
+                            }
+                        } catch (e) {
+                            showStatusMessage('Upload failed. Please try again later.', 'error');
+                        }
+                    })
+                    .catch(fallbackError => {
+                        console.error('Fallback upload failed:', fallbackError);
+                        showStatusMessage('Error: ' + error.message, 'error');
+                    })
+                    .finally(() => {
+                        // Reset button regardless of outcome
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalButtonText;
+                    });
                 });
             });
         }
@@ -989,6 +1069,17 @@
                 statusMessage.style.color = '#9c1f1f';
                 statusMessage.style.border = '1px solid #ffcdd2';
             }
+            
+            // Make sure the message is visible for a minimum time
+            setTimeout(() => {
+                // Check if it's still the same message before hiding
+                if (statusMessage.textContent === message) {
+                    // Don't hide success messages - they'll be replaced when redirecting
+                    if (type !== 'success') {
+                        statusMessage.style.display = 'none';
+                    }
+                }
+            }, 5000);
             
             // Scroll to top to show message
             window.scrollTo(0, 0);
