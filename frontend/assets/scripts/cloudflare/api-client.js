@@ -66,9 +66,11 @@ class RailHubAPI {
     try {
       console.log('Auto-detecting best API endpoint...');
       
-      // Enhanced endpoint testing paths - test both the base domain and specific API endpoints
+      // Enhanced endpoint testing paths - handle custom domain rules
       const testPaths = [
         '', // Base domain test
+        '/health', // Health check endpoint (works for API subdomains)
+        '/api/health', // Health check endpoint (works for main domain)
         '/api/photos/latest?limit=1' // Specific API endpoint test
       ];
       
@@ -197,7 +199,13 @@ class RailHubAPI {
         console.log(`Testing ${endpoint.description}...`);
         const startTime = performance.now();
         
-        const response = await fetch(`${endpoint.url}/photos/latest?limit=1`, {
+        // Choose the right path based on endpoint type - handle custom domains correctly
+        let testPath = '/health';
+        if (endpoint.url.includes('railhubpictures.org') && !endpoint.url.includes('api.') && !endpoint.url.includes('railhub-api.')) {
+          testPath = '/api/health';
+        }
+        
+        const response = await fetch(`${endpoint.url}${testPath}`, {
           method: 'GET',
           mode: 'cors',
           cache: 'no-cache',
@@ -357,13 +365,24 @@ class RailHubAPI {
                           !baseUrl.includes('api.') && 
                           !baseUrl.includes('railhub-api.');
       
+      // Special handling for health endpoint
+      const isHealthEndpoint = fixedEndpoint === '/health' || 
+                              fixedEndpoint === '/healthz' || 
+                              fixedEndpoint === '/api/health' || 
+                              fixedEndpoint === '/api/healthz';
+      
       // Build URL differently based on domain type
       let url;
       
       if (isMainDomain) {
         // On main domain, use explicit /api prefix
         if (!fixedEndpoint.startsWith('/api/') && fixedEndpoint !== '/api') {
-          url = `${baseUrl}/api${fixedEndpoint}`;
+          // Special case for health endpoint on main domain
+          if (isHealthEndpoint && !fixedEndpoint.startsWith('/api/')) {
+            url = `${baseUrl}/api/health`;
+          } else {
+            url = `${baseUrl}/api${fixedEndpoint}`;
+          }
         } else {
           url = `${baseUrl}${fixedEndpoint}`;
         }
@@ -376,8 +395,13 @@ class RailHubAPI {
           // Just use root for /api
           url = baseUrl;
         } else {
-          // No need to add /api prefix on API subdomains
-          url = `${baseUrl}${fixedEndpoint}`;
+          // Special case for health endpoint on API subdomains
+          if (isHealthEndpoint) {
+            url = `${baseUrl}/health`; 
+          } else {
+            // No need to add /api prefix on API subdomains
+            url = `${baseUrl}${fixedEndpoint}`;
+          }
         }
       }
       
