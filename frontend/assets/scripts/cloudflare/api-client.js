@@ -6,17 +6,17 @@
 
 class RailHubAPI {
   constructor() {
-    // Define endpoints in priority order
+    // Define endpoints in priority order - updated based on test results
     this.endpoints = [
       {
-        url: 'https://railhubpictures.org/api',
+        url: 'https://railhubpictures.org',
         type: 'main_domain_https',
         description: 'Main Domain HTTPS'
       },
       {
-        url: 'http://railhubpictures.org/api',
-        type: 'main_domain_http',
-        description: 'Main Domain HTTP'
+        url: 'https://railhubpictures.org/api',
+        type: 'main_domain_api_https',
+        description: 'Main Domain API Path HTTPS'
       },
       {
         url: 'https://railhub-api.railhubpictures.org/api',
@@ -68,36 +68,31 @@ class RailHubAPI {
     try {
       console.log('Auto-detecting best API endpoint...');
       
-      // Based on test results, we know only the base domain on HTTPS works, 
-      // so we'll try the main domain with different paths first
+      // Based on the latest test results:
+      // - Only https://railhubpictures.org (without /api path) is working
+      // - API paths don't work on any domain
+      // - HTTP doesn't work
       
-      // Test all endpoints and pick the first working one
-      for (const endpoint of this.endpoints) {
-        try {
-          console.log(`Testing endpoint: ${endpoint.url}`);
-          
-          // First try with /health endpoint as a general connectivity test
-          let testUrl = endpoint.url;
-          if (endpoint.type === 'main_domain_https' || endpoint.type === 'main_domain_http') {
-            // For main domain, we know /api path isn't working but base domain is
-            testUrl = endpoint.url.replace('/api', '');
-          }
-          
-          console.log(`Testing URL: ${testUrl}`);
-          const response = await fetch(testUrl, {
-            method: 'GET',
-            mode: 'cors',
-            cache: 'no-cache',
-            headers: {
-              'Accept': 'application/json, text/html, */*',
-            },
-            signal: AbortSignal.timeout(5000) // 5 second timeout
-          });
-          
-          if (response.ok) {
-            console.log(`✅ Endpoint ${endpoint.description} is working!`);
-            this.baseURL = endpoint.url;
-            this.connectionStatus = {
+      // First, try the main domain on HTTPS without /api path since that's what works
+      try {
+        const mainDomainHttps = 'https://railhubpictures.org';
+        console.log(`Prioritizing known working endpoint: ${mainDomainHttps}`);
+        
+        const response = await fetch(mainDomainHttps, {
+          method: 'GET',
+          mode: 'cors',
+          cache: 'no-cache',
+          headers: {
+            'Accept': 'application/json, text/html, */*',
+          },
+          signal: AbortSignal.timeout(3000) // 3 second timeout
+        });
+        
+        if (response.ok) {
+          console.log(`✅ Main domain HTTPS is working!`);
+          // Use the main domain with /api for API client compatibility
+          this.baseURL = 'https://railhubpictures.org';
+          this.connectionStatus = {
               connected: true,
               endpoint: endpoint,
               lastChecked: new Date(),
@@ -297,57 +292,82 @@ class RailHubAPI {
    */
   async _fetch(endpoint, options = {}) {
     try {
-      // Based on test results, we need a special handling for the main domain
-      let url = `${this.baseURL}${endpoint}`;
+      // Based on the latest test results:
+      // - Only https://railhubpictures.org base domain is working
+      // - None of the /api paths are working
+      // - HTTP connections are failing
       
-      // Check if we're using the main domain where /api isn't working
-      if (this.baseURL.includes('railhubpictures.org/api')) {
-        // Try alternative URLs if the primary endpoint fails
-        const maxRetries = 3;
-        let retryCount = 0;
-        let success = false;
+      // Get the base domain without /api path
+      let baseUrl = this.baseURL;
+      
+      // If the baseURL contains /api, remove it since it won't work
+      if (baseUrl.includes('/api')) {
+        baseUrl = baseUrl.replace('/api', '');
+      }
+      
+      // Ensure we're using HTTPS since that's what works
+      if (baseUrl.startsWith('http:')) {
+        baseUrl = baseUrl.replace('http:', 'https:');
+      }
+      
+      // Remove any trailing slashes
+      baseUrl = baseUrl.replace(/\/+$/, '');
+      
+      // For endpoints, remove the /api prefix if present
+      let fixedEndpoint = endpoint;
+      if (fixedEndpoint.startsWith('/api/')) {
+        fixedEndpoint = fixedEndpoint.substring(4); // Remove /api
+      }
+      
+      // Ensure endpoint starts with slash
+      if (!fixedEndpoint.startsWith('/') && fixedEndpoint.length > 0) {
+        fixedEndpoint = '/' + fixedEndpoint;
+      }
+      
+      // Build the final URL
+      let url = `${baseUrl}${fixedEndpoint}`;
+      console.log(`Making API request to: ${url}`);
+      
+      // Attempt the fetch with the modified URL
+      let finalResponse;
+      try {
+        finalResponse = await fetch(url, this._getOptions(options));
+        console.log(`Response from ${url}: ${finalResponse.status} ${finalResponse.statusText}`);
+      } catch (initialError) {
+        console.warn(`Initial fetch to ${url} failed:`, initialError);
         
-        // Create a queue of URLs to try
-        const urlsToTry = [
-          url,                                              // Original URL with /api in path
-          url.replace('/api/', '/'),                        // Remove /api from path
-          url.replace('railhubpictures.org/api', 'railhubpictures.org')  // Remove /api entirely
+        // Try alternative strategies
+        const alternativeUrls = [
+          // Try with /api prefix
+          `${baseUrl}/api${fixedEndpoint}`,
+          // Try with original endpoint
+          `${baseUrl}${endpoint}`,
+          // Try with HTTPS if not already
+          url.replace('http:', 'https:')
         ];
         
-        let lastError = null;
-        let finalResponse = null;
+        let success = false;
+        let lastError = initialError;
         
-        // Try each URL in the queue
-        for (const tryUrl of urlsToTry) {
+        for (const altUrl of alternativeUrls) {
           try {
-            console.log(`Attempting fetch from: ${tryUrl}`);
-            const response = await fetch(tryUrl, this._getOptions(options));
-            finalResponse = response;
+            console.log(`Trying alternative URL: ${altUrl}`);
+            finalResponse = await fetch(altUrl, this._getOptions(options));
             
-            // If we got a successful response, use it
-            if (response.ok) {
+            if (finalResponse.ok) {
+              url = altUrl;
               success = true;
-              url = tryUrl;
               break;
             }
-          } catch (retryError) {
-            console.warn(`Attempt failed for ${tryUrl}:`, retryError);
-            lastError = retryError;
+          } catch (altError) {
+            console.warn(`Alternative URL ${altUrl} failed:`, altError);
+            lastError = altError;
           }
         }
         
-        // If all attempts failed, throw the last error
-        if (!success && lastError) {
+        if (!success) {
           throw lastError;
         }
-        
-        // If we didn't get a successful response, throw error
-        if (!success) {
-          throw new Error(`All API endpoints failed with status: ${finalResponse?.status || 'unknown'}`);
-        }
-      } else {
-        // Standard fetch for other endpoints
-        finalResponse = await fetch(url, this._getOptions(options));
       }
       
       const response = finalResponse;
