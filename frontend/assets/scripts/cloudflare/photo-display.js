@@ -1,5 +1,24 @@
 // Photo display script for Cloudflare integration
 document.addEventListener('DOMContentLoaded', function() {
+    // Wait for the API to be ready before loading photos
+    if (window.railhubAPI) {
+        // API is already loaded, proceed directly
+        initPhotoDisplay();
+    } else {
+        // Wait for API to be loaded
+        window.addEventListener('railhub-api-ready', function(event) {
+            console.log('API ready event received, initializing photo display');
+            initPhotoDisplay(event.detail.emergency);
+        });
+    }
+});
+
+// Initialize photo display based on which pages we're on
+function initPhotoDisplay(isEmergencyMode) {
+    if (isEmergencyMode) {
+        console.log('Photo display running in emergency mode');
+    }
+    
     // Check if we're on a page that displays photos
     const photoGrids = document.querySelectorAll('.photo-grid, .photos-container');
     if (photoGrids.length > 0) {
@@ -17,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (userProfile) {
         loadUserProfilePhotos();
     }
-});
+}
 
 // Load and display photos on the homepage or gallery pages
 async function loadAndDisplayPhotos() {
@@ -30,20 +49,57 @@ async function loadAndDisplayPhotos() {
         // Show loading state
         photoContainer.innerHTML = '<div class="loading">Loading photos...</div>';
         
+        // Check if API is available
+        if (!window.railhubAPI) {
+            throw new Error('API client not available');
+        }
+        
         // Get photos from API
         const photos = await window.railhubAPI.getLatestPhotos(20);
         
         // Clear loading indicator
         photoContainer.innerHTML = '';
         
+        // Check if we're in emergency mode
+        const emergencyMode = localStorage.getItem('railhub_emergency_mode') === 'true';
+        
         if (!photos || photos.length === 0) {
-            photoContainer.innerHTML = '<div class="no-photos">No photos found</div>';
+            if (emergencyMode) {
+                // In emergency mode, show placeholder message
+                photoContainer.innerHTML = `
+                    <div class="no-photos emergency-mode">
+                        <h3>Emergency Mode Active</h3>
+                        <p>No photos could be loaded from the API. Using emergency mode.</p>
+                        <p><a href="/api-emergency.html">Manage emergency mode</a></p>
+                    </div>`;
+            } else {
+                photoContainer.innerHTML = '<div class="no-photos">No photos found</div>';
+            }
             return;
         }
         
         // Display each photo
         photos.forEach(photo => {
             const photoElement = createPhotoElement(photo);
+            
+            // Add emergency badge if in emergency mode
+            if (emergencyMode || photo.emergency_mode) {
+                const badge = document.createElement('div');
+                badge.className = 'emergency-badge';
+                badge.textContent = '⚠️';
+                badge.title = 'Limited data - Emergency Mode';
+                badge.style.position = 'absolute';
+                badge.style.top = '5px';
+                badge.style.right = '5px';
+                badge.style.backgroundColor = 'rgba(255, 193, 7, 0.8)';
+                badge.style.color = '#000';
+                badge.style.padding = '2px 5px';
+                badge.style.borderRadius = '3px';
+                badge.style.fontSize = '10px';
+                photoElement.style.position = 'relative';
+                photoElement.appendChild(badge);
+            }
+            
             photoContainer.appendChild(photoElement);
         });
     } catch (error) {
@@ -51,7 +107,25 @@ async function loadAndDisplayPhotos() {
         const photoContainer = document.querySelector('.photo-grid') || 
                               document.querySelector('.photos-container');
         if (photoContainer) {
-            photoContainer.innerHTML = '<div class="error">Error loading photos</div>';
+            // Check if we're in emergency mode
+            const emergencyMode = localStorage.getItem('railhub_emergency_mode') === 'true';
+            
+            if (emergencyMode) {
+                photoContainer.innerHTML = `
+                    <div class="error emergency-mode">
+                        <h3>Emergency Mode Error</h3>
+                        <p>Unable to load photos even in emergency mode.</p>
+                        <p><a href="/api-emergency.html">Check emergency mode settings</a></p>
+                        <p><small>Error: ${error.message}</small></p>
+                    </div>`;
+            } else {
+                photoContainer.innerHTML = `
+                    <div class="error">
+                        <h3>Error loading photos</h3>
+                        <p>Try enabling emergency mode to continue.</p>
+                        <p><a href="/api-emergency.html">Enable emergency mode</a></p>
+                    </div>`;
+            }
         }
     }
 }
