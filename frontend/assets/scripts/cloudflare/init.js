@@ -31,12 +31,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const baseUrl = window.railhubAPI.baseURL;
     let message, color;
     
-    if (baseUrl.includes('railhubpictures.org/api') && !baseUrl.includes('api.railhubpictures.org')) {
-      message = `✅ Using main domain API: ${baseUrl}`;
-      color = 'green';
-    } else if (baseUrl.includes('api.railhubpictures.org')) {
-      message = `⚠️ Using API subdomain: ${baseUrl} (may not work)`;
+    if (baseUrl.includes('api.railhubpictures.org')) {
+      message = `⚠️ Using API subdomain: ${baseUrl} (Worker Error 1101)`;
       color = 'orange';
+    } else if (baseUrl.includes('railhubpictures.org/api')) {
+      message = `✅ Using main domain API: ${baseUrl} (Recommended)`;
+      color = 'green';
     } else if (baseUrl.includes('localhost')) {
       message = `🔧 Using development server: ${baseUrl}`;
       color = 'blue';

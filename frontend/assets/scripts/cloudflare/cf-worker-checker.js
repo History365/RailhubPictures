@@ -8,20 +8,20 @@ class CloudflareWorkerChecker {
   constructor() {
     // Include both API subdomain and main domain endpoints
     this.endpoints = [
-      // Main domain endpoints (more likely to work)
-      'https://railhubpictures.org/api/health',
-      'https://railhubpictures.org/api',
-      'https://railhubpictures.org',
-      'http://railhubpictures.org/api/health',
-      'http://railhubpictures.org/api',
-      'http://railhubpictures.org',
-      // API subdomain endpoints (original ones)
+      // API subdomain endpoints (now confirmed working)
       'https://api.railhubpictures.org/api/health',
       'https://api.railhubpictures.org/api',
       'https://api.railhubpictures.org',
       'http://api.railhubpictures.org/api/health',
       'http://api.railhubpictures.org/api',
-      'http://api.railhubpictures.org'
+      'http://api.railhubpictures.org',
+      // Main domain endpoints (fallback)
+      'https://railhubpictures.org/api/health',
+      'https://railhubpictures.org/api',
+      'https://railhubpictures.org',
+      'http://railhubpictures.org/api/health',
+      'http://railhubpictures.org/api',
+      'http://railhubpictures.org'
     ];
   }
   

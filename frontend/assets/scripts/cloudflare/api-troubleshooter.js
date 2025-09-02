@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
   });
   
-  // Use HTTPS (API Subdomain) - NOT WORKING PER TESTS
+  // Use HTTPS (API Subdomain) - THROWING WORKER ERROR
   document.getElementById('use-https-api').addEventListener('click', function() {
     const api = window.railhubAPI || new RailHubAPI();
     api.baseURL = 'https://api.railhubpictures.org/api';
@@ -210,11 +210,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('api-settings').innerHTML = `
       <p><strong>Base URL:</strong> ${api.baseURL}</p>
       <p><strong>Authentication:</strong> ${api.token ? 'Token Present' : 'No Token'}</p>
-      <p style="color: orange;">⚠️ Switched to HTTPS protocol on API subdomain (not working in tests)</p>
+      <p style="color: red;">❌ Switched to HTTPS protocol on API subdomain (throwing Worker error 1101)</p>
+      <p style="color: #666; font-size: 0.9em;">Note: The API subdomain is resolving but the Worker is throwing an error. Use main domain path instead.</p>
     `;
   });
   
-  // Use HTTP (API Subdomain) - NOT WORKING PER TESTS
+  // Use HTTP (API Subdomain)
   document.getElementById('use-http-api').addEventListener('click', function() {
     const api = window.railhubAPI || new RailHubAPI();
     api.baseURL = 'http://api.railhubpictures.org/api';
@@ -224,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('api-settings').innerHTML = `
       <p><strong>Base URL:</strong> ${api.baseURL}</p>
       <p><strong>Authentication:</strong> ${api.token ? 'Token Present' : 'No Token'}</p>
-      <p style="color: orange;">⚠️ Switched to HTTP protocol on API subdomain (not working in tests)</p>
+      <p style="color: blue;">ℹ️ Switched to HTTP protocol on API subdomain</p>
     `;
   });
   
