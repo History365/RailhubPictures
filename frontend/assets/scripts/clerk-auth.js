@@ -6,6 +6,7 @@ function confirmSignOut() {
     Clerk.signOut();
   }
 }
+}
 
 window.addEventListener("load", async () => {
   try {
@@ -75,6 +76,7 @@ window.addEventListener("load", async () => {
         <a href="login.html" style="color: #444; text-decoration: none; font-weight: 500; padding: 0.7em 1.4em; border-radius: 6px; background: #f5f5f5; font-size: 0.95em; border: 1px solid #eee;">Log In</a>
         <a href="register.html" style="color: #fff; text-decoration: none; font-weight: 500; padding: 0.7em 1.4em; border-radius: 6px; background: #444; font-size: 0.95em;">Register</a>
       `;
+      console.log("Using fallback authentication links");
     }
   }
 });
