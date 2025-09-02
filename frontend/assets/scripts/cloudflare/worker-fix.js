@@ -251,7 +251,7 @@ npx wrangler deploy</pre>
   // Apply frontend workarounds
   function applyFrontendFix() {
     // Use the HTTP version of the main domain as it's most likely to work based on test results
-    window.railhubAPI.baseURL = 'http://railhubpictures.org/api';
+    window.railhubAPI.baseURL = 'http://railhubpictures.org/api/';
     localStorage.setItem('api_base_url', window.railhubAPI.baseURL);
     
     // Update UI

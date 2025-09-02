@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Use HTTPS (Main Domain) - RECOMMENDED
   document.getElementById('use-https-main').addEventListener('click', function() {
     const api = window.railhubAPI || new RailHubAPI();
-    api.baseURL = 'https://railhubpictures.org/api';
+    api.baseURL = 'https://railhubpictures.org/api/';
     localStorage.setItem('api_base_url', api.baseURL);
     
     // Update display
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Use HTTP (Main Domain)
   document.getElementById('use-http-main').addEventListener('click', function() {
     const api = window.railhubAPI || new RailHubAPI();
-    api.baseURL = 'http://railhubpictures.org/api';
+    api.baseURL = 'http://railhubpictures.org/api/';
     localStorage.setItem('api_base_url', api.baseURL);
     
     // Update display
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Use HTTPS (API Subdomain) - THROWING WORKER ERROR
   document.getElementById('use-https-api').addEventListener('click', function() {
     const api = window.railhubAPI || new RailHubAPI();
-    api.baseURL = 'https://api.railhubpictures.org/api';
+    api.baseURL = 'https://api.railhubpictures.org/api/';
     localStorage.setItem('api_base_url', api.baseURL);
     
     // Update display
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Use HTTP (API Subdomain)
   document.getElementById('use-http-api').addEventListener('click', function() {
     const api = window.railhubAPI || new RailHubAPI();
-    api.baseURL = 'http://api.railhubpictures.org/api';
+    api.baseURL = 'http://api.railhubpictures.org/api/';
     localStorage.setItem('api_base_url', api.baseURL);
     
     // Update display
@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Use Localhost (Development)
   document.getElementById('use-localhost').addEventListener('click', function() {
     const api = window.railhubAPI || new RailHubAPI();
-    api.baseURL = 'http://localhost:8787/api';
+    api.baseURL = 'http://localhost:8787/api/';
     localStorage.setItem('api_base_url', api.baseURL);
     
     // Update display

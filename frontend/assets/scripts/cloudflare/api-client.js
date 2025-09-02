@@ -55,6 +55,9 @@ class RailHubAPI {
     // Get auth token from localStorage if available
     this.token = localStorage.getItem('auth_token');
     
+    // Ensure baseURL is properly formatted
+    this.normalizeBaseURL();
+    
     console.log('RailHubAPI initialized with baseURL:', this.baseURL);
     
     // Automatically try to detect the best endpoint
@@ -136,6 +139,7 @@ class RailHubAPI {
       if (bestEndpoint) {
         console.log(`✅ Best endpoint: ${bestEndpoint.description}`);
         this.baseURL = bestEndpoint.url;
+        this.normalizeBaseURL(); // Ensure proper formatting
         this.connectionStatus = {
           connected: true,
           endpoint: bestEndpoint,
@@ -326,6 +330,30 @@ class RailHubAPI {
       ...options,
       headers
     };
+  }
+  
+  /**
+   * Ensures the baseURL is properly formatted with trailing slash after /api
+   * This helps ensure all API endpoints work correctly
+   */
+  normalizeBaseURL() {
+    // Make sure we have a baseURL to work with
+    if (!this.baseURL) return;
+    
+    // Force HTTPS for production (except localhost)
+    if (!this.baseURL.includes('localhost') && this.baseURL.startsWith('http:')) {
+      this.baseURL = this.baseURL.replace('http:', 'https:');
+    }
+    
+    // Remove trailing slashes
+    this.baseURL = this.baseURL.replace(/\/+$/, '');
+    
+    // Make sure /api endpoint has a trailing slash
+    if (this.baseURL.endsWith('/api')) {
+      this.baseURL += '/';
+    }
+    
+    console.log('Normalized baseURL:', this.baseURL);
   }
 
   /**

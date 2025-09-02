@@ -95,7 +95,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Construct the best possible URL for direct upload
         const uploadUrl = api.baseURL.endsWith('/api') 
           ? `${api.baseURL}/photos/upload`
-          : `${api.baseURL}/api/photos/upload`;
+          : api.baseURL.endsWith('/api/') 
+              ? `${api.baseURL}photos/upload` 
+              : `${api.baseURL}/api/photos/upload`;
           
         console.log('Direct upload to:', uploadUrl);
         
