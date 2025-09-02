@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RailHub Pictures API Diagnostic</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2, h3 {
+            color: #1a365d;
+        }
+        
+        h1 {
+            margin-top: 0;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 10px;
+        }
+        
+        pre {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .card {
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background-color: #f8fafc;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .btn {
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #3182ce;
+        }
+        
+        .btn-success {
+            background-color: #48bb78;
+        }
+        
+        .btn-success:hover {
+            background-color: #38a169;
+        }
+        
+        .btn-warning {
+            background-color: #ecc94b;
+            color: #744210;
+        }
+        
+        .btn-warning:hover {
+            background-color: #d69e2e;
+        }
+        
+        .btn-danger {
+            background-color: #f56565;
+        }
+        
+        .btn-danger:hover {
+            background-color: #e53e3e;
+        }
+        
+        .status-box {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .status-good {
+            background-color: #c6f6d5;
+            border: 1px solid #9ae6b4;
+            color: #276749;
+        }
+        
+        .status-warning {
+            background-color: #fefcbf;
+            border: 1px solid #faf089;
+            color: #744210;
+        }
+        
+        .status-error {
+            background-color: #fed7d7;
+            border: 1px solid #feb2b2;
+            color: #9b2c2c;
+        }
+        
+        .endpoint {
+            margin-bottom: 10px;
+            padding: 12px 15px;
+            border-radius: 4px;
+            border-left: 4px solid #cbd5e0;
+        }
+        
+        .endpoint-success {
+            border-left-color: #48bb78;
+            background-color: #f0fff4;
+        }
+        
+        .endpoint-failure {
+            border-left-color: #f56565;
+            background-color: #fff5f5;
+        }
+        
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .status-badge-success {
+            background-color: #c6f6d5;
+            color: #276749;
+        }
+        
+        .status-badge-warning {
+            background-color: #fefcbf;
+            color: #744210;
+        }
+        
+        .status-badge-error {
+            background-color: #fed7d7;
+            color: #9b2c2c;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background-color: #f7fafc;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f7fafc;
+        }
+        
+        .tabs {
+            margin-bottom: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .tab-button {
+            padding: 10px 20px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            position: relative;
+            top: 1px;
+        }
+        
+        .tab-button.active {
+            border: 1px solid #e2e8f0;
+            border-bottom-color: white;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            background-color: white;
+            font-weight: bold;
+            color: #4299e1;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .test-result {
+            margin-bottom: 5px;
+        }
+        
+        .collapsible {
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 16px;
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        
+        .collapsible:after {
+            content: '\002B'; /* Unicode character for "plus" sign (+) */
+            float: right;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+        
+        .collapsible.active:after {
+            content: "\2212"; /* Unicode character for "minus" sign (-) */
+        }
+        
+        .collapsible-content {
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RailHub Pictures API Diagnostic</h1>
+        
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="status">Status</button>
+                <button class="tab-button" data-tab="tests">Tests</button>
+                <button class="tab-button" data-tab="fixes">Fixes</button>
+                <button class="tab-button" data-tab="config">Configuration</button>
+            </div>
+            
+            <!-- Status Tab -->
+            <div id="status" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 style="margin: 0;">Current API Status</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="api-status" class="status-box status-warning">
+                            <h3 style="margin-top: 0;">Checking API connectivity...</h3>
+                            <div class="loader"></div>
+                            <p>Please wait while we test your API connectivity...</p>
+                        </div>
+                        
+                        <table>
+                            <tr>
+                                <th>API Base URL</th>
+                                <td id="current-base-url">Loading...</td>
+                            </tr>
+                            <tr>
+                                <th>Authentication</th>
+                                <td id="auth-status">Checking...</td>
+                            </tr>
+                            <tr>
+                                <th>Connection Status</th>
+                                <td id="connection-status">Testing...</td>
+                            </tr>
+                            <tr>
+                                <th>Current Endpoint</th>
+                                <td id="current-endpoint">Unknown</td>
+                            </tr>
+                        </table>
+                        
+                        <h3>Detected Issues</h3>
+                        <ul id="issues-list">
+                            <li>Running diagnostics...</li>
+                        </ul>
+                        
+                        <div>
+                            <button id="test-api-btn" class="btn">Run Diagnostics</button>
+                            <button id="use-best-endpoint-btn" class="btn btn-success">Use Best Endpoint</button>
+                            <button id="apply-workaround-btn" class="btn btn-warning">Apply Path Workaround</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tests Tab -->
+            <div id="tests" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 style="margin: 0;">API Endpoint Tests</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>Test all possible API endpoints to identify the most reliable connection method.</p>
+                        <button id="run-all-tests-btn" class="btn">Run All Tests</button>
+                        <div id="test-results" style="margin-top: 20px;">
+                            <p>Click "Run All Tests" to start testing API endpoints.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 style="margin: 0;">Path Tests</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>Test specific API paths to verify functionality.</p>
+                        <div style="display: flex; margin-bottom: 15px;">
+                            <input type="text" id="path-input" placeholder="/photos/latest" style="flex: 1; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px; margin-right: 10px;">
+                            <button id="test-path-btn" class="btn">Test Path</button>
+                        </div>
+                        <div id="path-test-results">
+                            <p>Enter a path to test.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fixes Tab -->
+            <div id="fixes" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 style="margin: 0;">Available Fixes</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3>1. Client-Side Workarounds</h3>
+                        <p>These are temporary fixes that can be applied in the browser to work around API issues:</p>
+                        
+                        <button class="collapsible">Use Best Available Endpoint</button>
+                        <div class="collapsible-content">
+                            <p>This fix will test all available endpoints and switch to the one that works best.</p>
+                            <p>Current tests show that <code>https://railhubpictures.org</code> is the most reliable endpoint.</p>
+                            <button id="fix-use-best-endpoint" class="btn">Apply This Fix</button>
+                        </div>
+                        
+                        <button class="collapsible">Apply API Path Workaround</button>
+                        <div class="collapsible-content">
+                            <p>This fix modifies the API client to handle problematic API paths by attempting multiple path formats.</p>
+                            <p>Use this if you're seeing <code>404</code> errors when accessing API paths.</p>
+                            <button id="fix-path-workaround" class="btn">Apply This Fix</button>
+                        </div>
+                        
+                        <button class="collapsible">Modify Request Headers</button>
+                        <div class="collapsible-content">
+                            <p>This fix changes the request headers to improve compatibility with Cloudflare Workers.</p>
+                            <p>Use this if you're seeing CORS or other header-related errors.</p>
+                            <button id="fix-headers" class="btn">Apply This Fix</button>
+                        </div>
+                        
+                        <h3>2. Server-Side Fixes</h3>
+                        <p>These changes need to be applied to your Cloudflare Worker configuration:</p>
+                        
+                        <button class="collapsible">Update Worker Routes</button>
+                        <div class="collapsible-content">
+                            <p>Add these routes to your <code>wrangler.toml</code> file:</p>
+                            <pre>[[routes]]
+pattern = "api.railhubpictures.org/*"
+zone_name = "railhubpictures.org"
+
+[[routes]]
+pattern = "railhubpictures.org/api/*"
+zone_name = "railhubpictures.org"
+
+[[routes]]
+pattern = "railhub-api.railhubpictures.org/*"
+zone_name = "railhubpictures.org"</pre>
+                        </div>
+                        
+                        <button class="collapsible">Fix Path Handling in Worker</button>
+                        <div class="collapsible-content">
+                            <p>Add this code to your worker.js file just after you get the URL and pathname:</p>
+                            <pre>// Get URL and pathname
+const url = new URL(request.url);
+let pathname = url.pathname;
+
+// Handle requests from api.railhubpictures.org or railhub-api.railhubpictures.org
+const host = url.hostname;
+if ((host === 'api.railhubpictures.org' || host === 'railhub-api.railhubpictures.org') && !pathname.startsWith('/api/')) {
+  // Remove leading slash if exists and prepend /api/ to ensure consistency
+  pathname = '/api/' + pathname.replace(/^\//, '');
+}</pre>
+                        </div>
+                        
+                        <button class="collapsible">Update CORS Headers</button>
+                        <div class="collapsible-content">
+                            <p>Ensure your worker is returning proper CORS headers:</p>
+                            <pre>// Add CORS headers to all responses
+function addCorsHeaders(response) {
+  const headers = new Headers(response.headers);
+  headers.set('Access-Control-Allow-Origin', '*');
+  headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  headers.set('Access-Control-Max-Age', '86400');
+  
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+
+// In your main handler:
+if (request.method === 'OPTIONS') {
+  // Handle CORS preflight requests
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    }
+  });
+}
+
+// For all other responses
+const response = await yourResponseLogic();
+return addCorsHeaders(response);</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Configuration Tab -->
+            <div id="config" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 style="margin: 0;">Cloudflare Worker Configuration</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3>wrangler.toml Example</h3>
+                        <pre>name = "railhub-api"
+main = "src/worker.js"
+compatibility_date = "2023-09-04"
+
+# Worker Routes
+[[routes]]
+pattern = "api.railhubpictures.org/*"
+zone_name = "railhubpictures.org"
+
+[[routes]]
+pattern = "railhubpictures.org/api/*"
+zone_name = "railhubpictures.org"
+
+[[routes]]
+pattern = "railhub-api.railhubpictures.org/*"
+zone_name = "railhubpictures.org"
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"</pre>
+                        
+                        <h3>DNS Configuration</h3>
+                        <p>Ensure these DNS records are set up in your Cloudflare dashboard:</p>
+                        <table>
+                            <tr>
+                                <th>Type</th>
+                                <th>Name</th>
+                                <th>Content</th>
+                                <th>Proxy Status</th>
+                            </tr>
+                            <tr>
+                                <td>CNAME</td>
+                                <td>api</td>
+                                <td>your-worker-subdomain.workers.dev</td>
+                                <td>Proxied</td>
+                            </tr>
+                            <tr>
+                                <td>CNAME</td>
+                                <td>railhub-api</td>
+                                <td>your-worker-subdomain.workers.dev</td>
+                                <td>Proxied</td>
+                            </tr>
+                        </table>
+                        
+                        <h3>Deployment Commands</h3>
+                        <pre>cd backend
+npx wrangler deploy</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            const apiStatusElement = document.getElementById('api-status');
+            const currentBaseUrlElement = document.getElementById('current-base-url');
+            const authStatusElement = document.getElementById('auth-status');
+            const connectionStatusElement = document.getElementById('connection-status');
+            const currentEndpointElement = document.getElementById('current-endpoint');
+            const issuesListElement = document.getElementById('issues-list');
+            
+            const testApiBtn = document.getElementById('test-api-btn');
+            const useBestEndpointBtn = document.getElementById('use-best-endpoint-btn');
+            const applyWorkaroundBtn = document.getElementById('apply-workaround-btn');
+            const runAllTestsBtn = document.getElementById('run-all-tests-btn');
+            const testPathBtn = document.getElementById('test-path-btn');
+            const pathInput = document.getElementById('path-input');
+            
+            const testResultsElement = document.getElementById('test-results');
+            const pathTestResultsElement = document.getElementById('path-test-results');
+            
+            const fixUseBestEndpoint = document.getElementById('fix-use-best-endpoint');
+            const fixPathWorkaround = document.getElementById('fix-path-workaround');
+            const fixHeaders = document.getElementById('fix-headers');
+            
+            // Define API endpoints to test
+            const apiEndpoints = [
+                { url: 'https://railhubpictures.org', path: '', name: 'Main Domain HTTPS', type: 'main_https' },
+                { url: 'https://railhubpictures.org', path: '/api', name: 'Main Domain API Path HTTPS', type: 'main_api_https' },
+                { url: 'https://api.railhubpictures.org', path: '', name: 'API Subdomain HTTPS', type: 'api_subdomain_https' },
+                { url: 'https://api.railhubpictures.org', path: '/api', name: 'API Subdomain with /api HTTPS', type: 'api_subdomain_api_https' },
+                { url: 'http://railhubpictures.org', path: '', name: 'Main Domain HTTP', type: 'main_http' },
+                { url: 'http://railhubpictures.org', path: '/api', name: 'Main Domain API Path HTTP', type: 'main_api_http' },
+                { url: 'http://api.railhubpictures.org', path: '', name: 'API Subdomain HTTP', type: 'api_subdomain_http' },
+                { url: 'http://api.railhubpictures.org', path: '/api', name: 'API Subdomain with /api HTTP', type: 'api_subdomain_api_http' },
+                { url: 'https://railhub-api.railhubpictures.org', path: '', name: 'Direct Worker HTTPS', type: 'worker_https' },
+                { url: 'https://railhub-api.railhubpictures.org', path: '/api', name: 'Direct Worker with /api HTTPS', type: 'worker_api_https' }
+            ];
+            
+            // Setup tab switching
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    button.classList.add('active');
+                    document.getElementById(button.dataset.tab).classList.add('active');
+                });
+            });
+            
+            // Setup collapsible sections
+            const collapsibles = document.querySelectorAll('.collapsible');
+            
+            collapsibles.forEach(collapsible => {
+                collapsible.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const content = this.nextElementSibling;
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                    }
+                });
+            });
+            
+            // Check if RailHubAPI is loaded
+            function checkApiLoaded() {
+                if (window.railhubAPI) {
+                    runInitialDiagnostics();
+                } else {
+                    // API client not loaded, check again in a second
+                    setTimeout(checkApiLoaded, 1000);
+                }
+            }
+            
+            // Run initial diagnostics
+            function runInitialDiagnostics() {
+                updateApiStatus();
+                testAllEndpoints();
+                
+                // Add event listeners
+                testApiBtn.addEventListener('click', runInitialDiagnostics);
+                useBestEndpointBtn.addEventListener('click', useBestEndpoint);
+                applyWorkaroundBtn.addEventListener('click', applyWorkaround);
+                runAllTestsBtn.addEventListener('click', testAllEndpoints);
+                testPathBtn.addEventListener('click', testPath);
+                
+                // Fixes
+                fixUseBestEndpoint.addEventListener('click', useBestEndpoint);
+                fixPathWorkaround.addEventListener('click', applyWorkaround);
+                fixHeaders.addEventListener('click', applyHeadersFix);
+            }
+            
+            // Update API status display
+            function updateApiStatus() {
+                if (!window.railhubAPI) {
+                    apiStatusElement.innerHTML = `
+                        <h3 style="margin-top: 0;">API Client Not Loaded</h3>
+                        <p>The RailHubAPI client is not loaded or not initialized properly.</p>
+                    `;
+                    apiStatusElement.className = 'status-box status-error';
+                    return;
+                }
+                
+                // Update basic info
+                currentBaseUrlElement.textContent = window.railhubAPI.baseURL || 'Not set';
+                authStatusElement.textContent = window.railhubAPI.isAuthenticated ? 
+                    'Authenticated' : (window.railhubAPI.token ? 'Token Present' : 'Not Authenticated');
+                
+                if (window.railhubAPI.connectionStatus?.endpoint) {
+                    currentEndpointElement.textContent = window.railhubAPI.connectionStatus.endpoint.description;
+                } else {
+                    currentEndpointElement.textContent = 'Unknown';
+                }
+                
+                // Test connection
+                fetch(`${window.railhubAPI.baseURL}/health`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json, text/plain, */*' }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        connectionStatusElement.innerHTML = '<span class="status-badge status-badge-success">Connected</span>';
+                        apiStatusElement.innerHTML = `
+                            <h3 style="margin-top: 0;">API Connected</h3>
+                            <p>Successfully connected to the API at ${window.railhubAPI.baseURL}</p>
+                        `;
+                        apiStatusElement.className = 'status-box status-good';
+                    } else {
+                        connectionStatusElement.innerHTML = `<span class="status-badge status-badge-error">Error ${response.status}</span>`;
+                        apiStatusElement.innerHTML = `
+                            <h3 style="margin-top: 0;">API Connection Error</h3>
+                            <p>Received status ${response.status} from API at ${window.railhubAPI.baseURL}</p>
+                        `;
+                        apiStatusElement.className = 'status-box status-error';
+                    }
+                })
+                .catch(error => {
+                    connectionStatusElement.innerHTML = `<span class="status-badge status-badge-error">Failed</span>`;
+                    apiStatusElement.innerHTML = `
+                        <h3 style="margin-top: 0;">API Connection Failed</h3>
+                        <p>Failed to connect to API at ${window.railhubAPI.baseURL}: ${error.message}</p>
+                    `;
+                    apiStatusElement.className = 'status-box status-error';
+                });
+            }
+            
+            // Find and use the best API endpoint
+            function useBestEndpoint() {
+                if (!window.railhubAPI) return;
+                
+                useBestEndpointBtn.disabled = true;
+                fixUseBestEndpoint.disabled = true;
+                useBestEndpointBtn.textContent = 'Finding best endpoint...';
+                fixUseBestEndpoint.textContent = 'Finding best endpoint...';
+                
+                testAllEndpoints()
+                    .then(results => {
+                        // Find the first working endpoint
+                        const workingEndpoint = results.find(r => r.success);
+                        
+                        if (workingEndpoint) {
+                            // Use this endpoint
+                            const baseUrl = workingEndpoint.url + workingEndpoint.path;
+                            window.railhubAPI.baseURL = baseUrl;
+                            localStorage.setItem('api_base_url', baseUrl);
+                            
+                            alert(`Successfully switched to endpoint: ${baseUrl}`);
+                            updateApiStatus();
+                        } else {
+                            alert('No working endpoints found. Using default.');
+                        }
+                        
+                        useBestEndpointBtn.disabled = false;
+                        fixUseBestEndpoint.disabled = false;
+                        useBestEndpointBtn.textContent = 'Use Best Endpoint';
+                        fixUseBestEndpoint.textContent = 'Apply This Fix';
+                    });
+            }
+            
+            // Apply API path workaround
+            function applyWorkaround() {
+                if (!window.railhubAPI) return;
+                
+                applyWorkaroundBtn.disabled = true;
+                fixPathWorkaround.disabled = true;
+                applyWorkaroundBtn.textContent = 'Applying...';
+                fixPathWorkaround.textContent = 'Applying...';
+                
+                // Override the _fetch method to handle problematic paths
+                window.railhubAPI._fetch = async function(endpoint, options = {}) {
+                    try {
+                        // Try main domain without /api path first since that's what works
+                        const baseUrl = this.baseURL.includes('railhubpictures.org') ? 
+                            'https://railhubpictures.org' : this.baseURL;
+                            
+                        console.log(`Using workaround base URL: ${baseUrl}`);
+                        
+                        // First try with the path as-is
+                        let url = `${baseUrl}${endpoint}`;
+                        console.log(`Trying URL: ${url}`);
+                        
+                        try {
+                            const response = await fetch(url, this._getOptions(options));
+                            
+                            // If successful, return the response
+                            if (response.ok) {
+                                // If response is not JSON, return the raw response
+                                const contentType = response.headers.get('content-type');
+                                if (!contentType || !contentType.includes('application/json')) {
+                                    return response;
+                                }
+                                
+                                const data = await response.json();
+                                return data;
+                            }
+                        } catch (e) {
+                            console.warn(`First attempt failed: ${e.message}`);
+                        }
+                        
+                        // If that fails, try without /api prefix
+                        url = `${baseUrl}${endpoint.replace(/^\/api/, '')}`;
+                        console.log(`Trying URL without /api prefix: ${url}`);
+                        
+                        const response = await fetch(url, this._getOptions(options));
+                        
+                        // If response is not JSON, return the raw response
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            return response;
+                        }
+                        
+                        const data = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(data.error || 'API request failed');
+                        }
+                        
+                        return data;
+                    } catch (error) {
+                        console.error('API request failed:', error);
+                        throw error;
+                    }
+                };
+                
+                alert('Applied API path workaround! This will automatically try different path formats when API requests fail.');
+                
+                applyWorkaroundBtn.disabled = false;
+                fixPathWorkaround.disabled = false;
+                applyWorkaroundBtn.textContent = 'Apply Path Workaround';
+                fixPathWorkaround.textContent = 'Apply This Fix';
+                
+                updateApiStatus();
+            }
+            
+            // Apply headers fix
+            function applyHeadersFix() {
+                if (!window.railhubAPI) return;
+                
+                fixHeaders.disabled = true;
+                fixHeaders.textContent = 'Applying...';
+                
+                // Override the _getOptions method to include better headers
+                window.railhubAPI._getOptions = function(options = {}) {
+                    const defaultOptions = {
+                        method: 'GET',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        headers: {
+                            'Accept': 'application/json, text/html, */*',
+                            'Content-Type': options.body ? 'application/json' : undefined,
+                            'Authorization': this.token ? `Bearer ${this.token}` : undefined,
+                            'X-API-Client': 'RailHubAPI Web Client',
+                            'Origin': window.location.origin
+                        },
+                        credentials: 'same-origin'
+                    };
+                    
+                    // Remove undefined headers
+                    Object.keys(defaultOptions.headers).forEach(key => {
+                        if (defaultOptions.headers[key] === undefined) {
+                            delete defaultOptions.headers[key];
+                        }
+                    });
+                    
+                    return { 
+                        ...defaultOptions, 
+                        ...options,
+                        headers: { 
+                            ...defaultOptions.headers, 
+                            ...options.headers
+                        }
+                    };
+                };
+                
+                alert('Applied headers fix! API requests will now include improved headers for better compatibility.');
+                
+                fixHeaders.disabled = false;
+                fixHeaders.textContent = 'Apply This Fix';
+                
+                updateApiStatus();
+            }
+            
+            // Test all API endpoints
+            async function testAllEndpoints() {
+                runAllTestsBtn.disabled = true;
+                runAllTestsBtn.textContent = 'Testing...';
+                testResultsElement.innerHTML = '<p>Testing endpoints... <div class="loader"></div></p>';
+                
+                // Store all test results
+                const results = [];
+                
+                // Create test paths
+                const testPaths = ['/health', '/photos/latest?limit=1'];
+                
+                // Test each endpoint with each test path
+                for (const endpoint of apiEndpoints) {
+                    for (const testPath of testPaths) {
+                        try {
+                            const startTime = performance.now();
+                            const url = `${endpoint.url}${endpoint.path}${testPath}`;
+                            
+                            console.log(`Testing ${endpoint.name} with path ${testPath}: ${url}`);
+                            
+                            const response = await fetch(url, {
+                                method: 'GET',
+                                headers: { 
+                                    'Accept': 'application/json, text/html, */*',
+                                    'X-API-Client': 'RailHubAPI Diagnostic Tool'
+                                },
+                                mode: 'cors',
+                                cache: 'no-cache',
+                                signal: AbortSignal.timeout(8000) // 8 second timeout
+                            });
+                            
+                            const endTime = performance.now();
+                            const responseTime = Math.round(endTime - startTime);
+                            
+                            let responseBody = null;
+                            const contentType = response.headers.get('content-type');
+                            
+                            try {
+                                if (contentType && contentType.includes('application/json')) {
+                                    responseBody = await response.json();
+                                } else if (contentType && contentType.includes('text')) {
+                                    const text = await response.text();
+                                    responseBody = text;
+                                    
+                                    // Try to parse as JSON if it looks like JSON
+                                    if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
+                                        try {
+                                            responseBody = JSON.parse(text);
+                                        } catch(e) {
+                                            // Not valid JSON, keep as text
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                console.warn(`Could not parse response from ${url}:`, e);
+                                responseBody = `Error parsing response: ${e.message}`;
+                            }
+                            
+                            results.push({
+                                endpoint: endpoint,
+                                url: url,
+                                testPath: testPath,
+                                success: response.ok,
+                                status: response.status,
+                                statusText: response.statusText,
+                                responseTime: responseTime,
+                                headers: Object.fromEntries(response.headers.entries()),
+                                body: responseBody
+                            });
+                        } catch (error) {
+                            results.push({
+                                endpoint: endpoint,
+                                url: `${endpoint.url}${endpoint.path}${testPath}`,
+                                testPath: testPath,
+                                success: false,
+                                error: error.message
+                            });
+                        }
+                    }
+                }
+                
+                // Update UI with results
+                displayTestResults(results);
+                identifyIssues(results);
+                
+                runAllTestsBtn.disabled = false;
+                runAllTestsBtn.textContent = 'Run All Tests';
+                
+                return results;
+            }
+            
+            // Test a specific API path
+            async function testPath() {
+                const path = pathInput.value.trim();
+                if (!path) {
+                    alert('Please enter a path to test');
+                    return;
+                }
+                
+                const fullPath = path.startsWith('/') ? path : `/${path}`;
+                testPathBtn.disabled = true;
+                testPathBtn.textContent = 'Testing...';
+                pathTestResultsElement.innerHTML = '<p>Testing path... <div class="loader"></div></p>';
+                
+                // Test each endpoint with this path
+                const results = [];
+                
+                for (const endpoint of apiEndpoints) {
+                    try {
+                        const url = `${endpoint.url}${endpoint.path}${fullPath}`;
+                        console.log(`Testing ${endpoint.name} with custom path: ${url}`);
+                        
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: { 'Accept': 'application/json, text/html, */*' },
+                            mode: 'cors',
+                            cache: 'no-cache',
+                            signal: AbortSignal.timeout(5000) // 5 second timeout
+                        });
+                        
+                        let responseBody = null;
+                        try {
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                responseBody = await response.json();
+                            } else if (contentType && contentType.includes('text')) {
+                                responseBody = await response.text();
+                            }
+                        } catch (e) {
+                            console.warn(`Could not parse response from ${url}:`, e);
+                        }
+                        
+                        results.push({
+                            endpoint: endpoint,
+                            url: url,
+                            success: response.ok,
+                            status: response.status,
+                            statusText: response.statusText,
+                            headers: Object.fromEntries(response.headers.entries()),
+                            body: responseBody
+                        });
+                    } catch (error) {
+                        results.push({
+                            endpoint: endpoint,
+                            url: `${endpoint.url}${endpoint.path}${fullPath}`,
+                            success: false,
+                            error: error.message
+                        });
+                    }
+                }
+                
+                // Display results
+                let resultsHTML = '<h3>Path Test Results</h3>';
+                
+                const successCount = results.filter(r => r.success).length;
+                resultsHTML += `<p>${successCount} of ${results.length} endpoints responded successfully to path: ${fullPath}</p>`;
+                
+                // Show each result
+                for (const result of results) {
+                    const resultClass = result.success ? 'endpoint-success' : 'endpoint-failure';
+                    
+                    resultsHTML += `
+                        <div class="endpoint ${resultClass}">
+                            <strong>${result.endpoint.name}</strong><br>
+                            <small>${result.url}</small><br>
+                            ${result.success ? 
+                                `✅ Success (${result.status} ${result.statusText || ''})` : 
+                                result.error ? 
+                                    `❌ Failed: ${result.error}` : 
+                                    `❌ Failed: ${result.status} ${result.statusText || ''}`
+                            }
+                        </div>
+                    `;
+                }
+                
+                if (successCount > 0) {
+                    const bestEndpoint = results.find(r => r.success);
+                    resultsHTML += `
+                        <div class="status-box status-good" style="margin-top:15px;">
+                            <h4 style="margin-top:0">Recommended Endpoint</h4>
+                            <p>The best endpoint for this path is: <code>${bestEndpoint.url}</code></p>
+                            <button id="use-this-endpoint" class="btn btn-success">Use This Endpoint</button>
+                        </div>
+                    `;
+                } else {
+                    resultsHTML += `
+                        <div class="status-box status-error" style="margin-top:15px;">
+                            <h4 style="margin-top:0">No Working Endpoints</h4>
+                            <p>None of the tested endpoints responded successfully to this path.</p>
+                            <p>Try applying the path workaround to handle problematic paths.</p>
+                            <button id="apply-path-fix" class="btn btn-warning">Apply Path Workaround</button>
+                        </div>
+                    `;
+                }
+                
+                pathTestResultsElement.innerHTML = resultsHTML;
+                testPathBtn.disabled = false;
+                testPathBtn.textContent = 'Test Path';
+                
+                // Add event listeners to new buttons
+                if (successCount > 0) {
+                    document.getElementById('use-this-endpoint').addEventListener('click', () => {
+                        const bestEndpoint = results.find(r => r.success);
+                        const baseUrl = bestEndpoint.endpoint.url + bestEndpoint.endpoint.path;
+                        window.railhubAPI.baseURL = baseUrl;
+                        localStorage.setItem('api_base_url', baseUrl);
+                        alert(`Switched to endpoint: ${baseUrl}`);
+                        updateApiStatus();
+                    });
+                } else {
+                    document.getElementById('apply-path-fix').addEventListener('click', applyWorkaround);
+                }
+            }
+            
+            // Display test results
+            function displayTestResults(results) {
+                // Count successes for each endpoint
+                const endpointSuccessCounts = {};
+                apiEndpoints.forEach(endpoint => {
+                    const endpointResults = results.filter(r => r.endpoint.type === endpoint.type);
+                    const successCount = endpointResults.filter(r => r.success).length;
+                    endpointSuccessCounts[endpoint.type] = {
+                        success: successCount,
+                        total: endpointResults.length,
+                        percentage: Math.round((successCount / endpointResults.length) * 100)
+                    };
+                });
+                
+                // Build results HTML
+                let resultsHTML = '<h3>Test Results Summary</h3>';
+                
+                // Summary table
+                resultsHTML += `
+                    <table>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Success Rate</th>
+                            <th>Status</th>
+                        </tr>
+                `;
+                
+                for (const endpoint of apiEndpoints) {
+                    const stats = endpointSuccessCounts[endpoint.type];
+                    const statusClass = stats.percentage === 100 ? 'status-badge-success' : 
+                                        stats.percentage > 0 ? 'status-badge-warning' : 'status-badge-error';
+                    
+                    resultsHTML += `
+                        <tr>
+                            <td>${endpoint.name}</td>
+                            <td>${stats.success}/${stats.total} (${stats.percentage}%)</td>
+                            <td><span class="status-badge ${statusClass}">${
+                                stats.percentage === 100 ? 'Working' : 
+                                stats.percentage > 0 ? 'Partial' : 'Failed'
+                            }</span></td>
+                        </tr>
+                    `;
+                }
+                
+                resultsHTML += '</table>';
+                
+                // Detailed results
+                resultsHTML += '<h3>Detailed Test Results</h3>';
+                
+                // Group by endpoint
+                for (const endpoint of apiEndpoints) {
+                    const endpointResults = results.filter(r => r.endpoint.type === endpoint.type);
+                    const successCount = endpointResults.filter(r => r.success).length;
+                    
+                    const resultClass = successCount === endpointResults.length ? 'endpoint-success' : 
+                                       successCount > 0 ? 'status-warning' : 'endpoint-failure';
+                                       
+                    resultsHTML += `
+                        <button class="collapsible">${endpoint.name} - ${successCount}/${endpointResults.length} tests passed</button>
+                        <div class="collapsible-content">
+                    `;
+                    
+                    for (const result of endpointResults) {
+                        const testResultClass = result.success ? 'status-good' : 'status-error';
+                        
+                        resultsHTML += `
+                            <div class="status-box ${testResultClass} test-result">
+                                <strong>${result.testPath}</strong>
+                                <p>URL: ${result.url}</p>
+                                <p>Status: ${result.success ? 
+                                    `Success (${result.status} ${result.statusText || ''})` : 
+                                    result.error ? 
+                                        `Failed: ${result.error}` : 
+                                        `Failed: ${result.status} ${result.statusText || ''}`}
+                                </p>
+                                ${result.responseTime ? `<p>Response Time: ${result.responseTime}ms</p>` : ''}
+                        `;
+                        
+                        if (result.success && result.body) {
+                            resultsHTML += `
+                                <details>
+                                    <summary>Response Body</summary>
+                                    <pre>${typeof result.body === 'object' ? 
+                                        JSON.stringify(result.body, null, 2) : 
+                                        result.body}</pre>
+                                </details>
+                            `;
+                        }
+                        
+                        if (result.headers) {
+                            resultsHTML += `
+                                <details>
+                                    <summary>Response Headers</summary>
+                                    <pre>${JSON.stringify(result.headers, null, 2)}</pre>
+                                </details>
+                            `;
+                        }
+                        
+                        resultsHTML += '</div>';
+                    }
+                    
+                    resultsHTML += '</div>';
+                }
+                
+                // Update the UI
+                testResultsElement.innerHTML = resultsHTML;
+                
+                // Initialize new collapsibles
+                const newCollapsibles = testResultsElement.querySelectorAll('.collapsible');
+                newCollapsibles.forEach(collapsible => {
+                    collapsible.addEventListener('click', function() {
+                        this.classList.toggle('active');
+                        const content = this.nextElementSibling;
+                        if (content.style.maxHeight) {
+                            content.style.maxHeight = null;
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + 'px';
+                        }
+                    });
+                });
+            }
+            
+            // Identify issues based on test results
+            function identifyIssues(results) {
+                const issues = [];
+                
+                // Check if main domain works
+                const mainDomainResults = results.filter(r => 
+                    r.endpoint.type === 'main_https' || r.endpoint.type === 'main_http');
+                const mainDomainWorks = mainDomainResults.some(r => r.success);
+                
+                // Check if API path works
+                const apiPathResults = results.filter(r => 
+                    r.endpoint.type === 'main_api_https' || r.endpoint.type === 'main_api_http' || 
+                    r.endpoint.type === 'api_subdomain_api_https' || r.endpoint.type === 'api_subdomain_api_http');
+                const apiPathWorks = apiPathResults.some(r => r.success);
+                
+                // Check if API subdomain works
+                const apiSubdomainResults = results.filter(r => 
+                    r.endpoint.type === 'api_subdomain_https' || r.endpoint.type === 'api_subdomain_http');
+                const apiSubdomainWorks = apiSubdomainResults.some(r => r.success);
+                
+                // Check if direct worker URL works
+                const workerResults = results.filter(r => 
+                    r.endpoint.type === 'worker_https' || r.endpoint.type === 'worker_api_https');
+                const workerWorks = workerResults.some(r => r.success);
+                
+                // Identify specific issues
+                if (!mainDomainWorks && !apiPathWorks && !apiSubdomainWorks && !workerWorks) {
+                    issues.push('All API endpoints are failing. The Cloudflare Worker may not be deployed correctly.');
+                }
+                
+                if (mainDomainWorks && !apiPathWorks) {
+                    issues.push('Main domain works but API paths fail. Your Cloudflare Worker routes may not be configured correctly for /api paths.');
+                }
+                
+                if (!apiSubdomainWorks) {
+                    issues.push('API subdomain (api.railhubpictures.org) is not responding. Check DNS configuration and Worker routes.');
+                }
+                
+                if (!workerWorks) {
+                    issues.push('Direct Worker URL is not responding. Check that your Cloudflare Worker is deployed and routes are configured correctly.');
+                }
+                
+                if (mainDomainWorks && apiPathWorks && !apiSubdomainWorks) {
+                    issues.push('Only the main domain works. Consider updating your API client to use the main domain.');
+                }
+                
+                // Add success message if something works
+                if (mainDomainWorks || apiPathWorks || apiSubdomainWorks || workerWorks) {
+                    const workingEndpoints = [];
+                    if (mainDomainWorks) workingEndpoints.push('Main domain');
+                    if (apiPathWorks) workingEndpoints.push('API paths');
+                    if (apiSubdomainWorks) workingEndpoints.push('API subdomain');
+                    if (workerWorks) workingEndpoints.push('Direct Worker URL');
+                    
+                    issues.push(`Working endpoints: ${workingEndpoints.join(', ')}. Use the "Use Best Endpoint" button to switch to the most reliable one.`);
+                }
+                
+                // Update issues list
+                if (issues.length === 0) {
+                    issues.push('No issues detected. All API endpoints are working correctly.');
+                }
+                
+                issuesListElement.innerHTML = issues.map(issue => `<li>${issue}</li>`).join('');
+            }
+            
+            // Start API check process
+            checkApiLoaded();
+        });
+    </script>
+</body>
+</html>

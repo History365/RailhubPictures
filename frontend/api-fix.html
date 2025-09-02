@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RailHub Pictures API Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        
+        h1 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        pre {
+            background-color: #f7f7f7;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        
+        code {
+            font-family: Monaco, Consolas, "Andale Mono", monospace;
+        }
+        
+        .status-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #007bff;
+        }
+        
+        .issues-section {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .solutions-section {
+            background-color: #d4edda;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #28a745;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background-color: #0069d9;
+        }
+        
+        .success-btn {
+            background-color: #28a745;
+        }
+        
+        .success-btn:hover {
+            background-color: #218838;
+        }
+        
+        .warning-btn {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .warning-btn:hover {
+            background-color: #e0a800;
+        }
+        
+        .endpoint-test {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .endpoint-success {
+            background-color: #d4edda;
+            border-left: 5px solid #28a745;
+        }
+        
+        .endpoint-failure {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-success {
+            background-color: #28a745;
+        }
+        
+        .status-failure {
+            background-color: #dc3545;
+        }
+        
+        .status-warning {
+            background-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RailHub Pictures API Fix</h1>
+        <p>This tool will help you diagnose and fix issues with your Cloudflare Worker API.</p>
+        
+        <div class="status-section">
+            <h2>Current API Status</h2>
+            <table>
+                <tr>
+                    <td><strong>API Base URL:</strong></td>
+                    <td id="current-base-url">Loading...</td>
+                </tr>
+                <tr>
+                    <td><strong>Authentication:</strong></td>
+                    <td id="auth-status">Checking...</td>
+                </tr>
+                <tr>
+                    <td><strong>Connection Status:</strong></td>
+                    <td id="connection-status">Testing...</td>
+                </tr>
+            </table>
+            
+            <div>
+                <button id="test-api-btn">Test All Endpoints</button>
+                <button id="use-best-endpoint-btn" class="success-btn">Use Best Endpoint</button>
+                <button id="use-workaround-btn" class="warning-btn">Apply API Path Workaround</button>
+            </div>
+        </div>
+        
+        <div class="issues-section">
+            <h2>Identified Issues</h2>
+            <ul id="issues-list">
+                <li>Running diagnostics...</li>
+            </ul>
+        </div>
+        
+        <div class="solutions-section">
+            <h2>Recommended Solutions</h2>
+            
+            <h3>1. Update wrangler.toml</h3>
+            <p>Ensure your wrangler.toml includes these routes:</p>
+            <pre><code>[[routes]]
+pattern = "api.railhubpictures.org/*"
+zone_name = "railhubpictures.org"
+
+[[routes]]
+pattern = "railhubpictures.org/api/*"
+zone_name = "railhubpictures.org"
+
+[[routes]]
+pattern = "railhub-api.railhubpictures.org/*"
+zone_name = "railhubpictures.org"</code></pre>
+
+            <h3>2. Fix worker.js path handling</h3>
+            <p>Add this code to your worker.js file just after you get the URL and pathname:</p>
+            <pre><code>// Get URL and pathname
+const url = new URL(request.url);
+let pathname = url.pathname;
+
+// Handle requests from api.railhubpictures.org or railhub-api.railhubpictures.org
+const host = url.hostname;
+if ((host === 'api.railhubpictures.org' || host === 'railhub-api.railhubpictures.org') && !pathname.startsWith('/api/')) {
+  // Remove leading slash if exists and prepend /api/ to ensure consistency
+  pathname = '/api/' + pathname.replace(/^\//, '');
+}</code></pre>
+
+            <h3>3. Deploy your updated worker</h3>
+            <p>After making the changes, deploy your worker:</p>
+            <pre><code>cd backend
+npx wrangler deploy</code></pre>
+            
+            <h3>4. Check DNS Settings</h3>
+            <p>In your Cloudflare DNS settings, verify these records:</p>
+            <ul>
+                <li><strong>api.railhubpictures.org</strong> - CNAME to your Workers domain or A record</li>
+                <li><strong>railhub-api.railhubpictures.org</strong> - CNAME to your Workers domain or A record</li>
+            </ul>
+        </div>
+        
+        <div id="test-results-section" style="display:none">
+            <h2>Endpoint Test Results</h2>
+            <div id="endpoint-results"></div>
+        </div>
+    </div>
+    
+    <script src="assets/scripts/cloudflare/api-client.js"></script>
+    <script src="assets/scripts/cloudflare/init.js"></script>
+    <script src="assets/scripts/cloudflare/worker-fix.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            const testApiBtn = document.getElementById('test-api-btn');
+            const useBestEndpointBtn = document.getElementById('use-best-endpoint-btn');
+            const useWorkaroundBtn = document.getElementById('use-workaround-btn');
+            const connectionStatus = document.getElementById('connection-status');
+            const authStatus = document.getElementById('auth-status');
+            const baseUrlElement = document.getElementById('current-base-url');
+            const issuesList = document.getElementById('issues-list');
+            const testResultsSection = document.getElementById('test-results-section');
+            const endpointResults = document.getElementById('endpoint-results');
+            
+            // Wait for API client to initialize
+            setTimeout(function() {
+                // Update initial status
+                updateStatus();
+                
+                // Run initial diagnostics
+                runDiagnostics();
+                
+                // Add event listeners
+                testApiBtn.addEventListener('click', testAllEndpoints);
+                useBestEndpointBtn.addEventListener('click', useBestEndpoint);
+                useWorkaroundBtn.addEventListener('click', applyWorkaround);
+            }, 1000);
+            
+            // Update the status display
+            function updateStatus() {
+                if (window.railhubAPI) {
+                    baseUrlElement.textContent = window.railhubAPI.baseURL || 'Not set';
+                    authStatus.textContent = window.railhubAPI.isAuthenticated() ? 'Token Present' : 'Not Authenticated';
+                    
+                    // Check connection
+                    fetch(`${window.railhubAPI.baseURL}`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json, text/html, */*' }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            connectionStatus.innerHTML = '<span class="status-indicator status-success"></span> Connected';
+                        } else {
+                            connectionStatus.innerHTML = `<span class="status-indicator status-failure"></span> Error (${response.status})`;
+                        }
+                    })
+                    .catch(error => {
+                        connectionStatus.innerHTML = `<span class="status-indicator status-failure"></span> Failed (${error.message})`;
+                    });
+                } else {
+                    baseUrlElement.textContent = 'API client not initialized';
+                    authStatus.textContent = 'Unknown';
+                    connectionStatus.textContent = 'API client not initialized';
+                }
+            }
+            
+            // Run diagnostics
+            function runDiagnostics() {
+                if (!window.railhubAPI) return;
+                
+                // Clear issues list
+                issuesList.innerHTML = '<li>Running diagnostics...</li>';
+                
+                // Define test endpoints
+                const endpoints = [
+                    { url: 'https://api.railhubpictures.org/api/health', description: 'API Subdomain HTTPS' },
+                    { url: 'http://api.railhubpictures.org/api/health', description: 'API Subdomain HTTP' },
+                    { url: 'https://railhubpictures.org/api/health', description: 'Main Domain API Path HTTPS' },
+                    { url: 'http://railhubpictures.org/api/health', description: 'Main Domain API Path HTTP' },
+                    { url: 'https://railhubpictures.org/', description: 'Main Domain HTTPS' },
+                    { url: 'http://railhubpictures.org/', description: 'Main Domain HTTP' },
+                    { url: 'https://railhub-api.railhubpictures.org/api/health', description: 'Direct Worker HTTPS' }
+                ];
+                
+                // Test each endpoint
+                const issues = [];
+                let successCount = 0;
+                
+                Promise.all(endpoints.map(endpoint => 
+                    fetch(endpoint.url, { 
+                        method: 'GET', 
+                        headers: { 'Accept': 'application/json, text/html, */*' },
+                        mode: 'cors',
+                        cache: 'no-cache'
+                    })
+                    .then(response => {
+                        if (response.ok) successCount++;
+                        return { 
+                            endpoint: endpoint, 
+                            success: response.ok, 
+                            status: response.status,
+                            statusText: response.statusText
+                        };
+                    })
+                    .catch(error => {
+                        return { 
+                            endpoint: endpoint, 
+                            success: false, 
+                            error: error.message 
+                        };
+                    })
+                ))
+                .then(results => {
+                    // Check for specific issues
+                    if (!results.some(r => r.endpoint.url.includes('api.railhubpictures.org') && r.success)) {
+                        issues.push('API subdomain is not responding correctly. Check DNS and Worker routes.');
+                    }
+                    
+                    if (!results.some(r => r.endpoint.url.includes('/api/') && r.success)) {
+                        issues.push('No API endpoints with /api/ path are responding. Check Worker route handling.');
+                    }
+                    
+                    if (results.some(r => r.endpoint.url === 'https://railhubpictures.org/' && r.success) && 
+                        !results.some(r => r.endpoint.url === 'https://railhubpictures.org/api/health' && r.success)) {
+                        issues.push('Main domain works but /api path does not. Check Worker routes configuration.');
+                    }
+                    
+                    if (successCount === 0) {
+                        issues.push('All API endpoints failed. Check that your Cloudflare Worker is deployed.');
+                    }
+                    
+                    // Update issues list
+                    if (issues.length > 0) {
+                        issuesList.innerHTML = issues.map(issue => `<li>${issue}</li>`).join('');
+                    } else {
+                        issuesList.innerHTML = '<li>No critical issues detected.</li>';
+                    }
+                })
+                .catch(error => {
+                    issuesList.innerHTML = `<li>Error running diagnostics: ${error.message}</li>`;
+                });
+            }
+            
+            // Test all API endpoints
+            function testAllEndpoints() {
+                if (!window.railhubAPI) return;
+                
+                testApiBtn.disabled = true;
+                testApiBtn.textContent = 'Testing...';
+                endpointResults.innerHTML = '<p>Testing endpoints...</p>';
+                testResultsSection.style.display = 'block';
+                
+                // Test API endpoints
+                const endpoints = [
+                    { url: 'https://api.railhubpictures.org/api/health', description: 'API Subdomain Health (HTTPS)' },
+                    { url: 'https://api.railhubpictures.org/api', description: 'API Subdomain Root (HTTPS)' },
+                    { url: 'https://api.railhubpictures.org', description: 'API Subdomain Base (HTTPS)' },
+                    { url: 'http://api.railhubpictures.org/api/health', description: 'API Subdomain Health (HTTP)' },
+                    { url: 'http://api.railhubpictures.org/api', description: 'API Subdomain Root (HTTP)' },
+                    { url: 'http://api.railhubpictures.org', description: 'API Subdomain Base (HTTP)' },
+                    { url: 'https://railhubpictures.org/api/health', description: 'Main Domain API Health (HTTPS)' },
+                    { url: 'https://railhubpictures.org/api', description: 'Main Domain API Root (HTTPS)' },
+                    { url: 'https://railhubpictures.org', description: 'Main Domain Base (HTTPS)' },
+                    { url: 'http://railhubpictures.org/api/health', description: 'Main Domain API Health (HTTP)' },
+                    { url: 'http://railhubpictures.org/api', description: 'Main Domain API Root (HTTP)' },
+                    { url: 'http://railhubpictures.org', description: 'Main Domain Base (HTTP)' },
+                    { url: 'https://railhub-api.railhubpictures.org/api/health', description: 'Direct Worker Health' }
+                ];
+                
+                Promise.all(endpoints.map(endpoint => {
+                    const startTime = performance.now();
+                    return fetch(endpoint.url, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json, text/html, */*' },
+                        mode: 'cors',
+                        cache: 'no-cache'
+                    })
+                    .then(response => {
+                        const endTime = performance.now();
+                        const responseTime = Math.round(endTime - startTime);
+                        
+                        // Try to get response text or json
+                        return response.text()
+                            .then(text => {
+                                let body = text;
+                                try {
+                                    // Try to parse as JSON if it looks like JSON
+                                    if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
+                                        body = JSON.parse(text);
+                                    }
+                                } catch (e) {
+                                    // If it's not valid JSON, just use the text
+                                }
+                                
+                                return {
+                                    endpoint,
+                                    success: response.ok,
+                                    status: response.status,
+                                    statusText: response.statusText,
+                                    responseTime,
+                                    headers: Object.fromEntries(response.headers.entries()),
+                                    body
+                                };
+                            })
+                            .catch(() => {
+                                return {
+                                    endpoint,
+                                    success: response.ok,
+                                    status: response.status,
+                                    statusText: response.statusText,
+                                    responseTime,
+                                    headers: Object.fromEntries(response.headers.entries()),
+                                    body: null
+                                };
+                            });
+                    })
+                    .catch(error => {
+                        return {
+                            endpoint,
+                            success: false,
+                            error: error.message
+                        };
+                    });
+                }))
+                .then(results => {
+                    // Display results
+                    let resultsHTML = '<h3>Results</h3>';
+                    
+                    // Summary
+                    const successCount = results.filter(r => r.success).length;
+                    resultsHTML += `<p>${successCount} of ${results.length} endpoints working</p>`;
+                    
+                    // Individual results
+                    results.forEach(result => {
+                        const resultClass = result.success ? 'endpoint-success' : 'endpoint-failure';
+                        let resultHTML = `
+                            <div class="endpoint-test ${resultClass}">
+                                <strong>${result.endpoint.description}</strong><br>
+                                <small>${result.endpoint.url}</small><br>
+                                ${result.success ? 
+                                    `✅ Success (${result.status} ${result.statusText || ''})` : 
+                                    result.error ? 
+                                        `❌ Failed: ${result.error}` : 
+                                        `❌ Failed: ${result.status} ${result.statusText || ''}`
+                                }
+                        `;
+                        
+                        if (result.success) {
+                            resultHTML += `<br>Response Time: ${result.responseTime}ms<br>`;
+                            
+                            if (result.headers) {
+                                resultHTML += '<details><summary>Headers</summary><pre>' + 
+                                    JSON.stringify(result.headers, null, 2) + 
+                                    '</pre></details>';
+                            }
+                            
+                            if (result.body) {
+                                resultHTML += '<details><summary>Body</summary><pre>' + 
+                                    (typeof result.body === 'object' ? 
+                                        JSON.stringify(result.body, null, 2) : 
+                                        result.body.substring(0, 500) + (result.body.length > 500 ? '...' : '')) + 
+                                    '</pre></details>';
+                            }
+                        }
+                        
+                        resultHTML += '</div>';
+                        resultsHTML += resultHTML;
+                    });
+                    
+                    // Check if any endpoint is working
+                    if (successCount > 0) {
+                        resultsHTML += '<div class="endpoint-success" style="padding:10px; margin-top:10px;">' +
+                            '✅ Cloudflare Worker is deployed and responding on at least one endpoint!</div>';
+                    } else {
+                        resultsHTML += '<div class="endpoint-failure" style="padding:10px; margin-top:10px;">' +
+                            '❌ All endpoints failed. Check your Cloudflare Worker deployment.</div>';
+                    }
+                    
+                    endpointResults.innerHTML = resultsHTML;
+                    testApiBtn.disabled = false;
+                    testApiBtn.textContent = 'Test All Endpoints';
+                })
+                .catch(error => {
+                    endpointResults.innerHTML = `<p>Error testing endpoints: ${error.message}</p>`;
+                    testApiBtn.disabled = false;
+                    testApiBtn.textContent = 'Test All Endpoints';
+                });
+            }
+            
+            // Use the best available endpoint
+            function useBestEndpoint() {
+                if (!window.railhubAPI) return;
+                
+                useBestEndpointBtn.disabled = true;
+                useBestEndpointBtn.textContent = 'Finding best endpoint...';
+                
+                window.railhubAPI.testConnection()
+                    .then(result => {
+                        if (result.success) {
+                            alert(`Successfully switched to best endpoint: ${window.railhubAPI.baseURL}`);
+                        } else {
+                            alert('No working endpoints found. Using default.');
+                        }
+                        
+                        updateStatus();
+                        useBestEndpointBtn.disabled = false;
+                        useBestEndpointBtn.textContent = 'Use Best Endpoint';
+                    })
+                    .catch(error => {
+                        alert(`Error finding best endpoint: ${error.message}`);
+                        useBestEndpointBtn.disabled = false;
+                        useBestEndpointBtn.textContent = 'Use Best Endpoint';
+                    });
+            }
+            
+            // Apply the API path workaround
+            function applyWorkaround() {
+                if (!window.railhubAPI) return;
+                
+                // Apply the workaround
+                window.railhubAPI._fetch = async function(endpoint, options = {}) {
+                    try {
+                        // Try main domain without /api path first since that's what works
+                        const baseUrl = this.baseURL.includes('railhubpictures.org') ? 
+                            'https://railhubpictures.org' : this.baseURL;
+                            
+                        console.log(`Using workaround base URL: ${baseUrl}`);
+                        
+                        // First try with the path as-is
+                        let url = `${baseUrl}${endpoint}`;
+                        console.log(`Trying URL: ${url}`);
+                        
+                        try {
+                            const response = await fetch(url, this._getOptions(options));
+                            
+                            // If successful, return the response
+                            if (response.ok) {
+                                // If response is not JSON, return the raw response
+                                const contentType = response.headers.get('content-type');
+                                if (!contentType || !contentType.includes('application/json')) {
+                                    return response;
+                                }
+                                
+                                const data = await response.json();
+                                return data;
+                            }
+                        } catch (e) {
+                            console.warn(`First attempt failed: ${e.message}`);
+                        }
+                        
+                        // If that fails, try without /api prefix
+                        url = `${baseUrl}${endpoint.replace(/^\/api/, '')}`;
+                        console.log(`Trying URL without /api prefix: ${url}`);
+                        
+                        const response = await fetch(url, this._getOptions(options));
+                        
+                        // If response is not JSON, return the raw response
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            return response;
+                        }
+                        
+                        const data = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(data.error || 'API request failed');
+                        }
+                        
+                        return data;
+                    } catch (error) {
+                        console.error('API request failed:', error);
+                        throw error;
+                    }
+                };
+                
+                alert('Applied API path workaround! This is a temporary solution until the Cloudflare Worker is properly configured.');
+                updateStatus();
+            }
+        });
+    </script>
+</body>
+</html>

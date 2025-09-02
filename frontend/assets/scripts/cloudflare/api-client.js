@@ -9,6 +9,16 @@ class RailHubAPI {
     // Define endpoints in priority order
     this.endpoints = [
       {
+        url: 'https://railhubpictures.org/api',
+        type: 'main_domain_https',
+        description: 'Main Domain HTTPS'
+      },
+      {
+        url: 'http://railhubpictures.org/api',
+        type: 'main_domain_http',
+        description: 'Main Domain HTTP'
+      },
+      {
         url: 'https://railhub-api.railhubpictures.org/api',
         type: 'worker',
         description: 'Direct Worker URL'
@@ -17,11 +27,6 @@ class RailHubAPI {
         url: 'https://api.railhubpictures.org/api', 
         type: 'api_subdomain', 
         description: 'API Subdomain'
-      },
-      {
-        url: 'https://railhubpictures.org/api',
-        type: 'main_domain',
-        description: 'Main Domain /api path'
       },
       {
         url: 'http://localhost:8787/api',
@@ -63,18 +68,30 @@ class RailHubAPI {
     try {
       console.log('Auto-detecting best API endpoint...');
       
+      // Based on test results, we know only the base domain on HTTPS works, 
+      // so we'll try the main domain with different paths first
+      
       // Test all endpoints and pick the first working one
       for (const endpoint of this.endpoints) {
         try {
           console.log(`Testing endpoint: ${endpoint.url}`);
-          const response = await fetch(`${endpoint.url}/photos/latest?limit=1`, {
+          
+          // First try with /health endpoint as a general connectivity test
+          let testUrl = endpoint.url;
+          if (endpoint.type === 'main_domain_https' || endpoint.type === 'main_domain_http') {
+            // For main domain, we know /api path isn't working but base domain is
+            testUrl = endpoint.url.replace('/api', '');
+          }
+          
+          console.log(`Testing URL: ${testUrl}`);
+          const response = await fetch(testUrl, {
             method: 'GET',
             mode: 'cors',
             cache: 'no-cache',
             headers: {
-              'Accept': 'application/json',
+              'Accept': 'application/json, text/html, */*',
             },
-            timeout: 5000 // 5 second timeout
+            signal: AbortSignal.timeout(5000) // 5 second timeout
           });
           
           if (response.ok) {
@@ -280,8 +297,60 @@ class RailHubAPI {
    */
   async _fetch(endpoint, options = {}) {
     try {
-      const url = `${this.baseURL}${endpoint}`;
-      const response = await fetch(url, this._getOptions(options));
+      // Based on test results, we need a special handling for the main domain
+      let url = `${this.baseURL}${endpoint}`;
+      
+      // Check if we're using the main domain where /api isn't working
+      if (this.baseURL.includes('railhubpictures.org/api')) {
+        // Try alternative URLs if the primary endpoint fails
+        const maxRetries = 3;
+        let retryCount = 0;
+        let success = false;
+        
+        // Create a queue of URLs to try
+        const urlsToTry = [
+          url,                                              // Original URL with /api in path
+          url.replace('/api/', '/'),                        // Remove /api from path
+          url.replace('railhubpictures.org/api', 'railhubpictures.org')  // Remove /api entirely
+        ];
+        
+        let lastError = null;
+        let finalResponse = null;
+        
+        // Try each URL in the queue
+        for (const tryUrl of urlsToTry) {
+          try {
+            console.log(`Attempting fetch from: ${tryUrl}`);
+            const response = await fetch(tryUrl, this._getOptions(options));
+            finalResponse = response;
+            
+            // If we got a successful response, use it
+            if (response.ok) {
+              success = true;
+              url = tryUrl;
+              break;
+            }
+          } catch (retryError) {
+            console.warn(`Attempt failed for ${tryUrl}:`, retryError);
+            lastError = retryError;
+          }
+        }
+        
+        // If all attempts failed, throw the last error
+        if (!success && lastError) {
+          throw lastError;
+        }
+        
+        // If we didn't get a successful response, throw error
+        if (!success) {
+          throw new Error(`All API endpoints failed with status: ${finalResponse?.status || 'unknown'}`);
+        }
+      } else {
+        // Standard fetch for other endpoints
+        finalResponse = await fetch(url, this._getOptions(options));
+      }
+      
+      const response = finalResponse;
       
       // If response is not JSON, return the raw response
       const contentType = response.headers.get('content-type');

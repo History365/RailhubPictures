@@ -61,7 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
       color = 'green';
     } else if (baseUrl.includes('railhubpictures.org/api')) {
       icon = '✓';
-      message = `Connected to Main Domain API: ${baseUrl}`;
+      message = `Connected to Main Domain API: ${baseUrl} (Using workaround for /api path)`;
+      color = 'green';
+    } else if (baseUrl.includes('railhubpictures.org') && !baseUrl.includes('/api')) {
+      icon = '✓';
+      message = `Connected to Main Domain: ${baseUrl} (Direct mode)`;
       color = 'green';
     } else if (baseUrl.includes('localhost')) {
       icon = '🔧';
