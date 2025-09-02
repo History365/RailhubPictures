@@ -13,7 +13,8 @@ class RailHubAPI {
       this.baseURL = savedBaseURL;
       console.log('Using saved API baseURL:', this.baseURL);
     } else {
-      this.baseURL = 'https://api.railhubpictures.org/api';
+      // Use the main domain instead of the API subdomain since api.railhubpictures.org is not resolving
+      this.baseURL = 'https://railhubpictures.org/api';
       // Alternative for development
       // this.baseURL = 'http://localhost:8787/api';
     }
@@ -51,55 +52,56 @@ class RailHubAPI {
   
   // Test both HTTPS and HTTP connections
   async testConnection() {
-    // Try HTTPS first
+    // Try HTTPS on main domain first
     try {
-      console.log('Testing HTTPS connection...');
-      const httpsResponse = await fetch('https://api.railhubpictures.org/api/photos/latest', {
+      console.log('Testing HTTPS connection on main domain...');
+      const httpsResponse = await fetch('https://railhubpictures.org/api/photos/latest', {
         method: 'GET',
         mode: 'cors',
         cache: 'no-cache',
       });
       
       if (httpsResponse.ok) {
-        console.log('HTTPS connection successful');
+        console.log('HTTPS connection successful on main domain');
+        this.baseURL = 'https://railhubpictures.org/api';
         return {
           success: true,
           protocol: 'https',
           status: httpsResponse.status,
-          message: 'HTTPS connection successful'
+          message: 'HTTPS connection successful on main domain'
         };
       } else {
         console.warn('HTTPS connection failed with status:', httpsResponse.status);
       }
     } catch (httpsError) {
-      console.error('HTTPS connection error:', httpsError);
+      console.error('HTTPS connection error on main domain:', httpsError);
     }
     
-    // Try HTTP as fallback
+    // Try HTTP on main domain as fallback
     try {
-      console.log('Testing HTTP connection...');
-      const httpResponse = await fetch('http://api.railhubpictures.org/api/photos/latest', {
+      console.log('Testing HTTP connection on main domain...');
+      const httpResponse = await fetch('http://railhubpictures.org/api/photos/latest', {
         method: 'GET',
         mode: 'cors',
         cache: 'no-cache',
       });
       
       if (httpResponse.ok) {
-        console.log('HTTP connection successful');
+        console.log('HTTP connection successful on main domain');
         // Update the baseURL to use HTTP
-        this.baseURL = 'http://api.railhubpictures.org/api';
+        this.baseURL = 'http://railhubpictures.org/api';
         console.log('Switched to HTTP baseURL:', this.baseURL);
         return {
           success: true,
           protocol: 'http',
           status: httpResponse.status,
-          message: 'HTTP connection successful, switched to HTTP'
+          message: 'HTTP connection successful on main domain'
         };
       } else {
         console.warn('HTTP connection failed with status:', httpResponse.status);
       }
     } catch (httpError) {
-      console.error('HTTP connection error:', httpError);
+      console.error('HTTP connection error on main domain:', httpError);
     }
     
     // Try localhost as final fallback (for local development)

@@ -62,9 +62,14 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     
     <div style="margin-bottom: 20px;">
-      <h3>Switch API Protocol</h3>
-      <button id="use-https">Use HTTPS</button>
-      <button id="use-http">Use HTTP</button>
+      <h3>Switch API Endpoint</h3>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+        <button id="use-https-main">Use HTTPS (Main Domain)</button>
+        <button id="use-http-main">Use HTTP (Main Domain)</button>
+        <button id="use-https-api">Use HTTPS (API Subdomain)</button>
+        <button id="use-http-api">Use HTTP (API Subdomain)</button>
+        <button id="use-localhost" style="grid-column: span 2;">Use Localhost (Development)</button>
+      </div>
     </div>
     
     <div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px;">
@@ -167,21 +172,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Use HTTPS
-  document.getElementById('use-https').addEventListener('click', function() {
+  // Use HTTPS (Main Domain) - RECOMMENDED
+  document.getElementById('use-https-main').addEventListener('click', function() {
     const api = window.railhubAPI || new RailHubAPI();
-    api.baseURL = 'https://api.railhubpictures.org/api';
+    api.baseURL = 'https://railhubpictures.org/api';
+    localStorage.setItem('api_base_url', api.baseURL);
     
     // Update display
     document.getElementById('api-settings').innerHTML = `
       <p><strong>Base URL:</strong> ${api.baseURL}</p>
       <p><strong>Authentication:</strong> ${api.token ? 'Token Present' : 'No Token'}</p>
-      <p style="color: green;">✅ Switched to HTTPS protocol</p>
+      <p style="color: green;">✅ Switched to HTTPS protocol on main domain (recommended)</p>
     `;
   });
   
-  // Use HTTP
-  document.getElementById('use-http').addEventListener('click', function() {
+  // Use HTTP (Main Domain)
+  document.getElementById('use-http-main').addEventListener('click', function() {
+    const api = window.railhubAPI || new RailHubAPI();
+    api.baseURL = 'http://railhubpictures.org/api';
+    localStorage.setItem('api_base_url', api.baseURL);
+    
+    // Update display
+    document.getElementById('api-settings').innerHTML = `
+      <p><strong>Base URL:</strong> ${api.baseURL}</p>
+      <p><strong>Authentication:</strong> ${api.token ? 'Token Present' : 'No Token'}</p>
+      <p style="color: green;">✅ Switched to HTTP protocol on main domain</p>
+    `;
+  });
+  
+  // Use HTTPS (API Subdomain) - NOT WORKING PER TESTS
+  document.getElementById('use-https-api').addEventListener('click', function() {
+    const api = window.railhubAPI || new RailHubAPI();
+    api.baseURL = 'https://api.railhubpictures.org/api';
+    localStorage.setItem('api_base_url', api.baseURL);
+    
+    // Update display
+    document.getElementById('api-settings').innerHTML = `
+      <p><strong>Base URL:</strong> ${api.baseURL}</p>
+      <p><strong>Authentication:</strong> ${api.token ? 'Token Present' : 'No Token'}</p>
+      <p style="color: orange;">⚠️ Switched to HTTPS protocol on API subdomain (not working in tests)</p>
+    `;
+  });
+  
+  // Use HTTP (API Subdomain) - NOT WORKING PER TESTS
+  document.getElementById('use-http-api').addEventListener('click', function() {
     const api = window.railhubAPI || new RailHubAPI();
     api.baseURL = 'http://api.railhubpictures.org/api';
     localStorage.setItem('api_base_url', api.baseURL);
@@ -190,7 +224,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('api-settings').innerHTML = `
       <p><strong>Base URL:</strong> ${api.baseURL}</p>
       <p><strong>Authentication:</strong> ${api.token ? 'Token Present' : 'No Token'}</p>
-      <p style="color: green;">✅ Switched to HTTP protocol</p>
+      <p style="color: orange;">⚠️ Switched to HTTP protocol on API subdomain (not working in tests)</p>
+    `;
+  });
+  
+  // Use Localhost (Development)
+  document.getElementById('use-localhost').addEventListener('click', function() {
+    const api = window.railhubAPI || new RailHubAPI();
+    api.baseURL = 'http://localhost:8787/api';
+    localStorage.setItem('api_base_url', api.baseURL);
+    
+    // Update display
+    document.getElementById('api-settings').innerHTML = `
+      <p><strong>Base URL:</strong> ${api.baseURL}</p>
+      <p><strong>Authentication:</strong> ${api.token ? 'Token Present' : 'No Token'}</p>
+      <p style="color: blue;">ℹ️ Switched to localhost (development mode)</p>
     `;
   });
   

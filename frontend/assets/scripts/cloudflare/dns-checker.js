@@ -7,9 +7,10 @@
 class DNSChecker {
   constructor() {
     this.domains = [
-      'api.railhubpictures.org',
-      'railhubpictures.org',
-      'www.railhubpictures.org'
+      'api.railhubpictures.org', // API subdomain - not working according to tests
+      'railhubpictures.org',     // Main domain - working according to tests
+      'www.railhubpictures.org', // WWW subdomain
+      'localhost:8787'           // Local development server
     ];
   }
   
