@@ -101,16 +101,21 @@ document.addEventListener('DOMContentLoaded', function() {
           
         console.log('Direct upload to:', uploadUrl);
         
+        // Log the token being used
+        console.log('Using auth token for upload:', api.token ? api.token.substring(0, 10) + '...' : 'No token');
+        
         const response = await fetch(uploadUrl, {
           method: 'POST',
           headers: {
             // Don't set Content-Type header with FormData
-            'Authorization': `Bearer ${api.token || ''}`
+            'Authorization': `Bearer ${api.token || ''}`,
+            // Add session cookie as a backup authentication method
+            'Cookie': document.cookie
           },
           body: formData,
           // Add mode credentials for CORS
           mode: 'cors',
-          credentials: 'same-origin'
+          credentials: 'include' // Change to 'include' to send cookies
         });
         
         if (!response.ok) {
