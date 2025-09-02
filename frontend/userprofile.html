@@ -660,6 +660,66 @@
     </footer>
     
     <script>
+        // Function to open sign-in with only Google and Discord
+        function openSignInWithSocialOnly() {
+          Clerk.openSignIn({
+            signInUrl: '/login',
+            afterSignInUrl: window.location.href,
+            appearance: {
+              elements: {
+                socialButtonsBlockButton: {
+                  display: "none" // Hide all social buttons by default
+                },
+                socialButtonsBlockButtonGoogle: {
+                  display: "flex" // Show only Google
+                },
+                socialButtonsBlockButtonDiscord: {
+                  display: "flex" // Show only Discord
+                },
+                dividerRow: {
+                  display: "none" // Hide the divider
+                },
+                formFieldRow: {
+                  display: "none" // Hide email/password fields
+                },
+                footerActionLink: {
+                  display: "none" // Hide footer links
+                }
+              }
+            }
+          });
+        }
+
+        // Function to open sign-up with only Google and Discord
+        function openSignUpWithSocialOnly() {
+          Clerk.openSignUp({
+            signUpUrl: '/register',
+            afterSignUpUrl: window.location.href,
+            appearance: {
+              elements: {
+                socialButtonsBlockButton: {
+                  display: "none" // Hide all social buttons by default
+                },
+                socialButtonsBlockButtonGoogle: {
+                  display: "flex" // Show only Google
+                },
+                socialButtonsBlockButtonDiscord: {
+                  display: "flex" // Show only Discord
+                },
+                dividerRow: {
+                  display: "none" // Hide the divider
+                },
+                formFieldRow: {
+                  display: "none" // Hide email/password fields
+                },
+                footerActionLink: {
+                  display: "none" // Hide footer links
+                }
+              }
+            }
+          });
+        }
+
         // Function to toggle account ID visibility
         function toggleAccountId() {
             const idDisplay = document.getElementById('account-id-display');
@@ -940,8 +1000,8 @@
                         <h2>Not Logged In</h2>
                         <p>Please log in to view your profile.</p>
                         <div class="user-action-buttons" style="justify-content: center; margin-top: 1.5rem;">
-                            <button onclick="Clerk.openSignIn()">Log In</button>
-                            <button onclick="Clerk.openSignUp()" style="background: #444; color: #fff;">Register</button>
+                            <button onclick="openSignInWithSocialOnly()">Log In</button>
+                            <button onclick="openSignUpWithSocialOnly()" style="background: #444; color: #fff;">Register</button>
                         </div>
                     </div>
                 `;

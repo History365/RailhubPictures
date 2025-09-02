@@ -7,6 +7,66 @@ function confirmSignOut() {
   }
 }
 
+// Function to open sign-in with only Google and Discord
+function openSignInWithSocialOnly() {
+  Clerk.openSignIn({
+    signInUrl: '/login',
+    afterSignInUrl: window.location.href,
+    appearance: {
+      elements: {
+        socialButtonsBlockButton: {
+          display: "none" // Hide all social buttons by default
+        },
+        socialButtonsBlockButtonGoogle: {
+          display: "flex" // Show only Google
+        },
+        socialButtonsBlockButtonDiscord: {
+          display: "flex" // Show only Discord
+        },
+        dividerRow: {
+          display: "none" // Hide the divider
+        },
+        formFieldRow: {
+          display: "none" // Hide email/password fields
+        },
+        footerActionLink: {
+          display: "none" // Hide footer links
+        }
+      }
+    }
+  });
+}
+
+// Function to open sign-up with only Google and Discord
+function openSignUpWithSocialOnly() {
+  Clerk.openSignUp({
+    signUpUrl: '/register',
+    afterSignUpUrl: window.location.href,
+    appearance: {
+      elements: {
+        socialButtonsBlockButton: {
+          display: "none" // Hide all social buttons by default
+        },
+        socialButtonsBlockButtonGoogle: {
+          display: "flex" // Show only Google
+        },
+        socialButtonsBlockButtonDiscord: {
+          display: "flex" // Show only Discord
+        },
+        dividerRow: {
+          display: "none" // Hide the divider
+        },
+        formFieldRow: {
+          display: "none" // Hide email/password fields
+        },
+        footerActionLink: {
+          display: "none" // Hide footer links
+        }
+      }
+    }
+  });
+}
+
 window.addEventListener("load", async () => {
   try {
     // Wait for Clerk to load
@@ -59,8 +119,8 @@ window.addEventListener("load", async () => {
     } else {
       // User is not logged in
       authButtonsContainer.innerHTML = `
-        <button onclick="Clerk.openSignIn()" style="color: #444; text-decoration: none; font-weight: 500; padding: 0.7em 1.4em; border-radius: 6px; background: #f5f5f5; font-size: 0.95em; border: 1px solid #eee; cursor: pointer;">Log In</button>
-        <button onclick="Clerk.openSignUp()" style="color: #fff; text-decoration: none; font-weight: 500; padding: 0.7em 1.4em; border-radius: 6px; background: #444; font-size: 0.95em; cursor: pointer;">Register</button>
+        <button onclick="openSignInWithSocialOnly()" style="color: #444; text-decoration: none; font-weight: 500; padding: 0.7em 1.4em; border-radius: 6px; background: #f5f5f5; font-size: 0.95em; border: 1px solid #eee; cursor: pointer;">Log In</button>
+        <button onclick="openSignUpWithSocialOnly()" style="color: #fff; text-decoration: none; font-weight: 500; padding: 0.7em 1.4em; border-radius: 6px; background: #444; font-size: 0.95em; cursor: pointer;">Register</button>
       `;
       
       console.log("User is not signed in");
