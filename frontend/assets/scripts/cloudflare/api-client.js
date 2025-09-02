@@ -7,14 +7,132 @@
 class RailHubAPI {
   constructor() {
     // Set the API base URL
-    this.baseURL = 'https://api.railhubpictures.org/api';
-    // Alternative for development
-    // this.baseURL = 'http://localhost:8787/api';
+    // Check if we have a previously working URL in localStorage
+    const savedBaseURL = localStorage.getItem('api_base_url');
+    if (savedBaseURL) {
+      this.baseURL = savedBaseURL;
+      console.log('Using saved API baseURL:', this.baseURL);
+    } else {
+      this.baseURL = 'https://api.railhubpictures.org/api';
+      // Alternative for development
+      // this.baseURL = 'http://localhost:8787/api';
+    }
     
     // Get auth token from localStorage if available
     this.token = localStorage.getItem('auth_token');
     
     console.log('RailHubAPI initialized with baseURL:', this.baseURL);
+    
+    // Automatically try to detect the best endpoint
+    this.detectBestEndpoint();
+  }
+  
+  // Try to detect the best API endpoint
+  async detectBestEndpoint() {
+    try {
+      console.log('Auto-detecting best API endpoint...');
+      const result = await this.testConnection();
+      
+      if (result.success) {
+        // Save the working protocol/URL to localStorage
+        if (result.protocol === 'http') {
+          this.baseURL = 'http://api.railhubpictures.org/api';
+        } else {
+          this.baseURL = 'https://api.railhubpictures.org/api';
+        }
+        
+        localStorage.setItem('api_base_url', this.baseURL);
+        console.log('Auto-detected and saved API endpoint:', this.baseURL);
+      }
+    } catch (e) {
+      console.error('Error auto-detecting API endpoint:', e);
+    }
+  }
+  
+  // Test both HTTPS and HTTP connections
+  async testConnection() {
+    // Try HTTPS first
+    try {
+      console.log('Testing HTTPS connection...');
+      const httpsResponse = await fetch('https://api.railhubpictures.org/api/photos/latest', {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+      });
+      
+      if (httpsResponse.ok) {
+        console.log('HTTPS connection successful');
+        return {
+          success: true,
+          protocol: 'https',
+          status: httpsResponse.status,
+          message: 'HTTPS connection successful'
+        };
+      } else {
+        console.warn('HTTPS connection failed with status:', httpsResponse.status);
+      }
+    } catch (httpsError) {
+      console.error('HTTPS connection error:', httpsError);
+    }
+    
+    // Try HTTP as fallback
+    try {
+      console.log('Testing HTTP connection...');
+      const httpResponse = await fetch('http://api.railhubpictures.org/api/photos/latest', {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+      });
+      
+      if (httpResponse.ok) {
+        console.log('HTTP connection successful');
+        // Update the baseURL to use HTTP
+        this.baseURL = 'http://api.railhubpictures.org/api';
+        console.log('Switched to HTTP baseURL:', this.baseURL);
+        return {
+          success: true,
+          protocol: 'http',
+          status: httpResponse.status,
+          message: 'HTTP connection successful, switched to HTTP'
+        };
+      } else {
+        console.warn('HTTP connection failed with status:', httpResponse.status);
+      }
+    } catch (httpError) {
+      console.error('HTTP connection error:', httpError);
+    }
+    
+    // Try localhost as final fallback (for local development)
+    try {
+      console.log('Testing localhost connection...');
+      const localhostResponse = await fetch('http://localhost:8787/api/photos/latest', {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+      });
+      
+      if (localhostResponse.ok) {
+        console.log('Localhost connection successful');
+        // Update the baseURL to use localhost
+        this.baseURL = 'http://localhost:8787/api';
+        console.log('Switched to localhost baseURL:', this.baseURL);
+        return {
+          success: true,
+          protocol: 'localhost',
+          status: localhostResponse.status,
+          message: 'Localhost connection successful, switched to localhost'
+        };
+      } else {
+        console.warn('Localhost connection failed with status:', localhostResponse.status);
+      }
+    } catch (localhostError) {
+      console.error('Localhost connection error:', localhostError);
+    }
+    
+    return {
+      success: false,
+      message: 'Both HTTPS and HTTP connections failed'
+    };
   }
   
   // Check if we're authenticated

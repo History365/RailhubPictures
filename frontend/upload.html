@@ -20,6 +20,10 @@
     <script src="assets/scripts/cloudflare/api-client.js"></script>
     <!-- Then load the Clerk integration -->
     <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
+    <!-- Load diagnostic tools -->
+    <script src="assets/scripts/cloudflare/dns-checker.js"></script>
+    <script src="assets/scripts/cloudflare/cf-worker-checker.js"></script>
+    <script src="assets/scripts/cloudflare/api-troubleshooter.js"></script>
     <!-- Initialize the API globally -->
     <script src="assets/scripts/cloudflare/init.js"></script>
     <!-- Load the rest of the scripts -->
@@ -307,24 +311,77 @@
                                 statusMessage.textContent = 'Testing connection...';
                                 const api = window.railhubAPI || new RailHubAPI();
                                 
+                                // Add detailed info section
+                                let detailsDiv = document.getElementById('api-details');
+                                if (!detailsDiv) {
+                                    detailsDiv = document.createElement('div');
+                                    detailsDiv.id = 'api-details';
+                                    detailsDiv.style.marginTop = '10px';
+                                    detailsDiv.style.fontSize = '14px';
+                                    detailsDiv.style.whiteSpace = 'pre-wrap';
+                                    statusDiv.appendChild(detailsDiv);
+                                }
+                                
+                                detailsDiv.innerHTML = 'Testing both HTTPS and HTTP connections...\n';
+                                
                                 try {
-                                    const response = await fetch(api.baseURL + '/photos/latest', {
-                                        method: 'GET',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                        }
-                                    });
+                                    // Use our comprehensive testing method
+                                    const result = await api.testConnection();
                                     
-                                    if (response.ok) {
-                                        statusMessage.textContent = '✅ Connected to API successfully!';
+                                    if (result.success) {
+                                        statusMessage.textContent = `✅ Connected to API successfully via ${result.protocol.toUpperCase()}!`;
                                         statusMessage.style.color = 'green';
+                                        detailsDiv.innerHTML += `\nConnection successful via ${result.protocol.toUpperCase()}\n`;
+                                        detailsDiv.innerHTML += `API URL: ${api.baseURL}\n`;
+                                        
+                                        // Update the page UI with the successful protocol
+                                        const infoMsg = document.createElement('div');
+                                        infoMsg.style.marginTop = '10px';
+                                        infoMsg.style.padding = '5px';
+                                        infoMsg.style.backgroundColor = '#e8f5e9';
+                                        infoMsg.style.borderRadius = '3px';
+                                        infoMsg.textContent = `Using ${result.protocol.toUpperCase()} for API communication`;
+                                        statusDiv.appendChild(infoMsg);
+                                        
+                                        // Let's also check DNS resolution
+                                        detailsDiv.innerHTML += `\nTrying to get more information about domain resolution...\n`;
+                                        
+                                        // Display an interactive ping button
+                                        const pingBtn = document.createElement('button');
+                                        pingBtn.textContent = 'Test Domain Resolution';
+                                        pingBtn.style.marginTop = '10px';
+                                        pingBtn.style.padding = '5px 10px';
+                                        statusDiv.appendChild(pingBtn);
+                                        
+                                        pingBtn.addEventListener('click', function() {
+                                            const startTime = new Date().getTime();
+                                            fetch('https://api.railhubpictures.org/ping', {
+                                                mode: 'no-cors' // This will allow us to test if the server exists even if it doesn't respond
+                                            })
+                                            .then(() => {
+                                                const endTime = new Date().getTime();
+                                                detailsDiv.innerHTML += `Domain reachable. Response time: ${endTime - startTime}ms\n`;
+                                            })
+                                            .catch(err => {
+                                                detailsDiv.innerHTML += `Domain resolution test error: ${err.message}\n`;
+                                            });
+                                        });
                                     } else {
-                                        statusMessage.textContent = `❌ API Error: ${response.status} ${response.statusText}`;
+                                        statusMessage.textContent = `❌ API Connection Failed`;
                                         statusMessage.style.color = 'red';
+                                        detailsDiv.innerHTML += `\nBoth HTTPS and HTTP connections failed\n`;
+                                        
+                                        // Add a note about checking DNS
+                                        detailsDiv.innerHTML += `\nPossible issues:\n`;
+                                        detailsDiv.innerHTML += `- DNS not resolving api.railhubpictures.org\n`;
+                                        detailsDiv.innerHTML += `- Cloudflare worker not deployed correctly\n`;
+                                        detailsDiv.innerHTML += `- CORS policy blocking requests\n`;
+                                        detailsDiv.innerHTML += `- Network connectivity issues\n`;
                                     }
                                 } catch (error) {
                                     statusMessage.textContent = `❌ Connection Error: ${error.message}`;
                                     statusMessage.style.color = 'red';
+                                    detailsDiv.innerHTML += `\nError during connection test: ${error.message}\n`;
                                 }
                             });
                         }
