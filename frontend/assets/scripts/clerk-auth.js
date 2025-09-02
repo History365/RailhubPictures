@@ -6,7 +6,6 @@ function confirmSignOut() {
     Clerk.signOut();
   }
 }
-}
 
 window.addEventListener("load", async () => {
   try {
