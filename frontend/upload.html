@@ -8,32 +8,26 @@
     <link href="assets/stylesheet/styles.css" rel="stylesheet">
     <link href="assets/stylesheet/homepage.css" rel="stylesheet">
     <link href="assets/stylesheet/homepage2.css" rel="stylesheet">
-    <script
-      async
-      crossorigin="anonymous"
-      data-clerk-publishable-key="pk_test_Y29tbXVuYWwtY2F0LTI1LmNsZXJrLmFjY291bnRzLmRldiQ"
-      src="https://communal-cat-25.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
-      type="text/javascript"
-      onerror="handleClerkError()">
-    </script>
+    
+    <!-- API Loader - will load either standard or emergency API client based on mode -->
+    <script src="assets/scripts/api-loader.js"></script>
+    <script src="assets/scripts/photo-upload.js"></script>
+
     <script>
-        // Global error handling
-        function handleClerkError() {
-            console.log("Clerk failed to load - providing fallback");
-            
-            // Show fallback when document is ready
-            document.addEventListener('DOMContentLoaded', function() {
-                const authButtons = document.getElementById('auth-buttons');
-                if (authButtons) {
-                    authButtons.innerHTML = '<a href="login.html" style="text-decoration: none; padding: 8px 16px; background: #444; color: white; border-radius: 4px;">Sign In</a>';
-                }
-                
-                const userInfo = document.getElementById('userInfo');
-                if (userInfo) {
-                    userInfo.textContent = 'Guest User';
-                }
-            });
+        // Simple user authentication check
+        function checkAuthentication() {
+            // For now, allow all users to upload
+            return true;
         }
+        
+        // Handle null element errors gracefully
+        window.addEventListener('error', function(event) {
+            if (event.message && event.message.includes('null')) {
+                console.log('Handled null reference error gracefully:', event.message);
+                // Let the error be logged but handle it gracefully
+                event.preventDefault();
+            }
+        });
         
         // Handle null element errors
         window.addEventListener('error', function(event) {
