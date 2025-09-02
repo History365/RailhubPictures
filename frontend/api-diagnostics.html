@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Diagnostics - RailHub Pictures</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        h1 {
+            margin: 0;
+            color: #1a73e8;
+        }
+        
+        .description {
+            margin-top: 10px;
+            color: #666;
+        }
+        
+        .diagnostics-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .status-banner {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-banner.success {
+            background-color: #e6f4ea;
+            border: 1px solid #c6e6c9;
+        }
+        
+        .status-banner.error {
+            background-color: #fce8e6;
+            border: 1px solid #f5c2bd;
+        }
+        
+        .status-banner.warning {
+            background-color: #fff8e1;
+            border: 1px solid #ffecb3;
+        }
+        
+        .status-icon {
+            font-size: 24px;
+        }
+        
+        .status-content {
+            flex: 1;
+        }
+        
+        .status-title {
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .button-primary {
+            background-color: #1a73e8;
+            color: white;
+        }
+        
+        .button-secondary {
+            background-color: #f1f3f4;
+            color: #1a73e8;
+        }
+        
+        .button-success {
+            background-color: #0f9d58;
+            color: white;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background-color: #f1f3f4;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .endpoint-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .status-dot.success {
+            background-color: #0f9d58;
+        }
+        
+        .status-dot.error {
+            background-color: #ea4335;
+        }
+        
+        .info-panel {
+            background-color: #e8f0fe;
+            border: 1px solid #c2d7fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .setup-instructions {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .code-block {
+            background-color: #f1f3f4;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>RailHub Pictures API Diagnostics</h1>
+            <p class="description">Test and troubleshoot API connectivity issues with Cloudflare Workers</p>
+        </header>
+        
+        <div class="diagnostics-container" id="status-container">
+            <div class="status-banner" id="connection-banner">
+                <div class="status-icon" id="connection-icon">⏳</div>
+                <div class="status-content">
+                    <h3 class="status-title" id="connection-status">Checking API connection...</h3>
+                    <p id="connection-details">Please wait while we test the API connection.</p>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="button-primary" id="run-diagnostics-btn">Run Complete Diagnostics</button>
+                <button class="button-success" id="use-best-endpoint-btn">Use Best Working Endpoint</button>
+                <button class="button-secondary" id="show-config-btn">Show Configuration</button>
+            </div>
+        </div>
+        
+        <div class="diagnostics-container hidden" id="results-container">
+            <!-- Results will be populated by JavaScript -->
+        </div>
+        
+        <div class="setup-instructions hidden" id="config-container">
+            <h2>API Configuration Guide</h2>
+            
+            <h3>1. Cloudflare Worker Routes</h3>
+            <p>Ensure your wrangler.toml file has the following routes:</p>
+            <div class="code-block">[[routes]]
+pattern = "api.railhubpictures.org/*"
+zone_name = "railhubpictures.org"
+
+[[routes]]
+pattern = "railhubpictures.org/api/*"
+zone_name = "railhubpictures.org"
+
+[[routes]]
+pattern = "railhub-api.railhubpictures.org/*"
+zone_name = "railhubpictures.org"</div>
+            
+            <h3>2. Worker Path Handling</h3>
+            <p>Make sure your worker.js handles paths correctly:</p>
+            <div class="code-block">// Handle requests from api.railhubpictures.org or railhub-api.railhubpictures.org
+const host = url.hostname;
+if ((host === 'api.railhubpictures.org' || host === 'railhub-api.railhubpictures.org') && !pathname.startsWith('/api/')) {
+  // Remove leading slash if exists and prepend /api/ to ensure consistency
+  pathname = '/api/' + pathname.replace(/^\//, '');
+}</div>
+            
+            <h3>3. DNS Configuration</h3>
+            <p>Verify that your Cloudflare DNS has these records:</p>
+            <ul>
+                <li><strong>api.railhubpictures.org</strong> - CNAME to workers.dev or A record</li>
+                <li><strong>railhub-api.railhubpictures.org</strong> - CNAME to workers.dev or A record</li>
+            </ul>
+            
+            <h3>4. Deployment</h3>
+            <p>Deploy your worker with:</p>
+            <div class="code-block">npx wrangler deploy</div>
+        </div>
+        
+        <footer>
+            <p>RailHub Pictures API Diagnostics Tool &copy; 2025</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/scripts/cloudflare/api-client.js"></script>
+    <script src="assets/scripts/cloudflare/api-diagnostics.js"></script>
+    <script src="assets/scripts/cloudflare/init.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for the API client to be initialized
+            setTimeout(function() {
+                // Initialize variables
+                const connectionBanner = document.getElementById('connection-banner');
+                const connectionIcon = document.getElementById('connection-icon');
+                const connectionStatus = document.getElementById('connection-status');
+                const connectionDetails = document.getElementById('connection-details');
+                const runDiagnosticsBtn = document.getElementById('run-diagnostics-btn');
+                const useBestEndpointBtn = document.getElementById('use-best-endpoint-btn');
+                const showConfigBtn = document.getElementById('show-config-btn');
+                const resultsContainer = document.getElementById('results-container');
+                const configContainer = document.getElementById('config-container');
+                
+                // Create diagnostics instance
+                const diagnostics = new ApiDiagnostics();
+                
+                // Initial connection check
+                checkConnection();
+                
+                // Function to check API connection
+                function checkConnection() {
+                    connectionBanner.className = 'status-banner warning';
+                    connectionIcon.textContent = '⏳';
+                    connectionStatus.textContent = 'Checking API connection...';
+                    connectionDetails.textContent = 'Please wait while we test the API connection.';
+                    
+                    // Test connection
+                    window.railhubAPI.testConnection()
+                        .then(result => {
+                            if (result.success) {
+                                connectionBanner.className = 'status-banner success';
+                                connectionIcon.textContent = '✅';
+                                connectionStatus.textContent = 'API Connected';
+                                connectionDetails.textContent = `Connected to ${window.railhubAPI.baseURL}`;
+                            } else {
+                                connectionBanner.className = 'status-banner error';
+                                connectionIcon.textContent = '❌';
+                                connectionStatus.textContent = 'API Connection Failed';
+                                connectionDetails.textContent = 'All API endpoints failed. Run diagnostics for details.';
+                            }
+                        })
+                        .catch(error => {
+                            connectionBanner.className = 'status-banner error';
+                            connectionIcon.textContent = '❌';
+                            connectionStatus.textContent = 'API Connection Error';
+                            connectionDetails.textContent = `Error: ${error.message || 'Unknown error'}`;
+                        });
+                }
+                
+                // Run diagnostics button
+                runDiagnosticsBtn.addEventListener('click', async () => {
+                    runDiagnosticsBtn.disabled = true;
+                    runDiagnosticsBtn.textContent = 'Running Diagnostics...';
+                    resultsContainer.classList.add('hidden');
+                    configContainer.classList.add('hidden');
+                    
+                    try {
+                        const results = await diagnostics.runDiagnostics();
+                        displayResults(results);
+                        
+                        // Update connection banner
+                        if (results.overall.success) {
+                            connectionBanner.className = 'status-banner success';
+                            connectionIcon.textContent = '✅';
+                            connectionStatus.textContent = 'API Connected';
+                            connectionDetails.textContent = `Connected to ${window.railhubAPI.baseURL}`;
+                        } else {
+                            connectionBanner.className = 'status-banner error';
+                            connectionIcon.textContent = '❌';
+                            connectionStatus.textContent = 'API Connection Failed';
+                            connectionDetails.textContent = `Found ${results.overall.issues.length} issues. See details below.`;
+                        }
+                    } catch (error) {
+                        console.error('Diagnostics failed:', error);
+                        resultsContainer.innerHTML = `
+                            <div class="status-banner error">
+                                <div class="status-icon">❌</div>
+                                <div class="status-content">
+                                    <h3 class="status-title">Diagnostics Error</h3>
+                                    <p>${error.message || 'Unknown error occurred while running diagnostics'}</p>
+                                </div>
+                            </div>
+                        `;
+                        resultsContainer.classList.remove('hidden');
+                    }
+                    
+                    runDiagnosticsBtn.disabled = false;
+                    runDiagnosticsBtn.textContent = 'Run Complete Diagnostics';
+                });
+                
+                // Use best endpoint button
+                useBestEndpointBtn.addEventListener('click', async () => {
+                    useBestEndpointBtn.disabled = true;
+                    useBestEndpointBtn.textContent = 'Switching...';
+                    
+                    try {
+                        const success = await diagnostics.switchToBestEndpoint();
+                        
+                        if (success) {
+                            connectionBanner.className = 'status-banner success';
+                            connectionIcon.textContent = '✅';
+                            connectionStatus.textContent = 'Switched to Best Endpoint';
+                            connectionDetails.textContent = `Now using ${window.railhubAPI.baseURL}`;
+                        } else {
+                            connectionBanner.className = 'status-banner error';
+                            connectionIcon.textContent = '⚠️';
+                            connectionStatus.textContent = 'No Working Endpoint Found';
+                            connectionDetails.textContent = 'Run diagnostics to troubleshoot the connection issues.';
+                        }
+                    } catch (error) {
+                        console.error('Switch endpoint failed:', error);
+                        connectionBanner.className = 'status-banner error';
+                        connectionIcon.textContent = '❌';
+                        connectionStatus.textContent = 'Error Switching Endpoint';
+                        connectionDetails.textContent = error.message || 'Unknown error';
+                    }
+                    
+                    useBestEndpointBtn.disabled = false;
+                    useBestEndpointBtn.textContent = 'Use Best Working Endpoint';
+                });
+                
+                // Show config button
+                showConfigBtn.addEventListener('click', () => {
+                    if (configContainer.classList.contains('hidden')) {
+                        configContainer.classList.remove('hidden');
+                        showConfigBtn.textContent = 'Hide Configuration';
+                    } else {
+                        configContainer.classList.add('hidden');
+                        showConfigBtn.textContent = 'Show Configuration';
+                    }
+                });
+                
+                // Function to display diagnostic results
+                function displayResults(results) {
+                    resultsContainer.innerHTML = '';
+                    
+                    // Create summary section
+                    const summary = document.createElement('div');
+                    summary.className = results.overall.success ? 'status-banner success' : 'status-banner error';
+                    summary.innerHTML = `
+                        <div class="status-icon">${results.overall.success ? '✅' : '❌'}</div>
+                        <div class="status-content">
+                            <h3 class="status-title">${results.overall.success ? 'API Connection Successful' : 'API Connection Failed'}</h3>
+                            <p>${results.overall.success ? 
+                                `Successfully connected to ${results.overall.bestEndpoint.description} (${results.overall.bestEndpoint.url})` : 
+                                `Found ${results.overall.issues.length} issues with the API connection.`}</p>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(summary);
+                    
+                    // Create recommendations section if there are issues
+                    if (results.recommendations && results.recommendations.length > 0) {
+                        const recommendations = document.createElement('div');
+                        recommendations.className = 'info-panel';
+                        recommendations.innerHTML = `
+                            <h3>Recommendations</h3>
+                            <ul>
+                                ${results.recommendations.map(rec => `<li>${rec.replace(/\n/g, '<br>')}</li>`).join('')}
+                            </ul>
+                        `;
+                        resultsContainer.appendChild(recommendations);
+                    }
+                    
+                    // Create endpoint results section
+                    const endpointsSection = document.createElement('div');
+                    endpointsSection.innerHTML = '<h3>API Endpoint Tests</h3>';
+                    
+                    const endpointsTable = document.createElement('table');
+                    endpointsTable.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Status</th>
+                                <th>Response Time</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(results.endpoints).map(([url, result]) => `
+                                <tr>
+                                    <td>
+                                        <strong>${diagnostics.endpoints.find(e => e.url === url)?.description || 'Unknown'}</strong><br>
+                                        <small>${url}</small>
+                                    </td>
+                                    <td>
+                                        <div class="endpoint-status">
+                                            <span class="status-dot ${result.success ? 'success' : 'error'}"></span>
+                                            ${result.success ? 'Success' : 'Failed'}
+                                            ${result.status ? `<br><small>${result.status} ${result.statusText || ''}</small>` : ''}
+                                        </div>
+                                    </td>
+                                    <td>${result.responseTime !== null ? `${result.responseTime}ms` : 'N/A'}</td>
+                                    <td>${result.error ? `Error: ${result.error}` : result.success ? 'API responded successfully' : 'Request failed'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    `;
+                    
+                    endpointsSection.appendChild(endpointsTable);
+                    resultsContainer.appendChild(endpointsSection);
+                    
+                    // Create DNS results section
+                    const dnsSection = document.createElement('div');
+                    dnsSection.innerHTML = '<h3>DNS Resolution Tests</h3>';
+                    
+                    const dnsTable = document.createElement('table');
+                    dnsTable.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Domain</th>
+                                <th>Status</th>
+                                <th>Response Time</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(results.dnsCheck).map(([domain, result]) => `
+                                <tr>
+                                    <td>${domain}</td>
+                                    <td>
+                                        <div class="endpoint-status">
+                                            <span class="status-dot ${result.resolves ? 'success' : 'error'}"></span>
+                                            ${result.resolves ? 'Resolves' : 'Failed'}
+                                        </div>
+                                    </td>
+                                    <td>${result.responseTime !== null ? `${result.responseTime}ms` : 'N/A'}</td>
+                                    <td>${result.error ? `Error: ${result.error}` : result.resolves ? 'Domain resolves correctly' : 'Domain resolution failed'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    `;
+                    
+                    dnsSection.appendChild(dnsTable);
+                    resultsContainer.appendChild(dnsSection);
+                    
+                    // Create worker routes section
+                    const routesSection = document.createElement('div');
+                    routesSection.innerHTML = '<h3>Worker Route Tests</h3>';
+                    
+                    const routesTable = document.createElement('table');
+                    routesTable.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Path</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(results.workerCheck).map(([path, result]) => `
+                                <tr>
+                                    <td>${path}</td>
+                                    <td>
+                                        <div class="endpoint-status">
+                                            <span class="status-dot ${result.success ? 'success' : 'error'}"></span>
+                                            ${result.success ? 'Success' : 'Failed'}
+                                            ${result.status ? `<br><small>${result.status}</small>` : ''}
+                                        </div>
+                                    </td>
+                                    <td>${result.error || result.statusText || (result.success ? 'Route configured correctly' : 'Route not configured correctly')}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    `;
+                    
+                    routesSection.appendChild(routesTable);
+                    resultsContainer.appendChild(routesSection);
+                    
+                    // Show the results
+                    resultsContainer.classList.remove('hidden');
+                }
+            }, 1000); // Give time for the API client to initialize
+        });
+    </script>
+</body>
+</html>

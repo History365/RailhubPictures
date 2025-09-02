@@ -6,6 +6,30 @@
 
 class RailHubAPI {
   constructor() {
+    // Define endpoints in priority order
+    this.endpoints = [
+      {
+        url: 'https://railhub-api.railhubpictures.org/api',
+        type: 'worker',
+        description: 'Direct Worker URL'
+      },
+      {
+        url: 'https://api.railhubpictures.org/api', 
+        type: 'api_subdomain', 
+        description: 'API Subdomain'
+      },
+      {
+        url: 'https://railhubpictures.org/api',
+        type: 'main_domain',
+        description: 'Main Domain /api path'
+      },
+      {
+        url: 'http://localhost:8787/api',
+        type: 'local_dev',
+        description: 'Local Development'
+      }
+    ];
+    
     // Set the API base URL
     // Check if we have a previously working URL in localStorage
     const savedBaseURL = localStorage.getItem('api_base_url');
@@ -13,11 +37,17 @@ class RailHubAPI {
       this.baseURL = savedBaseURL;
       console.log('Using saved API baseURL:', this.baseURL);
     } else {
-      // Use the main domain path since API subdomain is throwing errors
-      this.baseURL = 'https://railhubpictures.org/api';
-      // Alternative for development
-      // this.baseURL = 'http://localhost:8787/api';
+      // Default to direct worker URL
+      this.baseURL = this.endpoints[0].url;
     }
+    
+    // Store connection status
+    this.connectionStatus = {
+      connected: false,
+      endpoint: null,
+      lastChecked: null,
+      error: null
+    };
     
     // Get auth token from localStorage if available
     this.token = localStorage.getItem('auth_token');
@@ -32,164 +62,172 @@ class RailHubAPI {
   async detectBestEndpoint() {
     try {
       console.log('Auto-detecting best API endpoint...');
-      const result = await this.testConnection();
       
-      if (result.success) {
-        // Save the working protocol/URL to localStorage
-        if (result.protocol === 'http') {
-          this.baseURL = 'http://api.railhubpictures.org/api';
-        } else {
-          this.baseURL = 'https://api.railhubpictures.org/api';
+      // Test all endpoints and pick the first working one
+      for (const endpoint of this.endpoints) {
+        try {
+          console.log(`Testing endpoint: ${endpoint.url}`);
+          const response = await fetch(`${endpoint.url}/photos/latest?limit=1`, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache',
+            headers: {
+              'Accept': 'application/json',
+            },
+            timeout: 5000 // 5 second timeout
+          });
+          
+          if (response.ok) {
+            console.log(`✅ Endpoint ${endpoint.description} is working!`);
+            this.baseURL = endpoint.url;
+            this.connectionStatus = {
+              connected: true,
+              endpoint: endpoint,
+              lastChecked: new Date(),
+              error: null
+            };
+            
+            localStorage.setItem('api_base_url', this.baseURL);
+            console.log('Auto-detected and saved API endpoint:', this.baseURL);
+            
+            // Broadcast an event that we connected
+            const event = new CustomEvent('api:connected', { 
+              detail: {
+                endpoint: endpoint,
+                baseURL: this.baseURL
+              }
+            });
+            window.dispatchEvent(event);
+            
+            return endpoint;
+          } else {
+            console.warn(`❌ Endpoint ${endpoint.description} failed with status: ${response.status}`);
+          }
+        } catch (endpointError) {
+          console.error(`Error testing ${endpoint.description}:`, endpointError);
         }
-        
-        localStorage.setItem('api_base_url', this.baseURL);
-        console.log('Auto-detected and saved API endpoint:', this.baseURL);
       }
+      
+      // If we get here, no endpoints worked
+      console.error('❌ All API endpoints failed!');
+      this.connectionStatus = {
+        connected: false,
+        endpoint: null,
+        lastChecked: new Date(),
+        error: 'All endpoints failed'
+      };
+      
+      // Broadcast an event that we failed to connect
+      const event = new CustomEvent('api:connectionFailed', { 
+        detail: { 
+          error: 'All endpoints failed'
+        }
+      });
+      window.dispatchEvent(event);
+      
+      return null;
     } catch (e) {
       console.error('Error auto-detecting API endpoint:', e);
+      this.connectionStatus = {
+        connected: false,
+        endpoint: null,
+        lastChecked: new Date(),
+        error: e.message || 'Unknown error'
+      };
+      return null;
     }
   }
   
-  // Test both HTTPS and HTTP connections
+  // Test all endpoints and return detailed results
   async testConnection() {
-    // Try HTTPS on main domain first since API subdomain is throwing errors
-    try {
-      console.log('Testing HTTPS connection on main domain...');
-      const httpsResponse = await fetch('https://railhubpictures.org/api/photos/latest', {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-cache',
-      });
-      
-      if (httpsResponse.ok) {
-        console.log('HTTPS connection successful on main domain');
-        this.baseURL = 'https://railhubpictures.org/api';
-        return {
-          success: true,
-          protocol: 'https',
-          domain: 'main',
-          status: httpsResponse.status,
-          message: 'HTTPS connection successful on main domain'
+    const results = [];
+    let anySuccess = false;
+    
+    // Test each endpoint
+    for (const endpoint of this.endpoints) {
+      try {
+        console.log(`Testing ${endpoint.description}...`);
+        const startTime = performance.now();
+        
+        const response = await fetch(`${endpoint.url}/photos/latest?limit=1`, {
+          method: 'GET',
+          mode: 'cors',
+          cache: 'no-cache',
+          headers: {
+            'Accept': 'application/json'
+          },
+          // Use AbortController to implement timeout
+          signal: AbortSignal.timeout(5000) // 5 second timeout
+        });
+        
+        const endTime = performance.now();
+        const responseTime = Math.round(endTime - startTime);
+        
+        let responseBody = null;
+        try {
+          if (response.headers.get('content-type')?.includes('application/json')) {
+            responseBody = await response.json();
+          } else if (response.headers.get('content-type')?.includes('text')) {
+            responseBody = await response.text();
+          }
+        } catch (e) {
+          console.warn(`Could not parse response from ${endpoint.description}:`, e);
+        }
+        
+        const result = {
+          endpoint: endpoint,
+          success: response.ok,
+          status: response.status,
+          statusText: response.statusText,
+          responseTime,
+          headers: Object.fromEntries(response.headers.entries()),
+          body: responseBody,
+          error: null
         };
-      } else {
-        console.warn('HTTPS connection failed with status:', httpsResponse.status);
+        
+        if (response.ok) {
+          console.log(`✅ ${endpoint.description} successful in ${responseTime}ms`);
+          anySuccess = true;
+          
+          // Update the baseURL if this is our first success
+          if (!this.connectionStatus.connected) {
+            this.baseURL = endpoint.url;
+            localStorage.setItem('api_base_url', this.baseURL);
+            console.log(`Switched to ${endpoint.description}: ${this.baseURL}`);
+            
+            this.connectionStatus = {
+              connected: true,
+              endpoint: endpoint,
+              lastChecked: new Date(),
+              error: null
+            };
+          }
+        } else {
+          console.warn(`❌ ${endpoint.description} failed with status: ${response.status} ${response.statusText}`);
+        }
+        
+        results.push(result);
+      } catch (error) {
+        console.error(`Error testing ${endpoint.description}:`, error);
+        results.push({
+          endpoint: endpoint,
+          success: false,
+          status: null,
+          statusText: null,
+          responseTime: null,
+          headers: null,
+          body: null,
+          error: error.message || 'Unknown error'
+        });
       }
-    } catch (httpsError) {
-      console.error('HTTPS connection error on main domain:', httpsError);
     }
     
-    // Try HTTP on API subdomain as fallback
-    try {
-      console.log('Testing HTTP connection on API subdomain...');
-      const httpResponse = await fetch('http://api.railhubpictures.org/api/photos/latest', {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-cache',
-      });
-      
-      if (httpResponse.ok) {
-        console.log('HTTP connection successful on API subdomain');
-        // Update the baseURL to use HTTP
-        this.baseURL = 'http://api.railhubpictures.org/api';
-        console.log('Switched to HTTP baseURL:', this.baseURL);
-        return {
-          success: true,
-          protocol: 'http',
-          domain: 'api',
-          status: httpResponse.status,
-          message: 'HTTP connection successful on API subdomain'
-        };
-      } else {
-        console.warn('HTTP connection failed with status:', httpResponse.status);
-      }
-    } catch (httpError) {
-      console.error('HTTP connection error on API subdomain:', httpError);
-    }
-    
-    // Try HTTPS on main domain as another fallback
-    try {
-      console.log('Testing HTTPS connection on main domain...');
-      const mainHttpsResponse = await fetch('https://railhubpictures.org/api/photos/latest', {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-cache',
-      });
-      
-      if (mainHttpsResponse.ok) {
-        console.log('HTTPS connection successful on main domain');
-        this.baseURL = 'https://railhubpictures.org/api';
-        return {
-          success: true,
-          protocol: 'https',
-          domain: 'main',
-          status: mainHttpsResponse.status,
-          message: 'HTTPS connection successful on main domain'
-        };
-      } else {
-        console.warn('HTTPS connection failed with status:', mainHttpsResponse.status);
-      }
-    } catch (mainHttpsError) {
-      console.error('HTTPS connection error on main domain:', mainHttpsError);
-    }
-    
-    // Try HTTP on main domain as yet another fallback
-    try {
-      console.log('Testing HTTP connection on main domain...');
-      const mainHttpResponse = await fetch('http://railhubpictures.org/api/photos/latest', {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-cache',
-      });
-      
-      if (mainHttpResponse.ok) {
-        console.log('HTTP connection successful on main domain');
-        // Update the baseURL to use HTTP
-        this.baseURL = 'http://railhubpictures.org/api';
-        console.log('Switched to HTTP baseURL:', this.baseURL);
-        return {
-          success: true,
-          protocol: 'http',
-          domain: 'main',
-          status: mainHttpResponse.status,
-          message: 'HTTP connection successful on main domain'
-        };
-      } else {
-        console.warn('HTTP connection failed with status:', mainHttpResponse.status);
-      }
-    } catch (mainHttpError) {
-      console.error('HTTP connection error on main domain:', mainHttpError);
-    }
-    
-    // Try localhost as final fallback (for local development)
-    try {
-      console.log('Testing localhost connection...');
-      const localhostResponse = await fetch('http://localhost:8787/api/photos/latest', {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-cache',
-      });
-      
-      if (localhostResponse.ok) {
-        console.log('Localhost connection successful');
-        // Update the baseURL to use localhost
-        this.baseURL = 'http://localhost:8787/api';
-        console.log('Switched to localhost baseURL:', this.baseURL);
-        return {
-          success: true,
-          protocol: 'localhost',
-          status: localhostResponse.status,
-          message: 'Localhost connection successful, switched to localhost'
-        };
-      } else {
-        console.warn('Localhost connection failed with status:', localhostResponse.status);
-      }
-    } catch (localhostError) {
-      console.error('Localhost connection error:', localhostError);
-    }
-    
+    // Return the detailed results with overall status
     return {
-      success: false,
-      message: 'Both HTTPS and HTTP connections failed'
+      success: anySuccess,
+      message: anySuccess ? 'At least one endpoint is working' : 'All endpoints failed',
+      currentBaseURL: this.baseURL,
+      results: results
     };
   }
   
