@@ -7,7 +7,7 @@
 class RailHubAPI {
   constructor() {
     // Set the API base URL
-    this.baseURL = 'https://api.railhubpictures.com/api';
+    this.baseURL = 'https://api.railhubpictures.org/api';
     // Alternative for development
     // this.baseURL = 'http://localhost:8787/api';
     

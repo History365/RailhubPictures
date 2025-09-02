@@ -22,6 +22,7 @@
     <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
     <script src="assets/scripts/cloudflare/photo-display.js"></script>
     <script src="assets/scripts/cloudflare/cloudflare-integration.js"></script>
+    <script src="assets/scripts/cloudflare/photo-uploader.js"></script>
     <script src="assets/scripts/cloudflare/api-client.js"></script>
     <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
     <script src="assets/scripts/cloudflare/upload-handler.js"></script>
@@ -285,7 +286,7 @@
                     📸 Upload high-quality photos of locomotives, trains, and railroad scenes. Make sure to include accurate details to help others find your photos.
                 </div>
 
-                <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+                <form id="photoUploadForm" action="javascript:void(0);" enctype="multipart/form-data" class="upload-form">
                     <div class="form-group">
                         <label class="form-label">Title</label>
                         <input type="text" name="title" required class="form-input" placeholder="Give your photo a descriptive title">
