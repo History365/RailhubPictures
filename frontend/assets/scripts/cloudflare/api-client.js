@@ -13,6 +13,13 @@ class RailHubAPI {
     
     // Get auth token from localStorage if available
     this.token = localStorage.getItem('auth_token');
+    
+    console.log('RailHubAPI initialized with baseURL:', this.baseURL);
+  }
+  
+  // Check if we're authenticated
+  isAuthenticated() {
+    return !!this.token;
   }
 
   /**
