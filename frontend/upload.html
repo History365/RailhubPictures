@@ -299,7 +299,8 @@
                     📸 Upload high-quality photos of locomotives, trains, and railroad scenes. Make sure to include accurate details to help others find your photos.
                 </div>
 
-                <form id="upload-form" class="upload-form">
+                <!-- Direct form submission to the Cloudflare API endpoint -->
+                <form id="upload-form" class="upload-form" action="/api/photos/upload" method="POST" enctype="multipart/form-data">
                     <div class="form-group">
                         <label class="form-label">Title</label>
                         <input type="text" name="title" id="title" required class="form-input" placeholder="Give your photo a descriptive title">
@@ -339,6 +340,9 @@
                         
                         <!-- Locomotive input form -->
                         <div id="locomotive-form" class="locomotive-form">
+                            <div class="form-info" style="margin-bottom: 1rem; font-size: 0.9em; color: #555;">
+                                Fill in the details below and click "Add" to include each locomotive in the photo. You can add multiple locomotives.
+                            </div>
                             <div class="locomotive-grid">
                                 <div class="form-group">
                                     <label class="form-label">Railroad</label>
@@ -567,9 +571,62 @@
                 console.log('Existing unit check:', existingUnit);
                 
                 if (!existingUnit) {
-                    // Show confirmation dialog for new locomotive
-                    showConfirmation(railroad, model, number);
+                    // Show confirmation dialog since this is a new locomotive
+                    const confirmDialog = document.getElementById('locomotive-confirmation');
+                    const confirmRailroad = document.getElementById('confirm-railroad');
+                    const confirmModel = document.getElementById('confirm-model');
+                    const confirmNumber = document.getElementById('confirm-number');
+                    
+                    // Set values in the confirmation dialog
+                    confirmRailroad.textContent = railroad;
+                    confirmModel.textContent = model;
+                    confirmNumber.textContent = number;
+                    confirmDialog.style.display = 'flex';
+                    
+                    // Setup confirmation button handling
+                    const confirmButton = document.querySelector('.btn-confirm');
+                    const editButton = document.querySelector('.btn-edit');
+                    
+                    confirmButton.onclick = function() {
+                        console.log('Adding new locomotive to database');
+                        // Show temporary feedback
+                        confirmButton.textContent = 'Adding...';
+                        confirmButton.disabled = true;
+                        
+                        // Add the locomotive to the database via API, then add to form
+                        addLocomotiveToDatabase(railroad, model, number)
+                            .then(newUnit => {
+                                console.log('Locomotive added to database, adding to form');
+                                // Add to form with the newly created unit ID
+                                addLocomotiveToForm(railroad, model, number, newUnit);
+                                // Hide confirmation dialog
+                                confirmDialog.style.display = 'none';
+                                // Reset button state
+                                confirmButton.textContent = 'Yes, Add This Locomotive';
+                                confirmButton.disabled = false;
+                            })
+                            .catch(error => {
+                                console.error("Error adding locomotive:", error);
+                                // Add to form anyway, but without an ID
+                                addLocomotiveToForm(railroad, model, number, null);
+                                // Hide confirmation dialog
+                                confirmDialog.style.display = 'none';
+                                // Reset button state
+                                confirmButton.textContent = 'Yes, Add This Locomotive';
+                                confirmButton.disabled = false;
+                            });
+                    };
+                    
+                    editButton.onclick = function() {
+                        confirmDialog.style.display = 'none';
+                        railroadInput.focus();
+                    };
+                    
+                    // Return here to prevent adding the locomotive until confirmed
                     return;
+                } else {
+                    // We already have this locomotive in the database
+                    console.log('Using existing locomotive:', existingUnit);
                 }
                 
                 console.log('Adding existing locomotive to form');
@@ -663,6 +720,29 @@
                                 addLocomotive();
                             });
                             
+                            // Make sure the add button is visible and properly styled
+                            addBtn.style.display = 'block';
+                            addBtn.style.cursor = 'pointer';
+                            addBtn.style.fontWeight = 'bold';
+                            addBtn.style.position = 'relative';
+                            
+                            // Add a pulsing animation to draw attention to the Add button
+                            const styleEl = document.createElement('style');
+                            styleEl.innerHTML = `
+                                @keyframes pulse {
+                                    0% { transform: scale(1); }
+                                    50% { transform: scale(1.05); }
+                                    100% { transform: scale(1); }
+                                }
+                                .add-locomotive-btn {
+                                    animation: pulse 2s infinite;
+                                }
+                                .add-locomotive-btn:hover {
+                                    animation: none;
+                                }
+                            `;
+                            document.head.appendChild(styleEl);
+                            
                             // Also allow Enter key in the number field to add a locomotive
                             numberInput.addEventListener('keypress', function(e) {
                                 if (e.key === 'Enter') {
@@ -682,6 +762,12 @@
                     <div id="status-message" style="padding: 1rem; border-radius: 6px; margin-bottom: 1rem; display: none;"></div>
 
                     <button type="submit" class="submit-button">Upload Photo</button>
+                    
+                    <div style="margin-top: 1rem; font-size: 0.85em; color: #666;">
+                        <p>✓ Your photo will be processed and saved to our Cloudflare database</p>
+                        <p>✓ Any new locomotive details will be added to our database</p>
+                        <p>✓ Uploads require a logged-in user account</p>
+                    </div>
                 </form>
             </div>
         </div>
@@ -952,8 +1038,19 @@
             const uploadForm = document.getElementById('upload-form');
             const statusMessage = document.getElementById('status-message');
             
-            uploadForm.addEventListener('submit', function(e) {
+            // Add a direct submit button for troubleshooting
+            const directSubmitBtn = document.createElement('button');
+            directSubmitBtn.type = 'button';
+            directSubmitBtn.textContent = 'Force Upload (Debug)';
+            directSubmitBtn.className = 'submit-button';
+            directSubmitBtn.style.marginTop = '10px';
+            directSubmitBtn.style.backgroundColor = '#666';
+            document.querySelector('.submit-button').insertAdjacentElement('afterend', directSubmitBtn);
+            
+            // Use the form submission handler
+            let formSubmitHandler = function(e) {
                 e.preventDefault();
+                console.log('Form submit handler triggered');
                 
                 // Check if user is authenticated with Clerk
                 if (!window.Clerk || !window.Clerk.user) {
@@ -962,6 +1059,191 @@
                 }
                 
                 // Create FormData for submission
+                const formData = new FormData();
+                
+                // Add form fields
+                formData.append('title', document.getElementById('title').value);
+                formData.append('description', document.getElementById('description').value);
+                formData.append('location', document.getElementById('location').value);
+                formData.append('photo_date', document.getElementById('photo_date').value);
+                
+                // Add user info from Clerk
+                formData.append('username', window.Clerk.user.username || window.Clerk.user.firstName);
+                formData.append('user_id', window.Clerk.user.id);
+                
+                // Add photo file
+                const photoFile = document.getElementById('photo').files[0];
+                if (!photoFile) {
+                    showStatusMessage('Please select a photo to upload', 'error');
+                    return;
+                }
+                formData.append('photo', photoFile);
+                
+                // Collect locomotives data
+                const locomotives = [];
+                const locomotiveInputs = document.querySelectorAll('[name^="locomotives["]');
+                const locoIds = new Set();
+                
+                locomotiveInputs.forEach(input => {
+                    const match = input.name.match(/locomotives\[(\d+)\]\[(\w+)\]/);
+                    if (match) {
+                        const index = match[1];
+                        const field = match[2];
+                        
+                        if (!locoIds.has(index)) {
+                            locoIds.add(index);
+                            locomotives.push({});
+                        }
+                        
+                        const locoIndex = Array.from(locoIds).indexOf(index);
+                        locomotives[locoIndex][field] = input.value;
+                    }
+                });
+                
+                // Add locomotives data to form
+                formData.append('locomotives', JSON.stringify(locomotives));
+                
+                // Set first locomotive as primary unit
+                if (locomotives.length > 0) {
+                    formData.append('primary_unit', locomotives[0].unit_id || 'new');
+                }
+                
+                // Disable submit button and show loading state
+                const submitButton = document.querySelector('.submit-button');
+                const originalButtonText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = 'Uploading...';
+                
+                // Debug logs for troubleshooting
+                console.log('Uploading photo to /api/photos/upload');
+                console.log('Form data keys:', [...formData.keys()]);
+                
+                // Submit to API endpoint
+                console.log('Starting fetch request to /api/photos/upload');
+                console.log('Auth header:', 'Bearer ' + (window.Clerk.session?.lastActiveToken?.jwt || '').substring(0, 10) + '...');
+                
+                fetch('/api/photos/upload', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Authorization': 'Bearer ' + (window.Clerk.session?.lastActiveToken?.jwt || '')
+                    }
+                })
+                .then(async response => {
+                    // Log response for debugging
+                    console.log('Upload response status:', response.status);
+                    const responseText = await response.text();
+                    console.log('Upload response body:', responseText);
+                    
+                    if (!response.ok) {
+                        throw new Error('Upload failed: ' + response.statusText + ' - ' + responseText);
+                    }
+                    
+                    try {
+                        return JSON.parse(responseText);
+                    } catch (e) {
+                        console.error('Failed to parse response as JSON:', e);
+                        return { success: true }; // Default response if parsing fails
+                    }
+                })
+                .then(data => {
+                    showStatusMessage('Photo uploaded successfully!', 'success');
+                    
+                    // Clear form
+                    uploadForm.reset();
+                    
+                    // Clear locomotive tags
+                    const tagsContainer = document.getElementById('locomotive-tags');
+                    tagsContainer.innerHTML = '<div class="empty-tag-message">No locomotives added yet</div>';
+                    
+                    // Reset button
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                    
+                    // Redirect to view photo
+                    setTimeout(() => {
+                        if (data && data.id) {
+                            window.location.href = `/photo.html?id=${data.id}`;
+                        }
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Error uploading photo:', error);
+                    showStatusMessage('Error: ' + error.message, 'error');
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                });
+            };
+            
+            // Attach the form submission handler to the form
+            uploadForm.addEventListener('submit', formSubmitHandler);
+            
+                // Direct submit button bypasses JS and forces form submission
+            directSubmitBtn.addEventListener('click', function() {
+                console.log('Force uploading via direct form submission');
+                
+                // Clear any previous status messages
+                showStatusMessage('Attempting direct form submission...', 'info');
+                
+                // Make sure all required fields are filled
+                const requiredFields = uploadForm.querySelectorAll('[required]');
+                let allValid = true;                requiredFields.forEach(field => {
+                    if (!field.value) {
+                        allValid = false;
+                        field.style.borderColor = 'red';
+                    } else {
+                        field.style.borderColor = '';
+                    }
+                });
+                
+                if (!allValid) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                
+                // Add any missing form fields needed for API
+                if (window.Clerk && window.Clerk.user) {
+                    // Add hidden fields for user data
+                    let userIdField = document.getElementById('hidden-user-id');
+                    if (!userIdField) {
+                        userIdField = document.createElement('input');
+                        userIdField.type = 'hidden';
+                        userIdField.id = 'hidden-user-id';
+                        userIdField.name = 'user_id';
+                        uploadForm.appendChild(userIdField);
+                    }
+                    userIdField.value = window.Clerk.user.id;
+                }
+                
+                // Get the locomotives data and add it as a hidden field
+                const locos = [];
+                document.querySelectorAll('[name^="locomotives["]').forEach(input => {
+                    const match = input.name.match(/locomotives\[(\d+)\]\[(\w+)\]/);
+                    if (match) {
+                        const index = parseInt(match[1]);
+                        const field = match[2];
+                        
+                        if (!locos[index]) locos[index] = {};
+                        locos[index][field] = input.value;
+                    }
+                });
+                
+                let locosField = document.getElementById('hidden-locomotives');
+                if (!locosField) {
+                    locosField = document.createElement('input');
+                    locosField.type = 'hidden';
+                    locosField.id = 'hidden-locomotives';
+                    locosField.name = 'locomotives';
+                    uploadForm.appendChild(locosField);
+                }
+                locosField.value = JSON.stringify(locos);
+                
+                // Set up a form to be submitted directly
+                console.log('Submitting form directly to:', uploadForm.action);
+                uploadForm.submit();
+            });
+            
+                            // Define form submit handler function                // Create FormData for submission
                 const formData = new FormData();
                 
                 // Add form fields
@@ -1140,7 +1422,14 @@
                         submitButton.textContent = originalButtonText;
                     });
                 });
-            });
+            }
+            
+            // Remove any existing event listeners and add the new one
+            uploadForm.removeEventListener('submit', formSubmitHandler);
+            uploadForm.addEventListener('submit', formSubmitHandler);
+            
+            // Add a debug event to check if the handler is properly attached
+            console.log('Form submit handler attached');
         }
         
         function showStatusMessage(message, type) {
@@ -1152,6 +1441,10 @@
                 statusMessage.style.backgroundColor = '#e7f4e8';
                 statusMessage.style.color = '#2a6b31';
                 statusMessage.style.border = '1px solid #c3e6c7';
+            } else if (type === 'info') {
+                statusMessage.style.backgroundColor = '#e3f2fd';
+                statusMessage.style.color = '#0d47a1';
+                statusMessage.style.border = '1px solid #bbdefb';
             } else {
                 statusMessage.style.backgroundColor = '#fbe9e7';
                 statusMessage.style.color = '#9c1f1f';
@@ -1189,10 +1482,7 @@
                 this.style.display = 'none';
             }
         });
-    </script>
-</body>
-</html>
-<html>
+    </script>\r\n</body>\r\n</html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1552,5 +1842,6 @@
     </footer>
 </body>
 </html>
-</body>
-</html>
+
+
+
