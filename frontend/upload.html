@@ -524,7 +524,7 @@
                         document.addEventListener('DOMContentLoaded', function() {
                             console.log('DOM loaded, initializing locomotive form');
                             const container = document.getElementById('locomotives-container');
-                            const addBtn = document.getElementById('add-locomotive');
+                            let addBtn = document.getElementById('add-locomotive');
                             const tagsContainer = document.getElementById('locomotive-tags');
                             const railroadInput = document.getElementById('current-railroad');
                             const modelInput = document.getElementById('current-model');
@@ -551,13 +551,23 @@
                                 return railroadColors[railroad];
                             }
                             
+                            // Function to check if locomotive exists - moved here to avoid reference errors
+                            function checkLocomotiveExists(railroad, number) {
+                                if (!existingUnits || existingUnits.length === 0) return null;
+                                
+                                return existingUnits.find(u => 
+                                    u?.railroad?.toLowerCase() === railroad?.toLowerCase() &&
+                                    u?.number === number
+                                );
+                            }
+                            
                             // Function to add a locomotive
-            function addLocomotive() {
-                console.log('addLocomotive function called');
-                
-                const railroad = railroadInput.value.trim();
-                const model = modelInput.value.trim();
-                const number = numberInput.value.trim();
+                            function addLocomotive() {
+                                console.log('addLocomotive function called');
+                                
+                                const railroad = railroadInput.value.trim();
+                                const model = modelInput.value.trim();
+                                const number = numberInput.value.trim();
                 
                 console.log('Locomotive values:', { railroad, model, number });
                 
@@ -713,6 +723,11 @@
                                 locoCount++;
                             }
                             
+                            // Remove any existing event listeners
+                            const newAddBtn = addBtn.cloneNode(true);
+                            addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+                            addBtn = document.getElementById('add-locomotive');
+                            
                             // Add button click event
                             addBtn.addEventListener('click', function() {
                                 // Add debug logging to see if the event is firing
@@ -833,16 +848,6 @@
         // Using an empty array as fallback if units is not defined by the server
         let existingUnits = [];
         let currentUser = null;
-        
-        // Function to check if locomotive exists - moved here to avoid reference errors
-        function checkLocomotiveExists(railroad, number) {
-            if (!existingUnits || existingUnits.length === 0) return null;
-            
-            return existingUnits.find(u => 
-                u?.railroad?.toLowerCase() === railroad?.toLowerCase() &&
-                u?.number === number
-            );
-        }
         
         // Initialize by fetching existing units from API
         document.addEventListener('DOMContentLoaded', function() {
@@ -1533,12 +1538,7 @@
                 });
             });
             
-            // Define form submit handler function
-            function formSubmitHandler(event) {
-                // Prevent the default form submission
-                event.preventDefault();
-                
-                // Create FormData for submission
+            // Remove the form submission process since it's already defined
                 const formData = new FormData();
                 
                 // Add form fields
