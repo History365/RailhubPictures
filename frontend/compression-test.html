@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Compression Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .panel {
+            flex: 1;
+            min-width: 300px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .image-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        img {
+            max-width: 100%;
+            max-height: 500px;
+            border: 1px solid #ccc;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        .status {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        .status.error {
+            border-left-color: #f44336;
+        }
+        .status.info {
+            border-left-color: #2196F3;
+        }
+        .status.warning {
+            border-left-color: #ff9800;
+        }
+        .status.success {
+            border-left-color: #4CAF50;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .file-info {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Compression Test</h1>
+    
+    <div class="container">
+        <div class="panel">
+            <h2>Original Image</h2>
+            <div class="controls">
+                <input type="file" id="image-input" accept="image/*">
+            </div>
+            <div id="status-message" class="status">Select an image to begin</div>
+            <div class="image-container">
+                <img id="original-image" src="" alt="Original image will appear here">
+                <div class="file-info" id="original-info"></div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Compressed Image</h2>
+            <div class="controls">
+                <button id="compress-button" disabled>Compress Image</button>
+                <label for="target-size">Target Size (MB): </label>
+                <input type="number" id="target-size" value="1.0" min="0.1" max="10" step="0.1">
+            </div>
+            <div class="status" id="compression-status">Compression results will appear here</div>
+            <div class="image-container">
+                <img id="compressed-image" src="" alt="Compressed image will appear here">
+                <div class="file-info" id="compressed-info"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/scripts/watermark.js"></script>
+    <script>
+        // Initialize variables
+        let originalImageData = null;
+        let currentTab = 'none';  // This is needed for watermark.js compatibility
+        
+        // Elements
+        const imageInput = document.getElementById('image-input');
+        const originalImage = document.getElementById('original-image');
+        const compressedImage = document.getElementById('compressed-image');
+        const compressButton = document.getElementById('compress-button');
+        const originalInfo = document.getElementById('original-info');
+        const compressedInfo = document.getElementById('compressed-info');
+        const targetSizeInput = document.getElementById('target-size');
+        const compressionStatus = document.getElementById('compression-status');
+        
+        // Create a global previewImage object for attribution.js compatibility
+        window.previewImage = { src: '' };
+        
+        // Helper function to format file size
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' bytes';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else return (bytes / 1048576).toFixed(2) + ' MB';
+        }
+        
+        // Helper function to update status
+        function showStatusMessage(message, type = 'info') {
+            const statusEl = document.getElementById('status-message');
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + type;
+        }
+        
+        // Handle image selection
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Display file info
+            originalInfo.textContent = `Name: ${file.name}, Size: ${formatFileSize(file.size)}, Type: ${file.type}`;
+            
+            // Read and display the image
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                originalImageData = event.target.result;
+                originalImage.src = originalImageData;
+                
+                // Set the source for attribution.js
+                window.previewImage.src = originalImageData;
+                
+                // Enable compress button
+                compressButton.disabled = false;
+                
+                showStatusMessage('Image loaded successfully. Click "Compress Image" to process.', 'success');
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Handle compression
+        compressButton.addEventListener('click', async function() {
+            if (!originalImageData) {
+                showStatusMessage('Please select an image first', 'error');
+                return;
+            }
+            
+            const targetSize = parseFloat(targetSizeInput.value);
+            if (isNaN(targetSize) || targetSize <= 0) {
+                showStatusMessage('Please enter a valid target size', 'error');
+                return;
+            }
+            
+            // Update UI
+            compressButton.disabled = true;
+            compressionStatus.textContent = 'Compressing image...';
+            compressionStatus.className = 'status info';
+            
+            try {
+                // Call compressImage from attribution.js
+                const compressedDataURL = await window.compressImage(originalImageData, targetSize);
+                
+                // Display the compressed image
+                compressedImage.src = compressedDataURL;
+                
+                // Calculate compressed size
+                const base64 = compressedDataURL.split(',')[1];
+                const fileSize = base64.length * (3/4);
+                
+                // Update compressed info
+                compressedInfo.textContent = `Size: ${formatFileSize(fileSize)}, Compression ratio: ${(originalImage.naturalWidth / compressedImage.naturalWidth).toFixed(2)}x`;
+                
+                // Re-enable the button
+                compressButton.disabled = false;
+                
+                // Update status
+                compressionStatus.textContent = 'Compression complete!';
+                compressionStatus.className = 'status success';
+            } catch (error) {
+                console.error('Compression error:', error);
+                compressionStatus.textContent = 'Error compressing image: ' + error.message;
+                compressionStatus.className = 'status error';
+                compressButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

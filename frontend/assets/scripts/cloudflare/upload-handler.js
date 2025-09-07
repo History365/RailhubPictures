@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Photo uploaded successfully!');
             
             // Redirect to the photo page
-            window.location.href = `/showpictureid=${result.id}.html`;
+            window.location.href = `/locopicture.html?id=${result.id}`;
         } catch (error) {
             console.error('Upload error:', error);
             alert('Error uploading photo: ' + (error.message || 'Unknown error'));
