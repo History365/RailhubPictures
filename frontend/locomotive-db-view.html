@@ -9,7 +9,15 @@
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
-            padding: 20px;
+                               const viewButton = document.createElement('a');
+                        viewButton.href = `/locopictureid=${loco.id}`;
+                        viewButton.textContent = 'View Details';
+                        viewButton.className = 'page-button';
+                        viewButton.style.display = 'inline-block';
+                        viewButton.style.padding = '4px 8px';
+                        viewButton.style.fontSize = '12px';
+                        viewButton.style.textDecoration = 'none';
+                        viewButton.title = `View details for ${loco.railroad} ${loco.number}`;ng: 20px;
             color: #333;
             background-color: #f7f7f7;
             line-height: 1.5;
