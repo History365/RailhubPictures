@@ -1,0 +1,169 @@
+/**
+ * Dark Mode Overrides for Railhub Pictures
+ * This file contains specific overrides for elements that need special handling in dark mode
+ * with aggressive !important rules to ensure proper dark mode application
+ */
+
+/* Global text color for dark mode */
+[data-theme="dark"] {
+    color: #e0e0e0 !important;
+}
+
+/* Apply dark styles to all possible containers and sections */
+[data-theme="dark"] body,
+[data-theme="dark"] main,
+[data-theme="dark"] div,
+[data-theme="dark"] section,
+[data-theme="dark"] article,
+[data-theme="dark"] aside,
+[data-theme="dark"] nav,
+[data-theme="dark"] header,
+[data-theme="dark"] footer,
+[data-theme="dark"] .hero,
+[data-theme="dark"] .navbar,
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .container {
+    background-color: var(--background-color, #121212) !important;
+    color: var(--text-color, #e0e0e0) !important;
+}
+
+/* Cards and containers */
+[data-theme="dark"] .card,
+[data-theme="dark"] .box,
+[data-theme="dark"] .container-card {
+    background-color: var(--card-background, #1e1e1e) !important;
+    color: var(--text-color, #e0e0e0) !important;
+    border-color: var(--border-color, #333) !important;
+}
+
+/* Force all text to be light */
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6,
+[data-theme="dark"] li,
+[data-theme="dark"] label,
+[data-theme="dark"] .text,
+[data-theme="dark"] .title,
+[data-theme="dark"] .subtitle {
+    color: var(--text-color, #e0e0e0) !important;
+}
+
+/* Forceful override for any inline styles with background */
+[data-theme="dark"] *[style*="background"] {
+    background-color: var(--background-color, #121212) !important;
+}
+
+/* Target specific background colors that might be inlined */
+[data-theme="dark"] *[style*="background-color: #f8f8f8"],
+[data-theme="dark"] *[style*="background-color:#f8f8f8"],
+[data-theme="dark"] *[style*="background-color: white"],
+[data-theme="dark"] *[style*="background-color:white"],
+[data-theme="dark"] *[style*="background-color: #fff"],
+[data-theme="dark"] *[style*="background-color:#fff"],
+[data-theme="dark"] *[style*="background: #f8f8f8"],
+[data-theme="dark"] *[style*="background:#f8f8f8"],
+[data-theme="dark"] *[style*="background: white"],
+[data-theme="dark"] *[style*="background:white"],
+[data-theme="dark"] *[style*="background: #fff"],
+[data-theme="dark"] *[style*="background:#fff"] {
+    background-color: var(--background-color, #121212) !important;
+}
+
+/* Headers and sections */
+[data-theme="dark"] .section {
+    background-color: var(--background-color, #121212) !important;
+}
+
+/* Aggressive text color overrides for inline styles */
+[data-theme="dark"] *[style*="color: #"],
+[data-theme="dark"] *[style*="color:#"],
+[data-theme="dark"] *[style*="color: rgb"],
+[data-theme="dark"] *[style*="color:rgb"] {
+    color: var(--text-color, #e0e0e0) !important;
+}
+
+/* Specifically target common dark text colors */
+[data-theme="dark"] *[style*="color: #333"],
+[data-theme="dark"] *[style*="color:#333"],
+[data-theme="dark"] *[style*="color: #000"],
+[data-theme="dark"] *[style*="color:#000"],
+[data-theme="dark"] *[style*="color: black"],
+[data-theme="dark"] *[style*="color:black"] {
+    color: var(--text-color, #e0e0e0) !important;
+}
+
+/* Secondary text like subtitles, captions, etc. */
+[data-theme="dark"] *[style*="color: #666"],
+[data-theme="dark"] *[style*="color:#666"],
+[data-theme="dark"] *[style*="color: #888"],
+[data-theme="dark"] *[style*="color:#888"],
+[data-theme="dark"] *[style*="color: gray"],
+[data-theme="dark"] *[style*="color:gray"] {
+    color: var(--secondary-text, #aaa) !important;
+}
+
+/* Links need to stand out against dark backgrounds */
+[data-theme="dark"] a:not(.button):not(.tag) {
+    color: var(--accent-color, #6a9dff) !important;
+}
+
+/* Borders for all elements */
+[data-theme="dark"] *[style*="border"] {
+    border-color: var(--border-color, #333) !important;
+}
+
+/* Special case for form elements */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] button,
+[data-theme="dark"] .button {
+    background-color: var(--input-background, #2a2a2a) !important;
+    color: var(--text-color, #e0e0e0) !important;
+    border-color: var(--input-border, #444) !important;
+}
+
+/* Images and media with light backgrounds */
+[data-theme="dark"] img {
+    filter: brightness(0.9);
+}
+
+/* Table elements */
+[data-theme="dark"] table,
+[data-theme="dark"] tr,
+[data-theme="dark"] td,
+[data-theme="dark"] th {
+    background-color: var(--card-background, #1e1e1e) !important;
+    color: var(--text-color, #e0e0e0) !important;
+    border-color: var(--border-color, #333) !important;
+}
+
+/* Specific override for alternating row colors */
+[data-theme="dark"] tr:nth-child(even) {
+    background-color: var(--section-alt-background, #1a1a1a) !important;
+}
+
+/* Fix white stripes that might appear in certain layouts */
+[data-theme="dark"] hr {
+    background-color: var(--border-color, #333) !important;
+}
+
+/* Extra aggressive catch-all selector for any remaining elements */
+[data-theme="dark"] *:not(img):not(svg):not(path):not(line):not(circle) {
+    background-color: inherit;
+}
+
+/* Override for sticky headers or floating elements */
+[data-theme="dark"] *[style*="position: fixed"],
+[data-theme="dark"] *[style*="position:fixed"],
+[data-theme="dark"] *[style*="position: sticky"],
+[data-theme="dark"] *[style*="position:sticky"],
+[data-theme="dark"] .fixed,
+[data-theme="dark"] .sticky {
+    background-color: var(--background-color, #121212) !important;
+}

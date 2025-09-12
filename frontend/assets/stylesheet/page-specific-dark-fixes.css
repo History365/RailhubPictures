@@ -1,0 +1,121 @@
+/**
+ * Page-Specific Dark Mode Fixes
+ * This file targets specific elements on the Railhub Pictures website
+ * that might still have white backgrounds or incorrect colors in dark mode
+ */
+
+/* Homepage specific fixes */
+[data-theme="dark"] .featured-section,
+[data-theme="dark"] .categories-section,
+[data-theme="dark"] .recent-section,
+[data-theme="dark"] .browse-section {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+}
+
+/* Platform boxes (Quick Find, Latest Photos, etc.) */
+[data-theme="dark"] .quick-find,
+[data-theme="dark"] .browse-box,
+[data-theme="dark"] .hero-box,
+[data-theme="dark"] [style*="background: #f8f8f8"],
+[data-theme="dark"] [style*="background-color: #f8f8f8"],
+[data-theme="dark"] section [style*="background"] {
+    background-color: var(--platform-bg) !important;
+    color: var(--text-color) !important;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+/* Make "Find Your Perfect Railroad Photo" box transparent */
+[data-theme="dark"] .hero-section,
+[data-theme="dark"] .search-hero,
+[data-theme="dark"] .hero-container,
+[data-theme="dark"] .hero-content {
+    background-color: transparent !important;
+}
+
+/* Make "Search Photos" section transparent */
+[data-theme="dark"] .search-section,
+[data-theme="dark"] .search-container,
+[data-theme="dark"] .search-box {
+    background-color: transparent !important;
+}
+
+/* Ensure all text is white */
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6,
+[data-theme="dark"] li,
+[data-theme="dark"] label,
+[data-theme="dark"] a:not(.button):not(.tag),
+[data-theme="dark"] div,
+[data-theme="dark"] .text,
+[data-theme="dark"] .title,
+[data-theme="dark"] .subtitle {
+    color: var(--text-color) !important;
+}
+
+/* Fix for white stripes that might appear between sections */
+[data-theme="dark"] section + section,
+[data-theme="dark"] div + div {
+    border-color: var(--background-color) !important;
+}
+
+/* Fix for any dividers */
+[data-theme="dark"] .divider,
+[data-theme="dark"] hr,
+[data-theme="dark"] .separator {
+    background-color: var(--border-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Fix for any fixed headers or footers */
+[data-theme="dark"] .fixed-header,
+[data-theme="dark"] .sticky-header,
+[data-theme="dark"] .fixed-footer {
+    background-color: var(--header-background) !important;
+}
+
+/* Specific fixes for navbar elements */
+[data-theme="dark"] .navbar,
+[data-theme="dark"] .nav,
+[data-theme="dark"] .nav-item,
+[data-theme="dark"] .navbar-item,
+[data-theme="dark"] .navbar-menu {
+    background-color: var(--header-background) !important;
+    color: var(--nav-text) !important;
+}
+
+/* Fix for hero sections */
+[data-theme="dark"] .hero {
+    background-color: var(--background-color) !important;
+}
+
+/* Fix for cards, boxes and containers */
+[data-theme="dark"] .card,
+[data-theme="dark"] .box,
+[data-theme="dark"] .container-card,
+[data-theme="dark"] .photo-card,
+[data-theme="dark"] .loco-card {
+    background-color: var(--card-background) !important;
+}
+
+/* Fix for any gradients or overlays */
+[data-theme="dark"] [style*="linear-gradient"],
+[data-theme="dark"] [class*="gradient"],
+[data-theme="dark"] [class*="overlay"] {
+    background: var(--card-background) !important;
+}
+
+/* Fix for any remaining white elements */
+[data-theme="dark"] [style*="background-color: rgb(255, 255, 255)"],
+[data-theme="dark"] [style*="background-color:rgb(255, 255, 255)"],
+[data-theme="dark"] [style*="background-color: rgb(248, 248, 248)"],
+[data-theme="dark"] [style*="background-color:rgb(248, 248, 248)"] {
+    background-color: var(--background-color) !important;
+}

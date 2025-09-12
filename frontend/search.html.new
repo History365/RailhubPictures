@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Search | Railhub Pictures</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="assets/stylesheet/styles.css" rel="stylesheet">
+    <link href="assets/stylesheet/homepage.css" rel="stylesheet">
+    <link href="assets/stylesheet/homepage2.css" rel="stylesheet">
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_Y29tbXVuYWwtY2F0LTI1LmNsZXJrLmFjY291bnRzLmRldiQ"
+      src="https://communal-cat-25.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+      type="text/javascript">
+    </script>
+    <script src="assets/scripts/clerk-auth.js"></script>
+    <script src="assets/scripts/cloudflare/api-client.js"></script>
+    <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+        }
+        
+        header {
+            background-color: #222;
+            color: white;
+            padding: 1rem;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            align-self: flex-start;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .search-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .search-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+        
+        .search-tab:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+        
+        .search-tab.active {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+        
+        .search-options {
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-section h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: #444;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-item label {
+            margin: 0;
+            margin-left: 0.3rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        button {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        button.primary {
+            background-color: #2563eb;
+            color: white;
+        }
+        
+        button.primary:hover {
+            background-color: #1d4ed8;
+        }
+        
+        button.secondary {
+            background-color: #e5e7eb;
+            color: #4b5563;
+        }
+        
+        button.secondary:hover {
+            background-color: #d1d5db;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .locomotive-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .locomotive-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .locomotive-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .locomotive-info {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .locomotive-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .status-tag {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        
+        .status-deadline {
+            background: #fef3c7;
+            color: #b45309;
+        }
+        
+        .status-scrapped {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .locomotive-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .icon {
+            font-size: 0.9rem;
+            margin-right: 0.3rem;
+            opacity: 0.8;
+        }
+        
+        .locomotive-details {
+            border-top: 1px solid #eee;
+            margin-top: 0.5rem;
+            padding-top: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+            flex-grow: 1;
+        }
+        
+        .detail-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #333;
+        }
+        
+        .photos-link {
+            display: inline-block;
+            padding: 0.5rem 0.8rem;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: center;
+            align-self: flex-start;
+        }
+        
+        .photos-link:hover {
+            background: #1d4ed8;
+        }
+        
+        .no-results {
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .no-results h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            color: #555;
+        }
+        
+        .no-results p {
+            color: #777;
+            margin-bottom: 1.5rem;
+        }
+        
+        .suggestions {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            display: inline-block;
+            text-align: left;
+        }
+        
+        .suggestions h4 {
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            color: #444;
+        }
+        
+        .suggestions ul {
+            list-style-position: inside;
+            color: #555;
+        }
+        
+        .suggestions li {
+            margin-bottom: 0.3rem;
+        }
+        
+        .search-query-display {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        
+        .search-query-display p {
+            font-size: 0.9rem;
+            color: #444;
+            margin: 0;
+        }
+        
+        .search-query-display p strong {
+            color: #222;
+        }
+        
+        .clear-search {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .clear-search:hover {
+            background: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">
+                    <img src="assets/images/logo.png" alt="Railhub Pictures">
+                </a>
+            </div>
+            
+            <ul class="main-nav">
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Browse <span class="dropdown-arrow">▼</span></a>
+                    <div class="dropdown-content">
+                        <a href="railroadList.html">Browse by Railroad</a>
+                        <a href="contributors.html">Browse by Contributor</a>
+                        <a href="newestphotos.html">Newest Photos</a>
+                        <a href="contribPicks.html">Contributors' Picks</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link active">Search <span class="dropdown-arrow">▼</span></a>
+                    <div class="dropdown-content">
+                        <a href="search.html">Advanced Search</a>
+                        <a href="locomotive-db-view.html">Locomotive Database</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="upload.html" class="nav-link">Upload</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">About <span class="dropdown-arrow">▼</span></a>
+                    <div class="dropdown-content">
+                        <a href="termsOfService.html">Terms of Service</a>
+                        <a href="privacyPolicy.html">Privacy Policy</a>
+                    </div>
+                </li>
+            </ul>
+            
+            <div class="search-and-auth">
+                <form id="headerSearchForm" class="header-search">
+                    <input type="text" id="headerSearchInput" placeholder="Search...">
+                    <button type="submit">
+                        <img src="assets/images/search-icon.svg" alt="Search">
+                    </button>
+                </form>
+                
+                <!-- Auth buttons -->
+                <div class="auth-buttons">
+                    <div id="userButtonContainer"></div>
+                    <div id="signedOutButtons">
+                        <button onclick="signInWithClerk()" class="secondary auth-button">Sign In</button>
+                        <button onclick="signUpWithClerk()" class="primary auth-button">Sign Up</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="content">
+        <div class="main-content">
+            <h1>Advanced Search</h1>
+            
+            <div id="searchQueryDisplay" class="search-query-display" style="display: none;">
+                <p>You searched for: <strong id="queryText"></strong></p>
+                <button onclick="clearSearch()" class="clear-search">Clear Search</button>
+            </div>
+            
+            <div class="search-tabs">
+                <div id="locomotiveSearchTab" class="search-tab active" onclick="switchSearchType('locomotive')">
+                    Locomotive Search
+                </div>
+                <div id="photoSearchTab" class="search-tab" onclick="switchSearchType('photo')">
+                    Photo Search
+                </div>
+            </div>
+
+            <div id="searchResults">
+                <!-- Search results will appear here -->
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div id="locomotiveSearchOptions" class="search-options">
+                <div class="search-section">
+                    <h3>Locomotive Search Options</h3>
+                    <div class="form-group">
+                        <label for="unitSearch">Unit Number:</label>
+                        <input type="text" id="unitSearch" placeholder="e.g. 1234">
+                    </div>
+                    <div class="form-group">
+                        <label for="railroad">Railroad:</label>
+                        <select id="railroad">
+                            <option value="">Any Railroad</option>
+                            <option value="BNSF">BNSF</option>
+                            <option value="UP">Union Pacific</option>
+                            <option value="CSX">CSX</option>
+                            <option value="NS">Norfolk Southern</option>
+                            <option value="CP">Canadian Pacific</option>
+                            <option value="CN">Canadian National</option>
+                            <option value="KCS">Kansas City Southern</option>
+                            <option value="Amtrak">Amtrak</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Model:</label>
+                        <input type="text" id="model" placeholder="e.g. SD70ACe">
+                    </div>
+                </div>
+                
+                <div class="search-section">
+                    <h3>Status Filters</h3>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="activeOnly">
+                            <label for="activeOnly">Active Only</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="deadlineOnly">
+                            <label for="deadlineOnly">Deadline Only</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="scrappedOnly">
+                            <label for="scrappedOnly">Scrapped Only</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="rebuiltOnly">
+                            <label for="rebuiltOnly">Rebuilt Units</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="search-section">
+                    <h3>Photo Options</h3>
+                    <div class="form-group">
+                        <label for="includePhotos">Photo Availability:</label>
+                        <select id="includePhotos">
+                            <option value="all">All Units</option>
+                            <option value="with">With Photos Only</option>
+                            <option value="without">Without Photos Only</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button onclick="performSearch()" id="searchButton" class="primary">Search Locomotives</button>
+                    <button onclick="resetFilters()" class="secondary">Reset Filters</button>
+                </div>
+            </div>
+
+            <div id="photoSearchOptions" class="search-options" style="display: none;">
+                <div class="search-section">
+                    <h3>Photo Search Options</h3>
+                    <div class="form-group">
+                        <label for="photoUnitSearch">Unit Number:</label>
+                        <input type="text" id="photoUnitSearch" placeholder="e.g. 1234">
+                    </div>
+                    <div class="form-group">
+                        <label for="photoRailroad">Railroad:</label>
+                        <select id="photoRailroad">
+                            <option value="">Any Railroad</option>
+                            <option value="BNSF">BNSF</option>
+                            <option value="UP">Union Pacific</option>
+                            <option value="CSX">CSX</option>
+                            <option value="NS">Norfolk Southern</option>
+                            <option value="CP">Canadian Pacific</option>
+                            <option value="CN">Canadian National</option>
+                            <option value="KCS">Kansas City Southern</option>
+                            <option value="Amtrak">Amtrak</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="photographer">Photographer:</label>
+                        <input type="text" id="photographer" placeholder="e.g. John Smith">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location:</label>
+                        <input type="text" id="location" placeholder="e.g. Chicago, IL">
+                    </div>
+                </div>
+                
+                <div class="search-section">
+                    <h3>Photo Types</h3>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="rosterShots">
+                            <label for="rosterShots">Roster Shots</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="actionShots">
+                            <label for="actionShots">Action Shots</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="detailShots">
+                            <label for="detailShots">Detail Shots</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="scenicShots">
+                            <label for="scenicShots">Scenic Shots</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button onclick="performSearch()" id="photoSearchButton" class="primary">Search Photos</button>
+                    <button onclick="resetFilters()" class="secondary">Reset Filters</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Railhub Pictures</h3>
+                <p>The premier destination for railroad photography enthusiasts to share and discover incredible train images.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">
+                        <img src="assets/images/facebook-icon.svg" alt="Facebook">
+                    </a>
+                    <a href="#" class="social-link">
+                        <img src="assets/images/twitter-icon.svg" alt="Twitter">
+                    </a>
+                    <a href="#" class="social-link">
+                        <img src="assets/images/instagram-icon.svg" alt="Instagram">
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="railroadList.html">Browse by Railroad</a></li>
+                    <li><a href="contributors.html">Browse by Contributor</a></li>
+                    <li><a href="search.html">Advanced Search</a></li>
+                    <li><a href="upload.html">Upload Photos</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Resources</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Photography Tips</a></li>
+                    <li><a href="#">Spotting Locations</a></li>
+                    <li><a href="#">Contributor Guidelines</a></li>
+                    <li><a href="#">Community Forum</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Legal Information</h4>
+                <ul class="footer-links">
+                    <li><a href="termsOfService.html">Terms of Service</a></li>
+                    <li><a href="privacyPolicy.html">Privacy Policy</a></li>
+                    <li><a href="#">Copyright Information</a></li>
+                    <li><a href="#">DMCA Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2023 Railhub Pictures. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Include the Cloudflare API client and search script -->
+    <script src="assets/scripts/search.js"></script>
+</body>
+</html>
