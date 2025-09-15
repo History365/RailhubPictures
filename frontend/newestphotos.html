@@ -3,13 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Newest Photos | Railhub Pictures</title>
+    <title>Railhub P        .photo-info {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }s</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="assets/stylesheet/theme.css" rel="stylesheet">
     <link href="assets/stylesheet/styles.css" rel="stylesheet">
     <link href="assets/stylesheet/homepage.css" rel="stylesheet">
     <link href="assets/stylesheet/homepage2.css" rel="stylesheet">
-    <script src="assets/scripts/cloudflare/api-client.js"></script>
+    <link href="assets/stylesheet/logo-fix.css" rel="stylesheet"><!-- Fix for logo positioning -->
+    <script src="assets/scripts/api-loader.js"></script>
     <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
+    <script src="assets/scripts/cloudflare/photo-display.js"></script>
+    <script src="assets/scripts/cloudflare/cloudflare-integration.js"></script>
+    <script src="assets/scripts/footer.js" defer></script>
     <script
       async
       crossorigin="anonymous"
@@ -25,15 +35,23 @@
             padding: 0;
         }
 
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: auto;
+            min-height: 100%;
+        }
+        
         body {
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
             color: #333;
             background-color: #f8f8f8;
+            padding-top: 120px;
         }
 
         .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('images/CSC_0371.JPG');
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('assets/images/CSC_0371.jpg');
             background-size: cover;
             background-position: center;
             height: 500px;
@@ -107,33 +125,190 @@
             padding: 0 2rem;
         }
 
-        .photo-grid {
+        .photo-grid, .photos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
             margin-bottom: 3rem;
-        }
-
-        .photo-card {
-            background: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            transition: box-shadow 0.2s ease;
-        }
-
-        .photo-card:hover {
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-        }
-
-        .photo-card img {
             width: 100%;
-            height: 220px;
+        }
+
+        .photo-card, .photo-item {
+            background: #fff;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+            height: auto;
+        }
+
+        .photo-card:hover, .photo-item:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .photo-card img, .photo-content img {
+            width: 100%;
+            height: 180px;
             object-fit: cover;
+            display: block;
+        }
+
+        .photo-content {
+            height: 180px;
+            overflow: hidden;
         }
 
         .photo-info {
-            padding: 1.5rem;
+            padding: 15px;
+        }
+
+        .photo-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #222;
+            margin: 0 0 12px 0;
+            line-height: 1.3;
+            height: 42px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .date-section {
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+            margin: 8px 0;
+            height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .date-content {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .description-section {
+            height: 40px;
+            margin-bottom: 6px;
+        }
+
+        .location-author-section {
+            height: 36px;
+        }
+
+        .photo-details {
+            font-size: 13px;
+            line-height: 1.4;
+            color: #555;
+        }
+
+        .photo-detail-row {
+            margin-bottom: 6px;
+            display: flex;
+        }
+
+        .photo-detail-row .label {
+            font-weight: 600;
+            color: #333;
+            min-width: 80px;
+            margin-right: 8px;
+        }
+
+        .photo-detail-row .value {
+            color: #555;
+            flex: 1;
+        }
+
+        .photo-locomotives {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .photo-locomotives .label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .photo-locomotives .value {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .photo-locomotives a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .photo-locomotives a:hover {
+            text-decoration: underline;
+        }
+
+        .photo-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #000;
+            line-height: 1.3;
+            text-align: left;
+        }
+
+        .photo-date-info {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            text-align: left;
+        }
+
+        .photo-date-info strong {
+            font-weight: 700;
+            color: #777;
+        }
+
+        .photo-description {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 8px;
+            color: #000;
+            font-weight: normal;
+            text-align: left;
+        }
+
+        .photo-info-row {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .photo-date-info {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .photo-info-row strong {
+            font-weight: 700;
+            color: #000;
+        }
+
+        .photo-locomotives a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .photo-locomotives a:hover {
+            text-decoration: underline;
         }
 
         .photo-info h3 {
@@ -218,7 +393,7 @@
     </style></head>
 <body>
     <!-- Header -->
-    <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee;">
+    <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee; box-sizing: border-box;">
         <div style="display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
             <!-- Top Row with Logo and Account -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -265,89 +440,232 @@
         </div>
     </header>
 
-    <main class="main-content">
-        <div class="container">
-            <div class="section-header">
-                <h1 class="section-title"></h1>
-                <p class="section-subtitle"></p>
+    <main class="main-content" style="padding-top: 20px; padding-bottom: 2rem; width: 100%;">
+        <div style="width: 1200px; max-width: 95%; margin: 0 auto;">
+            <div class="section-header" style="margin-bottom: 2rem; text-align: center; width: 100%;">
+                <h1 class="section-title">Newest Photos</h1>
             </div>
-            <div class="photos-grid">
-                <% if (photos && photos.length > 0) { %>
-                    <% photos.forEach(photo => { %>
-                        <div class="photo-item">
-                            <div class="photo-content">
-                                <a href="/showpictureid=<%= photo.id %>">
-                                    <img src="/uploads/<%= photo.filename %>" alt="<%= photo.title %>">
-                                </a>
-                            </div>
-                            <div class="photo-info">
-                                <h3 class="photo-title"><%= photo.title || '-' %></h3>
-
-                                <div class="photo-date-info">
-                                    <div><strong>Photo Date:</strong> <%= photo.photo_date ? new Date(photo.photo_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : '-' %></div>
-                                    <div><strong>Upload:</strong> <%= photo.uploaded_at || '-' %></div>
+            <div class="photos-grid" id="photosGrid" style="margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <!-- Photos will be rendered here -->
+            </div>
+            
+            <!-- Pagination container -->
+            <div id="paginationContainer"></div>
+            
+            <div class="no-photos" id="noPhotos" style="display:none; text-align: center; width: 100%; padding: 2rem;">
+                <p>No photos available. Be the first to upload!</p>
+            </div>
+            <div class="loading" id="loadingPhotos" style="display:block; text-align: center; width: 100%; padding: 2rem;">
+                <p>Loading newest photos...</p>
+            </div>
+            
+            <script>
+                // Create multiple example photos to test scrolling
+                const examplePhotos = [];
+                
+                // Generate 250 example photos total for pagination
+                for (let i = 1; i <= 250; i++) {
+                    examplePhotos.push({
+                        id: i,
+                        title: `Example Photo ${i}`,
+                        filename: "https://railhubpictures.org/assets/images/logos/logo.jpg",
+                        description: `This is description for example photo ${i}`,
+                        location: `Location ${i}`,
+                        photo_date: "09/14/2025",
+                        uploaded_at: "09/14/2025",
+                        username: `exampleuser${i}`,
+                        display_name: `Example User ${i}`
+                    });
+                }
+                
+                // Pagination variables
+                let currentPage = 1;
+                const photosPerPage = 50;
+                let allPhotos = [];
+                
+                // Function to display photos on the page
+                function displayPhotos(photos) {
+                    allPhotos = photos;
+                    const totalPages = Math.ceil(photos.length / photosPerPage);
+                    
+                    const grid = document.getElementById('photosGrid');
+                    grid.style.display = 'grid';
+                    grid.innerHTML = '';
+                    
+                    // Calculate start and end indexes for current page
+                    const startIndex = (currentPage - 1) * photosPerPage;
+                    const endIndex = startIndex + photosPerPage;
+                    const currentPhotos = photos.slice(startIndex, endIndex);
+                    
+                    console.log(`Displaying page ${currentPage} of ${totalPages} (${currentPhotos.length} photos)`);
+                    
+                    currentPhotos.forEach(photo => {
+                        // Create photo HTML with example title
+                        const title = photo.title || (photo.id % 3 === 0 ? 
+                            'Phase VII on the Zephyr! – Amtrak 75' : 
+                            (photo.id % 2 === 0 ? 'BNSF Stack Train at Coal Creek Canyon' : 
+                            'Union Pacific Big Boy 4014'));
+                            
+                        const description = photo.description || 
+                            'With a salute from the engineer, Amtrak P42DC #75 leads the California Zephyr through Coal Creek Canyon on a beautiful summer afternoon. The Phase VII paint scheme really stands out against the Rocky Mountain backdrop.';
+                            
+                        const photoHtml = `
+                            <div class="photo-item">
+                                <div class="photo-content">
+                                    <a href="/showpictureid=${photo.id}">
+                                        <img src="${photo.filename}" alt="${title}">
+                                    </a>
                                 </div>
-
-                                <div class="photo-info-row">
-                                    <div class="photo-info-label">Description:</div>
-                                    <div class="photo-info-value"><%= photo.description || '-' %></div>
-                                </div>
-
-                                <div class="photo-info-row">
-                                    <div class="photo-info-label">Location:</div>
-                                    <div class="photo-info-value"><%= photo.location || '-' %></div>
-                                </div>
-
-                                <div class="photo-info-row">
-                                    <div class="photo-info-label">Author:</div>
-                                    <div class="photo-info-value">
-                                        <% if (photo.username) { %>
-                                            <a href="/user/<%= photo.username %>" style="text-decoration: underline; color: #444;">
-                                                <%= photo.display_name || photo.username %>
-                                            </a>
-                                        <% } else { %>
-                                            -
-                                        <% } %>
+                                <div class="photo-info">
+                                    <h3 class="photo-title">${title}</h3>
+                                    
+                                    <div class="date-section">
+                                        <div class="date-content">
+                                            <span><strong>Photo Date:</strong> ${photo.photo_date || '12/14/2024'}</span>
+                                            <span><strong>Upload:</strong> ${photo.uploaded_at || '1/07/2025'}</span>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="photo-info-group">
-                                    <div class="photo-info-row">
-                                        <div class="photo-info-label">Locomotives:</div>
-                                        <div class="photo-info-value photo-locomotives">
-                                            <% if (photo.units && photo.units.length > 0) { %>
-                                                <% photo.units.forEach((unit, index) => { %>
-                                                    <a href="/locopictureid=<%= photo.id %>" title="Model: <%= unit.model %>" style="text-decoration: underline; color: #444; font-weight: 600;">
-                                                        <%= unit.railroad %> <%= unit.number %> (<%= unit.model %>)
-                                                    </a>
-                                                    <% if (index < photo.units.length - 1) { %> • <% } %>
-                                                <% }) %>
-                                            <% } else if (photo.unit_id) { %>
-                                                <!-- Display single locomotive (backwards compatibility) -->
-                                                <a href="/locopictureid=<%= photo.id %>" title="Model: <%= photo.model %>" style="text-decoration: underline; color: #444; font-weight: 600;">
-                                                    <%= photo.railroad %> <%= photo.unit_number %> (<%= photo.model %>)
-                                                </a>
-                                            <% } else { %>
-                                                <span style="color: #999;">No locomotives listed</span>
-                                            <% } %>
+                                    
+                                    <div class="description-section">
+                                        <div class="photo-detail-row">
+                                            <span class="label">Description:</span>
+                                            <span class="value">${description}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="location-author-section">
+                                        <div class="photo-detail-row">
+                                            <span class="label">Location:</span>
+                                            <span class="value">${photo.location || 'Coal Creek, CO'}</span>
+                                        </div>
+                                        <div class="photo-detail-row">
+                                            <span class="label">Author:</span>
+                                            <span class="value">${photo.username ? `${photo.display_name || photo.username}` : '5471 Railfan'}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="photo-locomotives">
+                                        <div class="label">Locomotives:</div>
+                                        <div class="value">
+                                            ${photo.locomotives ? photo.locomotives : '<span style="color: #999;">No locomotives listed</span>'}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    <% }); %>
-                <% } else { %>
-                    <div class="no-photos">
-                        <p>No photos available. Be the first to upload!</p>
-                    </div>
-                <% } %>
+                        `;
+                        
+                        grid.innerHTML += photoHtml;
+                    });
+                    
+                    // Add pagination controls
+                    updatePaginationControls(totalPages);
+                }
+                
+                // Function to update pagination controls
+                function updatePaginationControls(totalPages) {
+                    let paginationHtml = '';
+                    if (totalPages > 1) {
+                        paginationHtml = `
+                            <div style="display: flex; justify-content: center; align-items: center; margin-top: 2rem; gap: 1rem;">
+                                <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} 
+                                    style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: ${currentPage === 1 ? '#f5f5f5' : '#fff'}; border-radius: 4px; cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'};">
+                                    Previous
+                                </button>
+                                <span style="font-weight: 500; color: #333;">
+                                    Page ${currentPage} of ${totalPages}
+                                </span>
+                                <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} 
+                                    style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: ${currentPage === totalPages ? '#f5f5f5' : '#fff'}; border-radius: 4px; cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'};">
+                                    Next
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    // Add pagination after the grid
+                    const paginationContainer = document.getElementById('paginationContainer');
+                    if (paginationContainer) {
+                        paginationContainer.innerHTML = paginationHtml;
+                    }
+                }
+                
+                // Function to change page
+                function changePage(newPage) {
+                    const totalPages = Math.ceil(allPhotos.length / photosPerPage);
+                    if (newPage >= 1 && newPage <= totalPages) {
+                        currentPage = newPage;
+                        displayPhotos(allPhotos);
+                        // Scroll to top of content
+                        document.querySelector('.section-header').scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+                
+                // Fetch photos from API or show example photos
+                async function fetchPhotos() {
+                    const loadingEl = document.getElementById('loadingPhotos');
+                    const grid = document.getElementById('photosGrid');
+                    const noPhotos = document.getElementById('noPhotos');
+                    
+                    // Show loading, hide other elements
+                    loadingEl.style.display = 'block';
+                    grid.style.display = 'none';
+                    noPhotos.style.display = 'none';
+                    
+                    try {
+                        // Fetch from the Railhub Pictures API endpoint
+                        const response = await fetch('https://railhubpictures.org/api/photos/latest');
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        
+                        // Parse the response
+                        const data = await response.json();
+                        console.log('API response:', data);
+                        
+                        // Extract photos from the API response structure
+                        const photos = data.results || [];
+                        
+                        // Hide loading
+                        loadingEl.style.display = 'none';
+                        
+                        // Check if we have photos to display
+                        if (photos && Array.isArray(photos) && photos.length > 0) {
+                            displayPhotos(photos);
+                        } else {
+                            // Display example photos if API returns empty
+                            displayPhotos(examplePhotos);
+                        }
+                    } catch (err) {
+                        console.error('Error fetching photos:', err);
+                        // Display example photos on error
+                        loadingEl.style.display = 'none';
+                        displayPhotos(examplePhotos);
+                    }
+                }
+
+                // Call function when the page loads
+                fetchPhotos();
+                
+                // Also call it when DOM is fully loaded
+                document.addEventListener('DOMContentLoaded', fetchPhotos);
+            </script>
             </div></main>
 
-    <footer style="background: white; border-top: 1px solid #eee; padding: 1.5rem 0; margin-top: auto;">
-        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>Railhub Pictures © 2024-2025 Photos © respective authors</div>
-            <div>Version 1.0</div>
-        </div>
-    </footer>
 
-</body></html>
+    <!-- Footer will be inserted by footer.js -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make sure the footer has proper styling
+            setTimeout(function() {
+                const footer = document.querySelector('.site-footer');
+                if (footer) {
+                    footer.style.position = 'static';
+                    footer.style.marginTop = '2rem';
+                    footer.style.width = '100%';
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html> 
