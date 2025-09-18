@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Search | Railhub Pictures</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="assets/stylesheet/styles.css" rel="stylesheet">
+    <link href="assets/stylesheet/homepage.css" rel="stylesheet">
+    <link href="assets/stylesheet/homepage2.css" rel="stylesheet">
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_Y29tbXVuYWwtY2F0LTI1LmNsZXJrLmFjY291bnRzLmRldiQ"
+      src="https://communal-cat-25.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+      type="text/javascript">
+    </script>
+    <script src="assets/scripts/clerk-auth.js"></script>
+	<script src="assets/scripts/cloudflare/api-client.js"></script>
+	<script src="assets/scripts/cloudflare/clerk-integration.js"></script>
+    <script src="assets/scripts/search.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Database ID display styling */
+        .db-id {
+            font-size: 0.7rem;
+            color: #888;
+            font-weight: normal;
+            margin-left: 0.5rem;
+        }
+        
+        /* Loading indicator styling */
+        .loading-indicator {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #2563eb;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .section {
+            padding: 4rem 0;
+            background: #fff;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2em;
+            color: #222;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Search Panel Styles */
+        .search-panel {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .search-header {
+            padding: 1.2rem;
+            background: #444;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .search-form {
+            padding: 1.5rem;
+        }
+        
+        .search-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .filter-tag {
+            background: #f5f5f5;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-tag button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Layout Styles */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 2rem;
+        }
+        
+        .sidebar {
+            position: sticky;
+            top: 140px;
+            height: fit-content;
+            order: 2;
+            overflow-y: auto;
+            max-height: calc(100vh - 160px);
+        }
+        
+        .main-content {
+            order: 1;
+            width: 100%;
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .button-group {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .search-button {
+            background: #444;
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 500;
+            flex: 1;
+        }
+        
+        .reset-button {
+            background: #f5f5f5;
+            color: #444;
+            border: 1px solid #e0e0e0;
+            padding: 0.8rem 1.2rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Locomotive Results Styles */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .locomotive-card {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        
+        .locomotive-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
+        }
+        
+        .locomotive-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+        
+        .locomotive-info {
+            padding: 1.5rem;
+        }
+        
+        .locomotive-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            color: #222;
+        }
+        
+        .locomotive-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #f5f5f5;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        .meta-item i {
+            color: #666;
+        }
+        
+        .locomotive-details {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-label {
+            flex: 0 0 100px;
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .detail-value {
+            flex: 1;
+        }
+        
+        .photos-link {
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            padding: 0.7rem;
+            background: #f5f5f5;
+            color: #444;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .photos-link:hover {
+            background: #e9e9e9;
+        }
+        
+        .status-tag {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+        
+        .status-active {
+            background: #e3f7e3;
+            color: #1e7e1e;
+        }
+        
+        .status-deadline {
+            background: #fff0cc;
+            color: #9a6700;
+        }
+        
+        .status-scrapped {
+            background: #ffe9e9;
+            color: #c62828;
+        }
+        
+        .status-rebuilt {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+        
+        .alert-box {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .alert-error {
+            background: #ffe9e9;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .alert-warning {
+            background: #fff8e1;
+            color: #ff8f00;
+            border: 1px solid #ffe082;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #bbdefb;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            min-width: 120px;
+        }
+        
+        .checkbox-item input {
+            width: 16px;
+            height: 16px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+        
+        .no-results h3 {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+        
+        .no-results p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .suggestions {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f0f0f0;
+            border-radius: 6px;
+        }
+        
+        .suggestions h4 {
+            margin-bottom: 0.5rem;
+            color: #444;
+        }
+        
+        .suggestions ul {
+            padding-left: 1.5rem;
+            color: #555;
+        }
+
+        /* Search Type Selector Styles */
+        .search-type-selector {
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-type-tabs {
+            display: flex;
+            width: 100%;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            margin-top: 0.5rem;
+        }
+        
+        .search-tab {
+            flex: 1;
+            padding: 0.8rem;
+            text-align: center;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        
+        .search-tab.active {
+            background: #444;
+            color: #fff;
+        }
+        
+        .search-tab:hover:not(.active) {
+            background: #e0e0e0;
+        }
+        
+        .sidebar-section {
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+        
+        /* Enhanced Form Styles */
+        .search-form .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .search-form label {
+            font-size: 0.9rem;
+            color: #444;
+            font-weight: 500;
+        }
+        
+        .search-form input[type="text"],
+        .search-form select {
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            background: #f9f9f9;
+            width: 100%;
+            font-size: 0.9rem;
+            color: #333;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .search-form input[type="text"]:focus,
+        .search-form select:focus {
+            border-color: #444;
+            box-shadow: 0 0 0 2px rgba(68, 68, 68, 0.1);
+            outline: none;
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #444;
+        }
+        
+        .search-button, 
+        .reset-button {
+            padding: 0.8rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        
+        .search-button {
+            background: #444;
+            color: #fff;
+            border: none;
+        }
+        
+        .search-button:hover {
+            background: #333;
+        }
+        
+        .reset-button {
+            background: #f5f5f5;
+            color: #444;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .reset-button:hover {
+            background: #e9e9e9;
+        }
+
+        /* Search Query Display */
+        .search-query-display {
+            background: #f8f8f8;
+            padding: 1rem 1.5rem;
+            border-left: 4px solid #444;
+            margin-bottom: 2rem;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .search-query-display strong {
+            color: #222;
+            font-weight: 600;
+        }
+        
+        .search-query-display button {
+            background: #eaeaea;
+            border: 1px solid #ddd;
+            color: #555;
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-query-display button:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+                max-height: none;
+                margin-bottom: 2rem;
+                order: 1;
+            }
+            
+            .main-content {
+                order: 2;
+            }
+            
+            .search-form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (min-width: 1400px) {
+            .content-layout {
+                grid-template-columns: 1fr 360px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee;">
+        <div style="display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
+            <!-- Top Row with Logo and Account -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <a href="index.html" style="display: flex; align-items: center;">
+                    <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 300px; height: auto;">
+                </a>
+                <div style="display: flex; align-items: center; gap: 2rem;">
+                    <span style="color: #666; font-size: 0.95em;" id="userInfo"></span>
+                    <script>
+                        var today = new Date();
+                        var dd = String(today.getDate()).padStart(2, '0');
+                        var mm = String(today.getMonth() + 1).padStart(2, '0');
+                        var yyyy = today.getFullYear();
+                        document.write('<span style="color: #666;">' + mm + '/' + dd + '/' + yyyy + '</span>');
+                    </script>
+                    <div style="display: flex; gap: 1rem;" id="auth-buttons">
+                        <!-- Auth buttons will be dynamically inserted by Clerk -->
+                    </div>
+                </div>
+            </div>
+            <!-- Bottom Row with Navigation and Search -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <nav style="display: flex; gap: 2.5rem;">
+                    <a href="index.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Home</a>
+                    <a href="newestphotos.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Newest Photos</a>
+                    <a href="contribPicks.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Contributor Picks</a>
+                    <a href="railroadList.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Railroads</a>
+                </nav>
+                <div style="display: flex; gap: 1.5rem; align-items: center; margin-left: 4rem;">
+                    <form action="search.html" method="get" style="display: flex; gap: 0.5rem;" id="headerSearchForm">
+                        <input type="text" name="q" id="headerSearchInput" placeholder="Search..." style="padding: 0.7em 1em; border: 1px solid #eee; border-radius: 6px; font-size: 0.95em; width: 240px; background: #f5f5f5; color: #444; font-family: 'Inter', sans-serif;">
+                        <button type="submit" style="background: #444; color: #fff; border: none; padding: 0.7em 1.2em; border-radius: 6px; font-size: 0.95em; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500;">Search</button>
+                    </form>
+                    <a href="upload.html" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 0.95em; background: #444; padding: 0.7em 1.4em; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Upload
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <section class="section" style="margin-top: 120px;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Advanced Locomotive Search</h2>
+                <p>Find locomotives by number, railroad, model, and more</p>
+            </div>
+            
+            <div id="searchQueryDisplay" class="search-query-display" style="margin-bottom: 1.5rem; font-size: 1.1rem; display: none;">
+                <span>You searched for: <strong id="queryText"></strong></span>
+                <button onclick="clearSearch()">
+                    <span style="font-size: 1rem; margin-right: 3px;">×</span> Clear
+                </button>
+            </div>
+            
+            <div class="content-layout">
+                <!-- Sidebar with Search Filters -->
+                <div class="sidebar">
+                    <div class="search-panel">
+                        <div class="search-header">
+                            Search Options
+                        </div>
+                        <div class="search-form">
+                            <div class="form-group search-type-selector">
+                                <label>What are you looking for?</label>
+                                <div class="search-type-tabs">
+                                    <button type="button" id="locomotiveSearchTab" class="search-tab active" onclick="switchSearchType('locomotive')">Locomotives</button>
+                                    <button type="button" id="photoSearchTab" class="search-tab" onclick="switchSearchType('photo')">Photos</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Locomotive Search Options (shown by default) -->
+                            <div id="locomotiveSearchOptions">
+                                <div class="form-group">
+                                    <label for="unitSearch">Locomotive Number</label>
+                                    <input type="text" id="unitSearch" placeholder="Enter locomotive number...">
+                                </div>
+                                
+                                <div class="sidebar-section">
+                                    <div class="form-group">
+                                        <label for="railroad">Railroad</label>
+                                        <select id="railroad">
+                                            <option value="">All Railroads</option>
+                                            <optgroup label="Class I Freight">
+                                                <option value="BNSF">BNSF Railway</option>
+                                                <option value="CN">Canadian National</option>
+                                                <option value="CPKC">Canadian Pacific Kansas City</option>
+                                                <option value="CSX">CSX Transportation</option>
+                                                <option value="FXE">Ferromex</option>
+                                                <option value="NS">Norfolk Southern</option>
+                                                <option value="UP">Union Pacific</option>
+                                            </optgroup>
+                                            <optgroup label="Class I Passenger">
+                                                <option value="AMTK">Amtrak</option>
+                                                <option value="VIA">VIA Rail Canada</option>
+                                            </optgroup>
+                                            <optgroup label="Regional & Short Lines">
+                                                <option value="FEC">Florida East Coast</option>
+                                                <option value="PAR">Pan Am Railways</option>
+                                                <option value="WC">Wisconsin Central</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="model">Locomotive Model</label>
+                                        <input type="text" id="model" placeholder="ES44AC, SD70ACe, etc.">
+                                    </div>
+                                </div>
+                                
+                                <div class="sidebar-section">
+                                    <div class="form-group">
+                                        <label>Status</label>
+                                        <div class="checkbox-group">
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" id="activeOnly"> Active
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" id="deadlineOnly"> In Deadline
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" id="scrappedOnly"> Scrapped
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" id="rebuiltOnly"> Rebuilt
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="includePhotos">Include Photos</label>
+                                        <select id="includePhotos">
+                                            <option value="any">Any (with or without photos)</option>
+                                            <option value="with">Only locomotives with photos</option>
+                                            <option value="without">Only locomotives without photos</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Photo Search Options (hidden by default) -->
+                            <div id="photoSearchOptions" style="display: none;">
+                                <div class="form-group">
+                                    <label for="photoUnitSearch">Locomotive in Photo</label>
+                                    <input type="text" id="photoUnitSearch" placeholder="Locomotive number (optional)...">
+                                </div>
+                                
+                                <div class="sidebar-section">
+                                    <div class="form-group">
+                                        <label for="photoRailroad">Railroad</label>
+                                        <select id="photoRailroad">
+                                            <option value="">All Railroads</option>
+                                            <optgroup label="Class I Freight">
+                                                <option value="BNSF">BNSF Railway</option>
+                                                <option value="CN">Canadian National</option>
+                                                <option value="CPKC">Canadian Pacific Kansas City</option>
+                                                <option value="CSX">CSX Transportation</option>
+                                                <option value="FXE">Ferromex</option>
+                                                <option value="NS">Norfolk Southern</option>
+                                                <option value="UP">Union Pacific</option>
+                                            </optgroup>
+                                            <optgroup label="Class I Passenger">
+                                                <option value="AMTK">Amtrak</option>
+                                                <option value="VIA">VIA Rail Canada</option>
+                                            </optgroup>
+                                            <optgroup label="Regional & Short Lines">
+                                                <option value="FEC">Florida East Coast</option>
+                                                <option value="PAR">Pan Am Railways</option>
+                                                <option value="WC">Wisconsin Central</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Photo Type</label>
+                                        <div class="checkbox-group">
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" id="rosterShots"> Roster Shots
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" id="actionShots"> Action Shots
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" id="detailShots"> Detail Shots
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" id="scenicShots"> Scenic Shots
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="photographer">Photographer</label>
+                                        <input type="text" id="photographer" placeholder="Photographer name...">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="location">Location</label>
+                                        <input type="text" id="location" placeholder="City, state, or location...">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="button-group">
+                                <button type="button" id="searchButton" class="search-button" onclick="performSearch()">Search Locomotives</button>
+                                <button type="button" class="reset-button" onclick="resetFilters()">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Content Area -->
+                <div class="main-content">
+                    <div class="results-section">
+                        <div id="searchResults"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="background: #f8f8f8; border-top: 1px solid #eee; padding: 3rem 0; margin-top: 2rem;">
+        <div class="container">
+            <div style="text-align: center; color: #888; font-size: 0.9rem; padding-top: 2rem;">
+                <p>Railhub Pictures © 2024-2025 • All Photos © Respective Authors • <a href="aboutme.html" style="color: #666; text-decoration: none;">About</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Include the Cloudflare API client -->
+    <script src="assets/scripts/search.js">
+        const locomotives = {
+            "4710": {
+                CSX: { 
+                    model: "SD70MAC", 
+                    status: "Active", 
+                    serialNumber: "986532",
+                    builder: "EMD",
+                    buildDate: "08/1999",
+                    location: "Jacksonville, FL",
+                    notes: "Equipped with PTC, rebuilt in 2018",
+                    photos: ["locopictureid=1.html", "locopictureid=2.html"] 
+                },
+                BNSF: { 
+                    model: "ES44DC", 
+                    status: "Active", 
+                    serialNumber: "57389",
+                    builder: "GE",
+                    buildDate: "03/2005",
+                    location: "Barstow, CA",
+                    notes: "Heritage III paint scheme",
+                    photos: ["locopictureid=3.html"] 
+                },
+                UP: { 
+                    model: "SD70M", 
+                    status: "Deadline", 
+                    serialNumber: "645792",
+                    builder: "EMD",
+                    buildDate: "11/2000",
+                    location: "North Platte, NE",
+                    notes: "Awaiting overhaul",
+                    photos: ["locopictureid=5.html"] 
+                }
+            },
+            "8937": {
+                UP: { 
+                    model: "SD70ACe", 
+                    status: "Active", 
+                    serialNumber: "20145679",
+                    builder: "EMD",
+                    buildDate: "07/2014",
+                    location: "Fort Worth, TX",
+                    notes: "American flag decal on nose",
+                    photos: ["locopictureid=6.html", "locopictureid=7.html", "locopictureid=8.html"] 
+                }
+            },
+            "7628": {
+                BNSF: { 
+                    model: "ES44C4", 
+                    status: "Active", 
+                    serialNumber: "64578",
+                    builder: "GE",
+                    buildDate: "04/2012",
+                    location: "Alliance, NE",
+                    notes: "New paint applied 2023",
+                    photos: ["locopictureid=9.html", "locopictureid=10.html"] 
+                }
+            }
+        };
+        
+        // Sample photo data for demonstration
+        const photos = [
+            {
+                id: 1,
+                railroad: "CSX",
+                unitNumber: "4710",
+                model: "SD70MAC",
+                location: "Jacksonville, FL",
+                date: "2023-05-15",
+                photographer: "John Smith",
+                type: "roster",
+                description: "CSX 4710 sitting in the Jacksonville yard",
+                url: "locopictureid=1.html"
+            },
+            {
+                id: 2,
+                railroad: "CSX",
+                unitNumber: "4710",
+                model: "SD70MAC",
+                location: "Waycross, GA",
+                date: "2023-06-22",
+                photographer: "Sarah Johnson",
+                type: "action",
+                description: "CSX 4710 leading a southbound manifest",
+                url: "locopictureid=2.html"
+            },
+            {
+                id: 3,
+                railroad: "BNSF",
+                unitNumber: "4710",
+                model: "ES44DC",
+                location: "Cajon Pass, CA",
+                date: "2023-04-10",
+                photographer: "Mike Williams",
+                type: "scenic",
+                description: "BNSF 4710 climbing through the mountains",
+                url: "locopictureid=3.html"
+            },
+            {
+                id: 5,
+                railroad: "UP",
+                unitNumber: "4710",
+                model: "SD70M",
+                location: "North Platte, NE",
+                date: "2023-02-15",
+                photographer: "Emily Davis",
+                type: "roster",
+                description: "UP 4710 in deadline row",
+                url: "locopictureid=5.html"
+            },
+            {
+                id: 6,
+                railroad: "UP",
+                unitNumber: "8937",
+                model: "SD70ACe",
+                location: "Fort Worth, TX",
+                date: "2023-07-01",
+                photographer: "David Wilson",
+                type: "detail",
+                description: "Close-up of the American flag decal on UP 8937",
+                url: "locopictureid=6.html"
+            },
+            {
+                id: 7,
+                railroad: "UP",
+                unitNumber: "8937",
+                model: "SD70ACe",
+                location: "Chicago, IL",
+                date: "2023-08-10",
+                photographer: "Lisa Martinez",
+                type: "action",
+                description: "UP 8937 leading an intermodal train",
+                url: "locopictureid=7.html"
+            },
+            {
+                id: 8,
+                railroad: "UP",
+                unitNumber: "8937",
+                model: "SD70ACe",
+                location: "Ogden, UT",
+                date: "2023-09-05",
+                photographer: "Kevin Brown",
+                type: "scenic",
+                description: "UP 8937 with mountains in the background",
+                url: "locopictureid=8.html"
+            },
+            {
+                id: 9,
+                railroad: "BNSF",
+                unitNumber: "7628",
+                model: "ES44C4",
+                location: "Alliance, NE",
+                date: "2023-03-20",
+                photographer: "Robert Taylor",
+                type: "roster",
+                description: "Freshly painted BNSF 7628",
+                url: "locopictureid=9.html"
+            },
+            {
+                id: 10,
+                railroad: "BNSF",
+                unitNumber: "7628",
+                model: "ES44C4",
+                location: "Galesburg, IL",
+                date: "2023-06-15",
+                photographer: "Amy Wilson",
+                type: "action",
+                description: "BNSF 7628 leading a coal train",
+                url: "locopictureid=10.html"
+            }
+        ];
+
+        // Track the current search mode
+        let currentSearchType = 'locomotive';
+
+        // Function to switch between search types
+        function switchSearchType(type) {
+            currentSearchType = type;
+            
+            // Update tab appearance
+            document.getElementById('locomotiveSearchTab').classList.toggle('active', type === 'locomotive');
+            document.getElementById('photoSearchTab').classList.toggle('active', type === 'photo');
+            
+            // Show/hide appropriate search options
+            document.getElementById('locomotiveSearchOptions').style.display = type === 'locomotive' ? 'block' : 'none';
+            document.getElementById('photoSearchOptions').style.display = type === 'photo' ? 'block' : 'none';
+            
+            // Update search button text
+            const searchButton = document.getElementById('searchButton');
+            searchButton.textContent = type === 'locomotive' ? 'Search Locomotives' : 'Search Photos';
+            
+            // Clear previous search results
+            document.getElementById('searchResults').innerHTML = '';
+        }
+
+        // Main search function that handles both types
+        function performSearch() {
+            if (currentSearchType === 'locomotive') {
+                searchLocomotives();
+            } else {
+                searchPhotos();
+            }
+        }
+
+        // Function to search for locomotives
+        function searchLocomotives() {
+            const searchTerm = document.getElementById('unitSearch').value.trim();
+            const railroad = document.getElementById('railroad').value;
+            const model = document.getElementById('model').value.trim().toUpperCase();
+            
+            const activeOnly = document.getElementById('activeOnly').checked;
+            const deadlineOnly = document.getElementById('deadlineOnly').checked;
+            const scrappedOnly = document.getElementById('scrappedOnly').checked;
+            const rebuiltOnly = document.getElementById('rebuiltOnly').checked;
+            
+            const includePhotos = document.getElementById('includePhotos').value;
+            
+            const resultsDiv = document.getElementById('searchResults');
+            
+            // Display search query
+            const searchQueryDisplay = document.getElementById('searchQueryDisplay');
+            const queryTextElement = document.getElementById('queryText');
+            
+            if (searchTerm || railroad || model) {
+                let queryText = [];
+                if (searchTerm) queryText.push(`"${searchTerm}"`);
+                if (railroad) queryText.push(`${railroad} Railroad`);
+                if (model) queryText.push(`Model ${model}`);
+                
+                queryTextElement.textContent = queryText.join(', ');
+                searchQueryDisplay.style.display = 'block';
+            } else {
+                searchQueryDisplay.style.display = 'none';
+            }
+
+            let results = '';
+            let matchFound = false;
+            
+            // Search for locomotives by number
+            if (searchTerm && locomotives[searchTerm]) {
+                const locoMatches = locomotives[searchTerm];
+                
+                for (const [rr, data] of Object.entries(locoMatches)) {
+                    // Apply railroad filter
+                    if (railroad && railroad !== rr) continue;
+                    
+                    // Apply model filter
+                    if (model && !data.model.toUpperCase().includes(model)) continue;
+                    
+                    // Apply status filters
+                    if (activeOnly && data.status !== "Active") continue;
+                    if (deadlineOnly && data.status !== "Deadline") continue;
+                    if (scrappedOnly && data.status !== "Scrapped") continue;
+                    if (rebuiltOnly && !data.notes.toLowerCase().includes("rebuilt")) continue;
+                    
+                    // Apply photo filters
+                    if (includePhotos === "with" && (!data.photos || data.photos.length === 0)) continue;
+                    if (includePhotos === "without" && data.photos && data.photos.length > 0) continue;
+                    
+                    // Add to results
+                    matchFound = true;
+                    
+                    // Create status class
+                    let statusClass = '';
+                    switch (data.status) {
+                        case 'Active': statusClass = 'status-active'; break;
+                        case 'Deadline': statusClass = 'status-deadline'; break;
+                        case 'Scrapped': statusClass = 'status-scrapped'; break;
+                        default: statusClass = '';
+                    }
+                    
+                    results += `
+                        <div class="locomotive-card">
+                            <img src="assets/images/MG_3312.jpg" alt="${rr} ${searchTerm}" class="locomotive-image">
+                            <div class="locomotive-info">
+                                <h3>${rr} ${searchTerm} <span class="status-tag ${statusClass}">${data.status}</span></h3>
+                                
+                                <div class="locomotive-meta">
+                                    <div class="meta-item">
+                                        <i class="icon">📋</i>
+                                        <span>${data.model}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="icon">🏭</i>
+                                        <span>${data.builder}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="icon">📅</i>
+                                        <span>${data.buildDate}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="locomotive-details">
+                                    <div class="detail-row">
+                                        <div class="detail-label">Serial #:</div>
+                                        <div class="detail-value">${data.serialNumber}</div>
+                                    </div>
+                                    <div class="detail-row">
+                                        <div class="detail-label">Location:</div>
+                                        <div class="detail-value">${data.location}</div>
+                                    </div>
+                                    <div class="detail-row">
+                                        <div class="detail-label">Notes:</div>
+                                        <div class="detail-value">${data.notes}</div>
+                                    </div>
+                                </div>
+                                
+                                ${data.photos && data.photos.length > 0 ? 
+                                `<a href="${data.photos[0]}" class="photos-link">
+                                    View ${data.photos.length} Photo${data.photos.length !== 1 ? 's' : ''}
+                                </a>` : 
+                                `<span class="photos-link" style="background: #f0f0f0; color: #999;">No Photos Available</span>`}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // If no specific unit was searched, or nothing found by number, search by other criteria
+            if (!searchTerm || !matchFound) {
+                // Implement more advanced search logic here
+            }
+            
+            // Display results
+            if (results) {
+                resultsDiv.innerHTML = `
+                    <h3 style="margin-bottom: 1.5rem; font-size: 1.3rem;">Locomotive Search Results</h3>
+                    <div class="results-grid">
+                        ${results}
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <h3>No Locomotives Found</h3>
+                        <p>We couldn't find any locomotives matching your search criteria.</p>
+                        
+                        <div class="suggestions">
+                            <h4>Suggestions:</h4>
+                            <ul>
+                                <li>Check the locomotive number for typos</li>
+                                <li>Try searching with fewer filters</li>
+                                <li>Try a different railroad or model</li>
+                                <li>Use just the number without specifying a railroad</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Function to search for photos
+        function searchPhotos() {
+            const unitNumber = document.getElementById('photoUnitSearch').value.trim();
+            const railroad = document.getElementById('photoRailroad').value;
+            const photographer = document.getElementById('photographer').value.trim().toLowerCase();
+            const location = document.getElementById('location').value.trim().toLowerCase();
+            
+            const rosterShots = document.getElementById('rosterShots')?.checked || false;
+            const actionShots = document.getElementById('actionShots')?.checked || false;
+            const detailShots = document.getElementById('detailShots')?.checked || false;
+            const scenicShots = document.getElementById('scenicShots')?.checked || false;
+            
+            const resultsDiv = document.getElementById('searchResults');
+            
+            // Display search query
+            const searchQueryDisplay = document.getElementById('searchQueryDisplay');
+            const queryTextElement = document.getElementById('queryText');
+            
+            if (unitNumber || railroad || photographer || location || rosterShots || actionShots || detailShots || scenicShots) {
+                let queryText = [];
+                if (unitNumber) queryText.push(`Locomotive ${unitNumber}`);
+                if (railroad) queryText.push(`${railroad} Railroad`);
+                if (photographer) queryText.push(`Photographer: ${photographer}`);
+                if (location) queryText.push(`Location: ${location}`);
+                
+                let photoTypes = [];
+                if (rosterShots) photoTypes.push("Roster");
+                if (actionShots) photoTypes.push("Action");
+                if (detailShots) photoTypes.push("Detail");
+                if (scenicShots) photoTypes.push("Scenic");
+                
+                if (photoTypes.length > 0) {
+                    queryText.push(`Photo Types: ${photoTypes.join(', ')}`);
+                }
+                
+                queryTextElement.textContent = queryText.join(', ');
+                searchQueryDisplay.style.display = 'block';
+            } else {
+                searchQueryDisplay.style.display = 'none';
+            }
+            
+            // Filter photos based on criteria
+            let filteredPhotos = [...photos];
+            
+            if (unitNumber) {
+                filteredPhotos = filteredPhotos.filter(photo => photo.unitNumber === unitNumber);
+            }
+            
+            if (railroad) {
+                filteredPhotos = filteredPhotos.filter(photo => photo.railroad === railroad);
+            }
+            
+            if (photographer) {
+                filteredPhotos = filteredPhotos.filter(photo => 
+                    photo.photographer.toLowerCase().includes(photographer)
+                );
+            }
+            
+            if (location) {
+                filteredPhotos = filteredPhotos.filter(photo => 
+                    photo.location.toLowerCase().includes(location)
+                );
+            }
+            
+            // Filter by photo types
+            if (rosterShots || actionShots || detailShots || scenicShots) {
+                filteredPhotos = filteredPhotos.filter(photo => 
+                    (rosterShots && photo.type === 'roster') ||
+                    (actionShots && photo.type === 'action') ||
+                    (detailShots && photo.type === 'detail') ||
+                    (scenicShots && photo.type === 'scenic')
+                );
+            }
+            
+            // Generate results HTML
+            if (filteredPhotos.length > 0) {
+                const photoResults = filteredPhotos.map(photo => `
+                    <div class="locomotive-card">
+                        <img src="assets/images/MG_3312.jpg" alt="${photo.railroad} ${photo.unitNumber}" class="locomotive-image">
+                        <div class="locomotive-info">
+                            <h3>${photo.railroad} ${photo.unitNumber} - ${photo.model}</h3>
+                            
+                            <div class="locomotive-meta">
+                                <div class="meta-item">
+                                    <i class="icon">📍</i>
+                                    <span>${photo.location}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="icon">📅</i>
+                                    <span>${photo.date}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="icon">📷</i>
+                                    <span>${photo.photographer}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="locomotive-details">
+                                <div class="detail-row">
+                                    <div class="detail-value">${photo.description}</div>
+                                </div>
+                            </div>
+                            
+                            <a href="${photo.url}" class="photos-link">
+                                View Photo
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
+                
+                resultsDiv.innerHTML = `
+                    <h3 style="margin-bottom: 1.5rem; font-size: 1.3rem;">Photo Search Results</h3>
+                    <div class="results-grid">
+                        ${photoResults}
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <h3>No Photos Found</h3>
+                        <p>We couldn't find any photos matching your search criteria.</p>
+                        
+                        <div class="suggestions">
+                            <h4>Suggestions:</h4>
+                            <ul>
+                                <li>Check the locomotive number for typos</li>
+                                <li>Try searching with fewer filters</li>
+                                <li>Try a different railroad</li>
+                                <li>Leave some fields blank for broader results</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Reset all filters
+        function resetFilters() {
+            if (currentSearchType === 'locomotive') {
+                // Reset locomotive search inputs
+                document.getElementById('unitSearch').value = '';
+                document.getElementById('model').value = '';
+                document.getElementById('railroad').selectedIndex = 0;
+                document.getElementById('includePhotos').selectedIndex = 0;
+                
+                document.getElementById('activeOnly').checked = false;
+                document.getElementById('deadlineOnly').checked = false;
+                document.getElementById('scrappedOnly').checked = false;
+                document.getElementById('rebuiltOnly').checked = false;
+            } else {
+                // Reset photo search inputs
+                document.getElementById('photoUnitSearch').value = '';
+                document.getElementById('photoRailroad').selectedIndex = 0;
+                document.getElementById('photographer').value = '';
+                document.getElementById('location').value = '';
+                
+                document.getElementById('rosterShots').checked = false;
+                document.getElementById('actionShots').checked = false;
+                document.getElementById('detailShots').checked = false;
+                document.getElementById('scenicShots').checked = false;
+            }
+            
+            // Clear results
+            document.getElementById('searchResults').innerHTML = '';
+        }
+        
+        // Clear search results and reset filters
+        function clearSearch() {
+            // Reset all inputs
+            document.getElementById('unitSearch').value = '';
+            document.getElementById('photoUnitSearch').value = '';
+            document.getElementById('model').value = '';
+            document.getElementById('railroad').selectedIndex = 0;
+            document.getElementById('photoRailroad').selectedIndex = 0;
+            document.getElementById('includePhotos').selectedIndex = 0;
+            document.getElementById('photographer').value = '';
+            document.getElementById('location').value = '';
+            
+            document.getElementById('activeOnly').checked = false;
+            document.getElementById('deadlineOnly').checked = false;
+            document.getElementById('scrappedOnly').checked = false;
+            document.getElementById('rebuiltOnly').checked = false;
+            document.getElementById('rosterShots').checked = false;
+            document.getElementById('actionShots').checked = false;
+            document.getElementById('detailShots').checked = false;
+            document.getElementById('scenicShots').checked = false;
+            
+            // Clear search query display
+            document.getElementById('searchQueryDisplay').style.display = 'none';
+            document.getElementById('queryText').textContent = '';
+            
+            // Clear header search field
+            document.getElementById('headerSearchInput').value = '';
+            
+            // Clear results
+            document.getElementById('searchResults').innerHTML = '';
+            
+            // Update URL to remove query parameter
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.delete('q');
+            window.history.pushState({}, '', newUrl);
+        }
+
+        // Event listeners for keyboard shortcuts
+        document.getElementById('unitSearch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        document.getElementById('photoUnitSearch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        // Check URL parameters for search terms and perform immediate search
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const q = urlParams.get('q');
+            
+            if (q) {
+                // Set the value in both search fields (locomotive and photo)
+                document.getElementById('unitSearch').value = q;
+                document.getElementById('photoUnitSearch').value = q;
+                
+                // Display the query text
+                document.getElementById('queryText').textContent = `"${q}"`;
+                document.getElementById('searchQueryDisplay').style.display = 'block';
+                
+                // Perform immediate search for both photos and locomotives
+                performImmediateSearch(q);
+            }
+            
+            // Setup header search form to perform immediate search
+            document.getElementById('headerSearchForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const searchQuery = document.getElementById('headerSearchInput').value.trim();
+                if (searchQuery) {
+                    // Update URL with query parameter without reloading the page
+                    const newUrl = new URL(window.location);
+                    newUrl.searchParams.set('q', searchQuery);
+                    window.history.pushState({}, '', newUrl);
+                    
+                    // Update search fields and perform search
+                    document.getElementById('unitSearch').value = searchQuery;
+                    document.getElementById('photoUnitSearch').value = searchQuery;
+                    document.getElementById('queryText').textContent = `"${searchQuery}"`;
+                    document.getElementById('searchQueryDisplay').style.display = 'block';
+                    performImmediateSearch(searchQuery);
+                }
+            });
+        });
+        
+        // Function to immediately search without waiting for filter selection
+        function performImmediateSearch(query) {
+            if (!query) return;
+            
+            const resultsDiv = document.getElementById('searchResults');
+            let results = '';
+            
+            // Search in locomotives
+            let locoResults = searchAllLocomotives(query);
+            
+            // Search in photos
+            let photoResults = searchAllPhotos(query);
+            
+            if (locoResults.length > 0 || photoResults.length > 0) {
+                // Display locomotives if any found
+                if (locoResults.length > 0) {
+                    results += `
+                        <h3 style="margin-bottom: 1.5rem; font-size: 1.3rem;">Locomotive Results</h3>
+                        <div class="results-grid">
+                            ${locoResults.join('')}
+                        </div>
+                    `;
+                }
+                
+                // Display photos if any found
+                if (photoResults.length > 0) {
+                    results += `
+                        <h3 style="margin: 2rem 0 1.5rem; font-size: 1.3rem;">Photo Results</h3>
+                        <div class="results-grid">
+                            ${photoResults.join('')}
+                        </div>
+                    `;
+                }
+                
+                resultsDiv.innerHTML = results;
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <h3>No Results Found</h3>
+                        <p>We couldn't find any results matching "${query}".</p>
+                        
+                        <div class="suggestions">
+                            <h4>Suggestions:</h4>
+                            <ul>
+                                <li>Check your spelling</li>
+                                <li>Try more general terms</li>
+                                <li>Try different keywords</li>
+                                <li>Use the advanced filters to refine your search</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Helper function to search all locomotives
+        function searchAllLocomotives(query) {
+            query = query.toLowerCase();
+            let results = [];
+            
+            // Search through all locomotive data
+            for (const [number, railroads] of Object.entries(locomotives)) {
+                for (const [railroad, data] of Object.entries(railroads)) {
+                    // Check if query matches any locomotive data
+                    if (
+                        number.toLowerCase().includes(query) || 
+                        railroad.toLowerCase().includes(query) ||
+                        data.model.toLowerCase().includes(query) ||
+                        data.location.toLowerCase().includes(query) ||
+                        data.notes.toLowerCase().includes(query) ||
+                        data.builder.toLowerCase().includes(query)
+                    ) {
+                        // Create status class
+                        let statusClass = '';
+                        switch (data.status) {
+                            case 'Active': statusClass = 'status-active'; break;
+                            case 'Deadline': statusClass = 'status-deadline'; break;
+                            case 'Scrapped': statusClass = 'status-scrapped'; break;
+                            default: statusClass = '';
+                        }
+                        
+                        results.push(`
+                            <div class="locomotive-card">
+                                <img src="assets/images/MG_3312.jpg" alt="${railroad} ${number}" class="locomotive-image">
+                                <div class="locomotive-info">
+                                    <h3>${railroad} ${number} <span class="status-tag ${statusClass}">${data.status}</span></h3>
+                                    
+                                    <div class="locomotive-meta">
+                                        <div class="meta-item">
+                                            <i class="icon">📋</i>
+                                            <span>${data.model}</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="icon">🏭</i>
+                                            <span>${data.builder}</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="icon">📅</i>
+                                            <span>${data.buildDate}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="locomotive-details">
+                                        <div class="detail-row">
+                                            <div class="detail-label">Location:</div>
+                                            <div class="detail-value">${data.location}</div>
+                                        </div>
+                                        <div class="detail-row">
+                                            <div class="detail-label">Notes:</div>
+                                            <div class="detail-value">${data.notes}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    ${data.photos && data.photos.length > 0 ? 
+                                    `<a href="${data.photos[0]}" class="photos-link">
+                                        View ${data.photos.length} Photo${data.photos.length !== 1 ? 's' : ''}
+                                    </a>` : 
+                                    `<span class="photos-link" style="background: #f0f0f0; color: #999;">No Photos Available</span>`}
+                                </div>
+                            </div>
+                        `);
+                    }
+                }
+            }
+            
+            return results;
+        }
+        
+        // Helper function to search all photos
+        function searchAllPhotos(query) {
+            query = query.toLowerCase();
+            let results = [];
+            
+            // Search through all photo data
+            for (const photo of photos) {
+                // Check if query matches any photo data
+                if (
+                    photo.unitNumber.toLowerCase().includes(query) ||
+                    photo.railroad.toLowerCase().includes(query) ||
+                    photo.model.toLowerCase().includes(query) ||
+                    photo.location.toLowerCase().includes(query) ||
+                    photo.photographer.toLowerCase().includes(query) ||
+                    photo.description.toLowerCase().includes(query) ||
+                    photo.type.toLowerCase().includes(query)
+                ) {
+                    results.push(`
+                        <div class="locomotive-card">
+                            <img src="assets/images/MG_3312.jpg" alt="${photo.railroad} ${photo.unitNumber}" class="locomotive-image">
+                            <div class="locomotive-info">
+                                <h3>${photo.railroad} ${photo.unitNumber} - ${photo.model}</h3>
+                                
+                                <div class="locomotive-meta">
+                                    <div class="meta-item">
+                                        <i class="icon">📍</i>
+                                        <span>${photo.location}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="icon">📅</i>
+                                        <span>${photo.date}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="icon">📷</i>
+                                        <span>${photo.photographer}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="locomotive-details">
+                                    <div class="detail-row">
+                                        <div class="detail-value">${photo.description}</div>
+                                    </div>
+                                </div>
+                                
+                                <a href="${photo.url}" class="photos-link">
+                                    View Photo
+                                </a>
+                            </div>
+                        </div>
+                    `);
+                }
+
+</body>
+</html>

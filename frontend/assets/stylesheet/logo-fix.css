@@ -1,0 +1,44 @@
+/**
+ * Fix for header elements in dark mode to maintain size and positioning
+ */
+
+/* Ensure the logo is positioned correctly in the header */
+[data-theme="dark"] header a[href="index.html"],
+[data-theme="light"] header a[href="index.html"] {
+    display: flex !important;
+    align-items: center !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    transform: none !important;
+    scale: 1 !important;
+}
+
+/* Maintain logo dimensions - prevent any size changes */
+[data-theme="dark"] header img[alt="Logo"],
+[data-theme="light"] header img[alt="Logo"] {
+    max-width: 300px !important;
+    height: auto !important;
+    transform: none !important;
+    scale: 1 !important;
+    width: 300px !important;
+}
+
+/* Ensure header layout is consistent */
+[data-theme="dark"] header div[style*="display: flex; flex-direction: column"],
+[data-theme="light"] header div[style*="display: flex; flex-direction: column"] {
+    display: flex;
+    flex-direction: column;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Ensure the top row layout is consistent */
+[data-theme="dark"] div[style*="justify-content: space-between; align-items: center; margin-bottom: 1rem"],
+[data-theme="light"] div[style*="justify-content: space-between; align-items: center; margin-bottom: 1rem"] {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    width: 100%;
+}
