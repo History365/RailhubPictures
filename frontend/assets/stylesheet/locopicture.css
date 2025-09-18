@@ -1,0 +1,276 @@
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: #333;
+            background-color: white;
+            padding-top: 124px;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .content {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            text-align: left;
+        }
+
+        .content h1,
+        .content h2,
+        .content .breadcrumb,
+        .content .locomotive-info,
+        .content .photo-grid {
+            margin-left: 0;
+            margin-right: 0;
+            max-width: 100%;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 2rem;
+            margin: 0.5rem auto;
+            max-width: 900px;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .photo-grid {
+                grid-template-columns: minmax(0, 600px);
+                justify-content: center;
+            }
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0 auto 2rem;
+            color: #666;
+            font-size: 0.95rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb a {
+            color: #444;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: #000;
+        }
+
+        .breadcrumb span {
+            color: #999;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #222;
+        }
+
+        .locomotive-info {
+            max-width: 100%;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: minmax(140px, auto) 1fr;
+            text-align: left;
+        }
+
+        .info-grid dt {
+            padding: 1rem;
+            font-weight: 500;
+            color: #555;
+            background: #f8f8f8;
+            border-bottom: 1px solid #eee;
+            text-align: right;
+            width: 140px;
+        }
+
+        .info-grid dd {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-grid dt:last-of-type,
+        .info-grid dd:last-of-type {
+            border-bottom: none;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+        
+        .photo-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            display: flex;
+            width: 100%;
+            box-shadow: 0 1px 3px rgba(255, 255, 255, 0.05);
+            min-height: 180px;
+        }
+
+        .photo-image {
+            width: 250px;
+            object-fit: contain;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-right: 1px solid #eee;
+            height: 100%;
+            position: relative;
+        }
+
+        .photo-details {
+            padding: 0.75rem 1rem;
+            flex: 1;
+            overflow: visible;
+            min-width: 0;
+        }
+
+        .photo-details h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #222;
+        }
+
+        .photo-meta {
+            display: flex;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            gap: 1.5rem;
+        }
+        
+        .photo-meta dt {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .photo-meta dd {
+            color: #333;
+        }
+        
+        .photo-description {
+            font-size: 0.8rem;
+            color: #666;
+            padding-top: 0.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .photo-meta dt {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .photo-meta a {
+            color: #444;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .photo-meta a:hover {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        .photo-description {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .photo-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .photo-info {
+            padding: 2rem;
+            border-top: 1px solid #eee;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 2rem;
+            color: #666;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+
+        .breadcrumb a {
+            color: #444;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: #999;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .locomotive-header {
+                padding: 1.5rem;
+                margin: 1rem auto;
+            }
+
+            .photo-info {
+                padding: 1.5rem;
+            }
+        }
