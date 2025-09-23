@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,7 +15,35 @@
     <script src="assets/scripts/api-loader.js"></script>
     <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
     <script src="assets/scripts/cloudflare/photo-display.js"></script>
-    <script src="assets/scripts/cloudflare/cloudflare-integration.js"></script>
+    <script src="assets/scripts/cloudflare/cloudflar            // Mobile search functionality
+            const mobileSearchToggle = document.querySelector('.mobile-search-toggle');
+            const mobileSearchForm = document.querySelector('.mobile-search-form');
+            
+            if (mobileSearchToggle && mobileSearchForm) {
+                mobileSearchToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    mobileSearchForm.classList.toggle('active');
+                    
+                    // Focus the search input when opened
+                    if (mobileSearchForm.classList.contains('active')) {
+                        setTimeout(() => {
+                            const searchInput = mobileSearchForm.querySelector('input[type="text"]');
+                            if (searchInput) {
+                                searchInput.focus();
+                            }
+                        }, 300);
+                    }
+                });
+                
+                // Close search when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (mobileSearchForm.classList.contains('active') && 
+                        !mobileSearchForm.contains(e.target) && 
+                        e.target !== mobileSearchToggle) {
+                        mobileSearchForm.classList.remove('active');
+                    }
+                });
+            }ion.js"></script>
     <script src="assets/scripts/footer.js" defer></script>
     <script
       async
@@ -58,6 +87,12 @@
             text-align: center;
             color: #fff;
             margin-top: 120px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero {
+                margin-top: 95px; /* Adjusted margin on mobile to account for date */
+            }
         }
 
         .hero-content {
@@ -230,44 +265,440 @@
             font-weight: 500;
             font-size: 1.1em;
         }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            /* Hide desktop navigation and show mobile elements */
+            .desktop-nav {
+                display: none !important;
+            }
+            
+            .mobile-nav-button {
+                display: flex !important;
+                padding: 0.5rem;
+                margin-left: -0.25rem;
+                width: 36px !important;
+                height: 36px !important;
+            }
+            
+            .mobile-search-toggle {
+                display: flex !important;
+                margin-right: -0.5rem;
+            }
+            
+            .header-date {
+                display: none !important;
+            }
+            
+            .mobile-date-container {
+                display: flex !important;
+                justify-content: center;
+                width: 100%;
+                margin-top: 0.5rem;
+                padding: 0 1rem;
+            }
+            
+            .mobile-date {
+                display: inline-block !important;
+                font-size: 0.85em;
+                color: #444;
+                padding: 0.4rem 0.1rem;
+                font-weight: 500;
+                letter-spacing: 0.02em;
+            }
+            
+            .logo-container {
+                flex-grow: 1;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .logo-container img {
+                max-width: 160px !important;
+                max-height: 38px !important;
+                display: block;
+                margin: 0 auto;
+                object-fit: contain;
+            }
+            
+            .header-top-row {
+                padding: 0.5rem 0;
+                position: relative;
+            }
+            
+            /* Position the mobile date container properly */
+            .mobile-date-container {
+                position: absolute;
+                bottom: -1.4rem;
+                left: 0;
+                right: 0;
+                z-index: 10;
+            }
+            
+            /* Hide all buttons except auth when not signed in */
+            .header-buttons-container {
+                gap: 0.75rem !important;
+            }
+            
+            /* When signed in, hide extra elements */
+            body.user-signed-in .header-buttons-container .mobile-search-toggle,
+            body.user-signed-in #auth-buttons {
+                display: none !important;
+            }
+            
+            #userInfo {
+                margin-right: -0.5rem;
+            }
+            
+            .upload-button {
+                display: none !important;
+            }
+            
+            .search-form {
+                display: none !important;
+            }
+            
+            /* Simplify the header when signed in - just logo and hamburger */
+            body.user-signed-in .logo-container {
+                flex-grow: 1;
+            }
+        }
+        
+        /* Mobile menu styles */
+        .mobile-nav-button {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            align-items: center;
+            justify-content: center;
+            color: #444;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+            width: 40px;
+            height: 40px;
+            z-index: 20; /* Ensure menu button is above date container */
+        }
+        
+        .mobile-nav-button:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .mobile-nav-button svg {
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-nav-button.active svg {
+            transform: scale(0.85);
+        }
+        
+        .mobile-menu-container {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: #fff;
+            z-index: 2000;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            overflow-y: auto;
+            padding: 1rem;
+            opacity: 0;
+        }
+        
+        .mobile-menu-container.active {
+            left: 0;
+            opacity: 1;
+        }
+        
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
+        
+        .mobile-menu-overlay.active {
+            display: block;
+        }
+        
+        .mobile-menu-close {
+            position: absolute;
+            top: 0.7rem;
+            right: 0.7rem;
+            background: none;
+            border: none;
+            padding: 0.3rem;
+            cursor: pointer;
+            color: #444;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-menu-close:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .mobile-menu-nav {
+            display: flex;
+            flex-direction: column;
+            margin-top: 2rem;
+        }
+        
+        .mobile-menu-nav a {
+            color: #444;
+            text-decoration: none;
+            padding: 0.9rem 0.7rem;
+            border-radius: 6px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.4rem;
+            transition: all 0.2s ease;
+        }
+        
+        .mobile-menu-nav a:hover {
+            background-color: #f5f5f5;
+            color: #000;
+        }
+        
+        .mobile-menu-nav a:active {
+            background-color: #ebebeb;
+            transform: scale(0.98);
+        }
+        
+        .mobile-menu-nav a:last-child {
+            margin-bottom: 0;
+        }
+        
+        .mobile-menu-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .mobile-search-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #444;
+            padding: 0.5rem;
+        }
+        
+        .mobile-search-form {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 1rem;
+            border-top: 1px solid #eee;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1500;
+            display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-search-form.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .mobile-search-form input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .mobile-search-form input[type="text"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        
+        .mobile-search-form button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            margin-top: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        
+        .mobile-search-form button:hover {
+            background-color: #0069d9;
+        }
+        
+        .user-profile-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .user-profile-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #f5f5f5;
+        }
+        
+        .mobile-search-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #444;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .mobile-search-toggle:hover {
+            background-color: #f5f5f5;
+        }
+        
+        @media (max-width: 768px) {
+            .username-text {
+                display: none;
+            }
+            
+            header {
+                padding-bottom: 2rem !important; /* Space for the date */
+                padding-top: 0.5rem !important; /* Less padding on top */
+            }
+            
+            /* Make auth buttons smaller and icon-only on mobile */
+            #auth-buttons .cl-userButtonTrigger span,
+            #auth-buttons .cl-button span {
+                display: none !important;
+            }
+            
+            #auth-buttons .cl-userButtonTrigger,
+            #auth-buttons .cl-button {
+                padding: 0.5rem !important;
+                min-width: unset !important;
+                width: 36px !important;
+                height: 36px !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: #f5f5f5 !important;
+            }
+            
+            #auth-buttons {
+                gap: 0.6rem !important;
+                margin-right: -0.25rem;
+            }
+            
+            .header-top-row {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            
+            .logo-container img {
+                max-height: 40px !important;
+                width: auto !important;
+            }
+        }
     </style></head>
 <body>
     <!-- Header -->
     <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee; box-sizing: border-box;">
         <div style="display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
             <!-- Top Row with Logo and Account -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <a href="index.html" style="display: flex; align-items: center;">
+            <div class="header-top-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <!-- Hamburger Menu Button (Mobile Only) -->
+                <button class="mobile-nav-button" aria-label="Menu" style="display: none;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                
+                <a href="index.html" class="logo-container" style="display: flex; flex-direction: column; align-items: flex-start;">
                     <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 300px; height: auto;">
                 </a>
-                <div style="display: flex; align-items: center; gap: 2rem;">
+                
+                <!-- Mobile date container (hidden on desktop) -->
+                <div class="mobile-date-container" style="display: none;">
+                    <span class="mobile-date"></span>
+                </div>
+                
+                <div class="header-buttons-container" style="display: flex; align-items: center; gap: 2rem;">
+                    <!-- Mobile Search Toggle (hidden on desktop) -->
+                    <button class="mobile-search-toggle" aria-label="Search" style="display: none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+                    
+                    <!-- User Info -->
                     <span style="color: #666; font-size: 0.95em;" id="userInfo"></span>
-                    <script>
-                        var today = new Date();
-                        var dd = String(today.getDate()).padStart(2, '0');
-                        var mm = String(today.getMonth() + 1).padStart(2, '0');
-                        var yyyy = today.getFullYear();
-                        document.write('<span style="color: #666;">' + mm + '/' + dd + '/' + yyyy + '</span>');
-                    </script>
+                    
+                    <!-- Date (desktop only) -->
+                    <span class="header-date" style="color: #666; font-size: 0.95em;">
+                        <script>
+                            var today = new Date();
+                            var dd = String(today.getDate()).padStart(2, '0');
+                            var mm = String(today.getMonth() + 1).padStart(2, '0');
+                            var yyyy = today.getFullYear();
+                            document.write(mm + '/' + dd + '/' + yyyy);
+                            
+                            // Also set content for mobile date
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const mobileDateEl = document.querySelector('.mobile-date');
+                                if (mobileDateEl) {
+                                    mobileDateEl.textContent = mm + '/' + dd + '/' + yyyy;
+                                }
+                            });
+                        </script>
+                    </span>
+                    
+                    <!-- Auth buttons -->
                     <div style="display: flex; gap: 1rem;" id="auth-buttons">
                         <!-- Auth buttons will be dynamically inserted by Clerk -->
                     </div>
                 </div>
             </div>
-            <!-- Bottom Row with Navigation and Search -->
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            
+            <!-- Bottom Row with Navigation and Search (Desktop Only) -->
+            <div class="desktop-nav" style="display: flex; justify-content: space-between; align-items: center;">
                 <nav style="display: flex; gap: 2.5rem;">
                     <a href="index.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Home</a>
                     <a href="newestphotos.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Newest Photos</a>
                     <a href="contribPicks.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Contributor Picks</a>
                     <a href="railroadList.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Railroads</a>
                 </nav>
-                <div style="display: flex; gap: 1.5rem; align-items: center; margin-left: 4rem;">
+                <div class="search-form" style="display: flex; gap: 1.5rem; align-items: center; margin-left: 4rem;">
                     <form action="search.html" method="get" style="display: flex; gap: 0.5rem;">
                         <input type="text" name="q" placeholder="Search..." style="padding: 0.7em 1em; border: 1px solid #eee; border-radius: 6px; font-size: 0.95em; width: 240px; background: #f5f5f5; color: #444; font-family: 'Inter', sans-serif;">
                         <button type="submit" style="background: #444; color: #fff; border: none; padding: 0.7em 1.2em; border-radius: 6px; font-size: 0.95em; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500;">Search</button>
                     </form>
-                    <a href="upload.html" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 0.95em; background: #444; padding: 0.7em 1.4em; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <a href="upload.html" class="upload-button" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 0.95em; background: #444; padding: 0.7em 1.4em; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
@@ -278,7 +709,80 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Mobile Search Form (hidden by default) -->
+        <div class="mobile-search-form" style="display: none;">
+            <form action="search.html" method="get" style="display: flex; gap: 0.5rem; padding: 1rem 2rem;">
+                <input type="text" name="q" placeholder="Search..." style="padding: 0.7em 1em; border: 1px solid #eee; border-radius: 6px; font-size: 0.95em; flex: 1; background: #f5f5f5; color: #444; font-family: 'Inter', sans-serif;">
+                <button type="submit" style="background: #444; color: #fff; border: none; padding: 0 1em; border-radius: 6px; cursor: pointer;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </form>
+        </div>
     </header>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay"></div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu-container">
+        <button class="mobile-menu-close" aria-label="Close menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        
+        <div class="mobile-menu-header">
+            <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 160px; margin: 0 auto;">
+        </div>
+        
+        <nav class="mobile-menu-nav">
+            <a href="index.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Home
+            </a>
+            <a href="newestphotos.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                Newest Photos
+            </a>
+            <a href="contribPicks.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Contributor Picks
+            </a>
+            <a href="railroadList.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 10h-4v4h4v-4z"></path>
+                    <path d="M10 10H6v4h4v-4z"></path>
+                    <path d="M18 17h-4v4h4v-4z"></path>
+                    <path d="M10 17H6v4h4v-4z"></path>
+                    <path d="M18 3h-4v4h4V3z"></path>
+                    <path d="M10 3H6v4h4V3z"></path>
+                </svg>
+                Railroads
+            </a>
+            <a href="upload.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Upload Photos
+            </a>
+        </nav>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -468,7 +972,134 @@
                     footer.style.width = '100%';
                 }
             }, 100);
+            
+            // Mobile menu functionality
+            const mobileMenuButton = document.querySelector('.mobile-nav-button');
+            const mobileMenu = document.querySelector('.mobile-menu-container');
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            const mobileMenuClose = document.querySelector('.mobile-menu-close');
+            
+            if (mobileMenuButton && mobileMenu && mobileMenuOverlay && mobileMenuClose) {
+                // Open mobile menu
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.add('active');
+                    mobileMenuOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                    mobileMenuButton.classList.add('active'); // Add active class to the button
+                });
+                
+                // Close mobile menu (via close button)
+                mobileMenuClose.addEventListener('click', function() {
+                    closeMobileMenu();
+                });
+                
+                // Close mobile menu (via overlay click)
+                mobileMenuOverlay.addEventListener('click', function() {
+                    closeMobileMenu();
+                });
+                
+                // Close mobile menu and reset state
+                function closeMobileMenu() {
+                    mobileMenu.classList.remove('active');
+                    mobileMenuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                    mobileMenuButton.classList.remove('active');
+                }
+                
+                // Add animation delay to menu items
+                const menuItems = document.querySelectorAll('.mobile-menu-nav a');
+                menuItems.forEach((item, index) => {
+                    item.style.transitionDelay = (0.1 + index * 0.05) + 's';
+                });
+            }
+            
+            // Mobile search functionality
+            const mobileSearchToggle = document.querySelector('.mobile-search-toggle');
+            const mobileSearchForm = document.querySelector('.mobile-search-form');
+            
+            if (mobileSearchToggle && mobileSearchForm) {
+                mobileSearchToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    mobileSearchForm.style.display = mobileSearchForm.style.display === 'block' ? 'none' : 'block';
+                });
+                
+                // Close search form when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!mobileSearchForm.contains(e.target) && !mobileSearchToggle.contains(e.target)) {
+                        mobileSearchForm.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Handle user profile display
+            function updateUserInterface() {
+                // This function will handle displaying user profile picture when signed in
+                // For demonstration, checking if Clerk has user info
+                if (window.Clerk && window.Clerk.user) {
+                    // Mark body as signed in for CSS targeting
+                    document.body.classList.add('user-signed-in');
+                    
+                    const userInfo = document.getElementById('userInfo');
+                    if (userInfo) {
+                        const user = window.Clerk.user;
+                        
+                        // Create profile container
+                        const profileContainer = document.createElement('div');
+                        profileContainer.className = 'user-profile-container';
+                        
+                        // Add profile picture if available
+                        if (user.profileImageUrl) {
+                            const profilePic = document.createElement('img');
+                            profilePic.src = user.profileImageUrl;
+                            profilePic.alt = user.fullName || user.username || 'User';
+                            profilePic.className = 'user-profile-pic';
+                            profileContainer.appendChild(profilePic);
+                        }
+                        
+                        // Add username (only visible on desktop)
+                        const usernameSpan = document.createElement('span');
+                        usernameSpan.textContent = user.fullName || user.username || 'User';
+                        usernameSpan.className = 'username-text';
+                        profileContainer.appendChild(usernameSpan);
+                        
+                        // Replace content
+                        userInfo.innerHTML = '';
+                        userInfo.appendChild(profileContainer);
+                    }
+                    
+                    // Additional setup for mobile view when signed in
+                    setupMobileAuthButtons();
+                } else {
+                    // User not signed in
+                    document.body.classList.remove('user-signed-in');
+                    setupMobileAuthButtons();
+                }
+            }
+            
+            // Function to set up auth buttons for mobile
+            function setupMobileAuthButtons() {
+                // Check for auth buttons after a short delay to ensure Clerk has rendered them
+                setTimeout(() => {
+                    const authButtons = document.querySelectorAll('#auth-buttons .cl-button, #auth-buttons .cl-userButtonTrigger');
+                    
+                    authButtons.forEach(button => {
+                        // Make sure icons are visible while text can be hidden with CSS
+                        const icon = button.querySelector('svg, img');
+                        if (icon) {
+                            icon.style.margin = '0 auto';
+                        }
+                    });
+                }, 500);
+            }
+            
+            // Call this function if Clerk is loaded
+            if (window.Clerk) {
+                window.Clerk.addListener(updateUserInterface);
+            } else {
+                document.addEventListener('clerk-ready', updateUserInterface);
+            }
         });
     </script>
+<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f241e05c96544681a1d25bb8679ad028"}'></script><!-- Cloudflare Pages Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"bf34209a073f4713bc2da36b35669ffd","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html> 
