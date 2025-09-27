@@ -1,50 +1,31 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home | Railhub Pictures</title>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="assets/stylesheet/theme.css" rel="stylesheet">
-    <link href="assets/stylesheet/styles.css" rel="stylesheet">
-    <link href="assets/stylesheet/homepage.css" rel="stylesheet">
-    <link href="assets/stylesheet/homepage2.css" rel="stylesheet">
+    <!-- Bootstrap CSS - Only load the theme needed -->
+    <script>
+        // Immediately set theme based on localStorage or default
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    
+    <!-- Site Scripts -->
     <script src="assets/scripts/api-loader.js"></script>
     <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
     <script src="assets/scripts/cloudflare/photo-display.js"></script>
-    <script src="assets/scripts/cloudflare/cloudflar            // Mobile search functionality
-            const mobileSearchToggle = document.querySelector('.mobile-search-toggle');
-            const mobileSearchForm = document.querySelector('.mobile-search-form');
-            
-            if (mobileSearchToggle && mobileSearchForm) {
-                mobileSearchToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    mobileSearchForm.classList.toggle('active');
-                    
-                    // Focus the search input when opened
-                    if (mobileSearchForm.classList.contains('active')) {
-                        setTimeout(() => {
-                            const searchInput = mobileSearchForm.querySelector('input[type="text"]');
-                            if (searchInput) {
-                                searchInput.focus();
-                            }
-                        }, 300);
-                    }
-                });
-                
-                // Close search when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (mobileSearchForm.classList.contains('active') && 
-                        !mobileSearchForm.contains(e.target) && 
-                        e.target !== mobileSearchToggle) {
-                        mobileSearchForm.classList.remove('active');
-                    }
-                });
-            }ion.js"></script>
+    <script src="assets/scripts/cloudflare/cloudflare-integration.js"></script>
     <script src="assets/scripts/footer.js" defer></script>
+    
+    <!-- Clerk Authentication -->
     <script
       async
       crossorigin="anonymous"
@@ -53,1043 +34,540 @@
       type="text/javascript">
     </script>
     <script src="assets/scripts/clerk-auth.js"></script>
+    
+    <!-- Custom CSS to maintain original design with Bootstrap -->
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        
         body {
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
             color: #333;
-            background-color: #f8f8f8;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
         }
-
+        
+        /* Typography styling to match original design */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+        
+        /* Navbar styling to match original */
+        .navbar-brand img {
+            max-height: 40px;
+        }
+        
+        .nav-link {
+            color: #444 !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .nav-link.active {
+            color: #222 !important;
+            font-weight: 600;
+        }
+        
+        /* Hero section styling */
         .hero {
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('assets/images/CSC_0371.jpg');
             background-size: cover;
             background-position: center;
             height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #fff;
-            margin-top: 120px;
+            color: white;
+            margin-top: 76px; /* To account for fixed navbar */
         }
         
-        @media (max-width: 768px) {
-            .hero {
-                margin-top: 95px; /* Adjusted margin on mobile to account for date */
-            }
-        }
-
-        .hero-content {
-            max-width: 800px;
-            padding: 0 2rem;
-        }
-
-        .hero h1 {
-            font-size: 3em;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-
-        .hero p {
-            font-size: 1.2em;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-
         .cta-button {
-            display: inline-block;
-            padding: 1em 2em;
             background: rgba(68, 68, 68, 0.5);
-            color: #fff;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
             backdrop-filter: blur(5px);
-            transition: all 0.2s ease;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+            padding: 0.8rem 1.5rem;
+            font-weight: 500;
         }
-
+        
         .cta-button:hover {
             background: rgba(51, 51, 51, 0.7);
             transform: translateY(-1px);
+            color: white !important;
         }
-
-        .section {
-            padding: 4rem 0;
-            background: #fff;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-title h2 {
-            font-size: 2em;
-            color: #222;
-            margin-bottom: 0.5rem;
-        }
-
-        .section-title p {
-            color: #666;
-            font-size: 1.1em;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .photo-card {
-            background: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            transition: box-shadow 0.2s ease;
-        }
-
-        .photo-card:hover {
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-        }
-
-        .photo-card img {
-            width: 100%;
+        
+        /* Card styling */
+        .railroad-card img, .photo-card img {
             height: 220px;
             object-fit: cover;
         }
-
-        .photo-info {
-            padding: 1.5rem;
-        }
-
-        .photo-info h3 {
-            font-size: 1.1em;
-            margin-bottom: 0.5rem;
-            color: #222;
-        }
-
-        .photo-meta {
-            font-size: 0.9em;
-            color: #666;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .photo-meta a {
-            color: #444;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .photo-meta a:hover {
-            text-decoration: underline;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            text-align: center;
-            margin-top: 3rem;
-        }
-
-        .feature {
-            padding: 2rem;
-        }
-
-        .feature svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 1rem;
-            color: #444;
-        }
-
-        .feature h3 {
-            font-size: 1.2em;
-            margin-bottom: 1rem;
-            color: #222;
-        }
-
-        .feature p {
-            color: #666;
-            font-size: 0.95em;
-        }
-
-        .categories {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .category-card {
-            background: #f8f8f8;
-            padding: 1.5rem;
+        
+        .card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             border-radius: 8px;
-            text-align: center;
-            transition: background-color 0.2s ease;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
-
-        .category-card:hover {
-            background: #eee;
-        }
-
-        .category-card a {
-            color: inherit;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1.1em;
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
         
         /* Mobile-specific styles */
-        @media (max-width: 768px) {
-            /* Hide desktop navigation and show mobile elements */
-            .desktop-nav {
-                display: none !important;
+        @media (max-width: 991.98px) {
+            .hero {
+                margin-top: 56px; /* Smaller navbar on mobile */
             }
             
-            .mobile-nav-button {
-                display: flex !important;
-                padding: 0.5rem;
-                margin-left: -0.25rem;
-                width: 36px !important;
-                height: 36px !important;
+            .navbar-collapse {
+                padding: 1rem 0;
             }
             
-            .mobile-search-toggle {
-                display: flex !important;
-                margin-right: -0.5rem;
+            /* Enhanced mobile search styling */
+            .mobile-search-container {
+                padding: 1rem;
+                border-bottom: 1px solid #eee;
+            }
+        }
+        
+        /* Dark mode specific overrides */
+        [data-bs-theme="dark"] {
+            /* Text adjustments */
+            .text-dark {
+                color: #f8f9fa !important;
             }
             
-            .header-date {
-                display: none !important;
+            /* Background colors */
+            body {
+                background-color: #212529;
+                color: #e9ecef;
             }
             
-            .mobile-date-container {
-                display: flex !important;
-                justify-content: center;
-                width: 100%;
-                margin-top: 0.5rem;
-                padding: 0 1rem;
+            .bg-white {
+                background-color: #212529 !important;
             }
             
-            .mobile-date {
-                display: inline-block !important;
-                font-size: 0.85em;
-                color: #444;
-                padding: 0.4rem 0.1rem;
-                font-weight: 500;
-                letter-spacing: 0.02em;
+            .bg-light {
+                background-color: #343a40 !important;
             }
             
-            .logo-container {
-                flex-grow: 1;
-                justify-content: center;
-                align-items: center;
+            /* Card styling for dark mode */
+            .card {
+                background-color: #343a40;
+                border-color: #495057;
             }
             
-            .logo-container img {
-                max-width: 160px !important;
-                max-height: 38px !important;
-                display: block;
-                margin: 0 auto;
-                object-fit: contain;
+            .card.bg-light {
+                background-color: #2b3035 !important;
             }
             
-            .header-top-row {
-                padding: 0.5rem 0;
-                position: relative;
+            /* Link colors in dark mode */
+            .text-decoration-none.text-dark {
+                color: #e9ecef !important;
             }
             
-            /* Position the mobile date container properly */
-            .mobile-date-container {
-                position: absolute;
-                bottom: -1.4rem;
-                left: 0;
-                right: 0;
-                z-index: 10;
+            a:not(.btn) {
+                color: #6ea8fe;
             }
             
-            /* Hide all buttons except auth when not signed in */
-            .header-buttons-container {
-                gap: 0.75rem !important;
+            a:not(.btn):hover {
+                color: #9ec5fe;
             }
             
-            /* When signed in, hide extra elements */
-            body.user-signed-in .header-buttons-container .mobile-search-toggle,
-            body.user-signed-in #auth-buttons {
-                display: none !important;
+            /* Navbar styling */
+            .navbar-light {
+                background-color: #212529 !important;
             }
             
-            #userInfo {
-                margin-right: -0.5rem;
+            .navbar-light .navbar-brand,
+            .navbar-light .nav-link {
+                color: #e9ecef !important;
             }
             
-            .upload-button {
-                display: none !important;
+            .navbar-light .navbar-toggler-icon {
+                filter: invert(1);
             }
             
-            .search-form {
-                display: none !important;
+            /* List group items */
+            .list-group-item {
+                background-color: #343a40;
+                border-color: #495057;
+                color: #e9ecef;
             }
             
-            /* Simplify the header when signed in - just logo and hamburger */
-            body.user-signed-in .logo-container {
-                flex-grow: 1;
-            }
-        }
-        
-        /* Mobile menu styles */
-        .mobile-nav-button {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            align-items: center;
-            justify-content: center;
-            color: #444;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-            position: relative;
-            width: 40px;
-            height: 40px;
-            z-index: 20; /* Ensure menu button is above date container */
-        }
-        
-        .mobile-nav-button:hover {
-            background-color: #f5f5f5;
-        }
-        
-        .mobile-nav-button svg {
-            transition: transform 0.3s ease;
-        }
-        
-        .mobile-nav-button.active svg {
-            transform: scale(0.85);
-        }
-        
-        .mobile-menu-container {
-            position: fixed;
-            top: 0;
-            left: -280px;
-            width: 280px;
-            height: 100%;
-            background: #fff;
-            z-index: 2000;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(0,0,0,0.15);
-            overflow-y: auto;
-            padding: 1rem;
-            opacity: 0;
-        }
-        
-        .mobile-menu-container.active {
-            left: 0;
-            opacity: 1;
-        }
-        
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1999;
-            display: none;
-        }
-        
-        .mobile-menu-overlay.active {
-            display: block;
-        }
-        
-        .mobile-menu-close {
-            position: absolute;
-            top: 0.7rem;
-            right: 0.7rem;
-            background: none;
-            border: none;
-            padding: 0.3rem;
-            cursor: pointer;
-            color: #444;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .mobile-menu-close:hover {
-            background-color: #f5f5f5;
-        }
-        
-        .mobile-menu-nav {
-            display: flex;
-            flex-direction: column;
-            margin-top: 2rem;
-        }
-        
-        .mobile-menu-nav a {
-            color: #444;
-            text-decoration: none;
-            padding: 0.9rem 0.7rem;
-            border-radius: 6px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            margin-bottom: 0.4rem;
-            transition: all 0.2s ease;
-        }
-        
-        .mobile-menu-nav a:hover {
-            background-color: #f5f5f5;
-            color: #000;
-        }
-        
-        .mobile-menu-nav a:active {
-            background-color: #ebebeb;
-            transform: scale(0.98);
-        }
-        
-        .mobile-menu-nav a:last-child {
-            margin-bottom: 0;
-        }
-        
-        .mobile-menu-header {
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        
-        .mobile-search-toggle {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #444;
-            padding: 0.5rem;
-        }
-        
-        .mobile-search-form {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            background: #fff;
-            padding: 1rem;
-            border-top: 1px solid #eee;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 1500;
-            display: none;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-        }
-        
-        .mobile-search-form.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .mobile-search-form input[type="text"] {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.2s;
-        }
-        
-        .mobile-search-form input[type="text"]:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-        }
-        
-        .mobile-search-form button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            margin-top: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: 100%;
-        }
-        
-        .mobile-search-form button:hover {
-            background-color: #0069d9;
-        }
-        
-        .user-profile-container {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .user-profile-pic {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #f5f5f5;
-        }
-        
-        .mobile-search-toggle {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #444;
-            padding: 0.5rem;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        
-        .mobile-search-toggle:hover {
-            background-color: #f5f5f5;
-        }
-        
-        @media (max-width: 768px) {
-            .username-text {
-                display: none;
+            /* Text colors */
+            .text-muted {
+                color: #adb5bd !important;
             }
             
-            header {
-                padding-bottom: 2rem !important; /* Space for the date */
-                padding-top: 0.5rem !important; /* Less padding on top */
+            /* Border colors */
+            .border, .border-top, .border-bottom {
+                border-color: #495057 !important;
             }
             
-            /* Make auth buttons smaller and icon-only on mobile */
-            #auth-buttons .cl-userButtonTrigger span,
-            #auth-buttons .cl-button span {
-                display: none !important;
+            /* Hero section in dark mode */
+            .hero {
+                background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('assets/images/CSC_0371.jpg');
             }
             
-            #auth-buttons .cl-userButtonTrigger,
-            #auth-buttons .cl-button {
-                padding: 0.5rem !important;
-                min-width: unset !important;
-                width: 36px !important;
-                height: 36px !important;
-                border-radius: 50% !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                background: #f5f5f5 !important;
+            /* Form controls */
+            .form-control, .input-group-text, .btn-outline-secondary {
+                background-color: #343a40;
+                border-color: #495057;
+                color: #e9ecef;
             }
             
-            #auth-buttons {
-                gap: 0.6rem !important;
-                margin-right: -0.25rem;
+            .btn-outline-secondary {
+                color: #e9ecef;
             }
             
-            .header-top-row {
-                padding-top: 0 !important;
-                padding-bottom: 0 !important;
-            }
-            
-            .logo-container img {
-                max-height: 40px !important;
-                width: auto !important;
+            .btn-outline-secondary:hover {
+                background-color: #495057;
+                color: #fff;
             }
         }
-    </style></head>
+    </style>
+</head>
 <body>
-    <!-- Header -->
-    <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee; box-sizing: border-box;">
-        <div style="display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
-            <!-- Top Row with Logo and Account -->
-            <div class="header-top-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <!-- Hamburger Menu Button (Mobile Only) -->
-                <button class="mobile-nav-button" aria-label="Menu" style="display: none;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
-                </button>
+    <!-- Header/Navbar - Using Bootstrap navbar component -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom shadow-sm py-2">
+        <div class="container-fluid container-xxl">
+            <a class="navbar-brand" href="index.html">
+                <img src="assets/images/logos/logo.jpg" alt="Railhub Pictures Logo" height="40">
+            </a>
+            
+            <!-- Mobile: Current Date -->
+            <span class="d-lg-none text-muted small" id="mobile-header-date"></span>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                    aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- Mobile: Search at top -->
+                <form class="d-lg-none mb-3 mt-3" action="search.html" method="get">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="q" placeholder="Search..." aria-label="Search">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
                 
-                <a href="index.html" class="logo-container" style="display: flex; flex-direction: column; align-items: flex-start;">
-                    <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 300px; height: auto;">
-                </a>
+                <!-- Navigation Links -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="newestphotos.html">Newest Photos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contribPicks.html">Contributor Picks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="railroadList.html">Railroads</a>
+                    </li>
+                </ul>
                 
-                <!-- Mobile date container (hidden on desktop) -->
-                <div class="mobile-date-container" style="display: none;">
-                    <span class="mobile-date"></span>
-                </div>
-                
-                <div class="header-buttons-container" style="display: flex; align-items: center; gap: 2rem;">
-                    <!-- Mobile Search Toggle (hidden on desktop) -->
-                    <button class="mobile-search-toggle" aria-label="Search" style="display: none;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                    </button>
-                    
-                    <!-- User Info -->
-                    <span style="color: #666; font-size: 0.95em;" id="userInfo"></span>
-                    
-                    <!-- Date (desktop only) -->
-                    <span class="header-date" style="color: #666; font-size: 0.95em;">
-                        <script>
-                            var today = new Date();
-                            var dd = String(today.getDate()).padStart(2, '0');
-                            var mm = String(today.getMonth() + 1).padStart(2, '0');
-                            var yyyy = today.getFullYear();
-                            document.write(mm + '/' + dd + '/' + yyyy);
-                            
-                            // Also set content for mobile date
-                            document.addEventListener('DOMContentLoaded', function() {
-                                const mobileDateEl = document.querySelector('.mobile-date');
-                                if (mobileDateEl) {
-                                    mobileDateEl.textContent = mm + '/' + dd + '/' + yyyy;
-                                }
-                            });
-                        </script>
-                    </span>
-                    
-                    <!-- Auth buttons -->
-                    <div style="display: flex; gap: 1rem;" id="auth-buttons">
-                        <!-- Auth buttons will be dynamically inserted by Clerk -->
+                <!-- Mobile: Notifications section with divider -->
+                <div class="d-lg-none pt-2 pb-3 border-top mt-2">
+                    <div class="d-flex align-items-center">
+                        <div class="me-auto ps-2">
+                            <strong class="text-dark">Notifications</strong>
+                        </div>
+                        <a href="#" class="text-decoration-none text-muted small me-3">
+                            Mark all read
+                        </a>
+                    </div>
+                    <div class="list-group list-group-flush border-bottom mt-2">
+                        <a href="#" class="list-group-item list-group-item-action py-3 px-2 d-flex">
+                            <div class="rounded-circle bg-light p-2 me-3">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 8v4"></path>
+                                    <path d="M12 16h.01"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="mb-0 small">New photos from UP Railroad added</p>
+                                <small class="text-muted">2 hours ago</small>
+                            </div>
+                        </a>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Bottom Row with Navigation and Search (Desktop Only) -->
-            <div class="desktop-nav" style="display: flex; justify-content: space-between; align-items: center;">
-                <nav style="display: flex; gap: 2.5rem;">
-                    <a href="index.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Home</a>
-                    <a href="newestphotos.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Newest Photos</a>
-                    <a href="contribPicks.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Contributor Picks</a>
-                    <a href="railroadList.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Railroads</a>
-                </nav>
-                <div class="search-form" style="display: flex; gap: 1.5rem; align-items: center; margin-left: 4rem;">
-                    <form action="search.html" method="get" style="display: flex; gap: 0.5rem;">
-                        <input type="text" name="q" placeholder="Search..." style="padding: 0.7em 1em; border: 1px solid #eee; border-radius: 6px; font-size: 0.95em; width: 240px; background: #f5f5f5; color: #444; font-family: 'Inter', sans-serif;">
-                        <button type="submit" style="background: #444; color: #fff; border: none; padding: 0.7em 1.2em; border-radius: 6px; font-size: 0.95em; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500;">Search</button>
-                    </form>
-                    <a href="upload.html" class="upload-button" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 0.95em; background: #444; padding: 0.7em 1.4em; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="17 8 12 3 7 8"/>
-                            <line x1="12" y1="3" x2="12" y2="15"/>
-                        </svg>
-                        Upload
-                    </a>
+                
+                <!-- Desktop: Search Form -->
+                <form class="d-none d-lg-flex me-2" action="search.html" method="get">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="q" placeholder="Search..." aria-label="Search">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Desktop: Current Date -->
+                <span class="d-none d-lg-inline text-muted me-3" id="header-date"></span>
+                
+                <!-- Auth Buttons -->
+                <div id="auth-buttons" class="d-flex align-items-center">
+                    <!-- Will be populated by JavaScript -->
                 </div>
+                
+                <!-- Upload Button -->
+                <a href="upload.html" class="btn btn-dark ms-2 d-none d-lg-inline-flex align-items-center">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Upload
+                </a>
+                
+                <!-- User Info -->
+                <span class="user-info ms-2 d-none d-lg-inline" id="userInfo"></span>
             </div>
         </div>
-        
-        <!-- Mobile Search Form (hidden by default) -->
-        <div class="mobile-search-form" style="display: none;">
-            <form action="search.html" method="get" style="display: flex; gap: 0.5rem; padding: 1rem 2rem;">
-                <input type="text" name="q" placeholder="Search..." style="padding: 0.7em 1em; border: 1px solid #eee; border-radius: 6px; font-size: 0.95em; flex: 1; background: #f5f5f5; color: #444; font-family: 'Inter', sans-serif;">
-                <button type="submit" style="background: #444; color: #fff; border: none; padding: 0 1em; border-radius: 6px; cursor: pointer;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                </button>
-            </form>
-        </div>
-    </header>
-    
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay"></div>
-    
-    <!-- Mobile Menu -->
-    <div class="mobile-menu-container">
-        <button class="mobile-menu-close" aria-label="Close menu">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
-        
-        <div class="mobile-menu-header">
-            <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 160px; margin: 0 auto;">
-        </div>
-        
-        <nav class="mobile-menu-nav">
-            <a href="index.html">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-                Home
-            </a>
-            <a href="newestphotos.html">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                    <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
-                Newest Photos
-            </a>
-            <a href="contribPicks.html">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-                Contributor Picks
-            </a>
-            <a href="railroadList.html">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 10h-4v4h4v-4z"></path>
-                    <path d="M10 10H6v4h4v-4z"></path>
-                    <path d="M18 17h-4v4h4v-4z"></path>
-                    <path d="M10 17H6v4h4v-4z"></path>
-                    <path d="M18 3h-4v4h4V3z"></path>
-                    <path d="M10 3H6v4h4V3z"></path>
-                </svg>
-                Railroads
-            </a>
-            <a href="upload.html">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                Upload Photos
-            </a>
-        </nav>
-    </div>
+    </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Find Your Perfect Railroad Photo</h1>
-            <p>Browse thousands of high-quality railroad photographs by location, railroad, or locomotive model.</p>
-            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
-                <a href="newestphotos.html" class="cta-button">Latest Photos</a>
-                <a href="search.html" class="cta-button" style="background: rgba(255,255,255,0.15);">Search Photos</a>
+    <section class="hero d-flex align-items-center">
+        <div class="container text-center">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <h1 class="display-4 fw-bold mb-3">Find Your Perfect Railroad Photo</h1>
+                    <p class="fs-5 mb-4">Browse thousands of high-quality railroad photographs by location, railroad, or locomotive model.</p>
+                    <div class="d-flex justify-content-center flex-wrap gap-2 mt-4">
+                        <a href="newestphotos.html" class="btn btn-lg cta-button text-white">Latest Photos</a>
+                        <a href="search.html" class="btn btn-lg cta-button text-white" style="background: rgba(255,255,255,0.15);">Search Photos</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Quick Search Section -->
-    <section class="section" style="background: #fff; padding-bottom: 2rem;">
+    <section class="py-5 bg-white">
         <div class="container">
-            <div class="section-title">
-                <h2>Quick Find</h2>
-                <p>Jump straight to what you're looking for</p>
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-2">Quick Find</h2>
+                <p class="text-muted">Jump straight to what you're looking for</p>
             </div>
-            <div class="categories" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-                <div class="category-card" style="background: #f5f5f5;">
-                    <a href="newestphotos.html">Latest Photos</a>
+            <div class="row row-cols-2 row-cols-md-4 g-3">
+                <div class="col">
+                    <a href="newestphotos.html" class="card h-100 text-center text-decoration-none text-dark bg-light border-0 p-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Latest Photos</h5>
+                        </div>
+                    </a>
                 </div>
-                <div class="category-card" style="background: #f5f5f5;">
-                    <a href="contribPicks.html">Popular Photos</a>
+                <div class="col">
+                    <a href="contribPicks.html" class="card h-100 text-center text-decoration-none text-dark bg-light border-0 p-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Popular Photos</h5>
+                        </div>
+                    </a>
                 </div>
-                <div class="category-card" style="background: #f5f5f5;">
-                    <a href="photoCalendar.html">Photos by Date</a>
+                <div class="col">
+                    <a href="photoCalendar.html" class="card h-100 text-center text-decoration-none text-dark bg-light border-0 p-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Photos by Date</h5>
+                        </div>
+                    </a>
                 </div>
-                <div class="category-card" style="background: #f5f5f5;">
-                    <a href="search.html">Advanced Search</a>
+                <div class="col">
+                    <a href="search.html" class="card h-100 text-center text-decoration-none text-dark bg-light border-0 p-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Advanced Search</h5>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Browse By Railroad -->
-    <section class="section" style="background: #f8f8f8; padding-top: 2rem;">
+    <section class="py-5 bg-light">
         <div class="container">
-            <div class="section-title">
-                <h2>Major Railroads</h2>
-                <p>Find photos from North America's largest railroads</p>
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-2">Major Railroads</h2>
+                <p class="text-muted">Find photos from North America's largest railroads</p>
             </div>
-            <div class="photo-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                <a href="Railroadid=UP.html" class="railroad-card" style="text-decoration: none;">
-                    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <img src="assets/images/cachedImage (1).jpg" alt="Union Pacific" style="width: 100%; height: 160px; object-fit: cover;">
-                        <div style="padding: 1rem; text-align: center;">
-                            <h3 style="color: #333; font-size: 1.1em; margin-bottom: 0.5rem;">Union Pacific</h3>
-                            <span style="color: #666; font-size: 0.9em;">View Photos »</span>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                <div class="col">
+                    <a href="Railroadid=UP.html" class="railroad-card text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            <img src="assets/images/railroads/up.jpg" class="card-img-top" alt="Union Pacific">
+                            <div class="card-body">
+                                <h5 class="card-title">Union Pacific</h5>
+                                <p class="card-text text-muted">Western United States</p>
+                            </div>
                         </div>
-                    </div>
-                </a>
-                <a href="Railroadid=BNSF.html" class="railroad-card" style="text-decoration: none;">
-                    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <img src="assets/images/CSC_0302.jpg" alt="BNSF Railway" style="width: 100%; height: 160px; object-fit: cover;">
-                        <div style="padding: 1rem; text-align: center;">
-                            <h3 style="color: #333; font-size: 1.1em; margin-bottom: 0.5rem;">BNSF Railway</h3>
-                            <span style="color: #666; font-size: 0.9em;">View Photos »</span>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="Railroadid=BNSF.html" class="railroad-card text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            <img src="assets/images/railroads/bnsf.jpg" class="card-img-top" alt="BNSF Railway">
+                            <div class="card-body">
+                                <h5 class="card-title">BNSF Railway</h5>
+                                <p class="card-text text-muted">Western & Central US</p>
+                            </div>
                         </div>
-                    </div>
-                </a>
-                <a href="Railroadid=CSX.html" class="railroad-card" style="text-decoration: none;">
-                    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <img src="assets/images/DSC00948.jpg" alt="CSX Transportation" style="width: 100%; height: 160px; object-fit: cover;">
-                        <div style="padding: 1rem; text-align: center;">
-                            <h3 style="color: #333; font-size: 1.1em; margin-bottom: 0.5rem;">CSX Transportation</h3>
-                            <span style="color: #666; font-size: 0.9em;">View Photos »</span>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="Railroadid=CSX.html" class="railroad-card text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            <img src="assets/images/railroads/csx.jpg" class="card-img-top" alt="CSX Transportation">
+                            <div class="card-body">
+                                <h5 class="card-title">CSX Transportation</h5>
+                                <p class="card-text text-muted">Eastern United States</p>
+                            </div>
                         </div>
-                    </div>
-                </a>
-                <a href="Railroadid=NS.html" class="railroad-card" style="text-decoration: none;">
-                    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <img src="assets/images/472070735_1580262769264924_2326834061653819060_n.jpg" alt="Norfolk Southern" style="width: 100%; height: 160px; object-fit: cover;">
-                        <div style="padding: 1rem; text-align: center;">
-                            <h3 style="color: #333; font-size: 1.1em; margin-bottom: 0.5rem;">Norfolk Southern</h3>
-                            <span style="color: #666; font-size: 0.9em;">View Photos »</span>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="Railroadid=NS.html" class="railroad-card text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            <img src="assets/images/railroads/ns.jpg" class="card-img-top" alt="Norfolk Southern">
+                            <div class="card-body">
+                                <h5 class="card-title">Norfolk Southern</h5>
+                                <p class="card-text text-muted">Eastern United States</p>
+                            </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
             </div>
-            <div style="text-align: center; margin-top: 2rem;">
-                <a href="railroadList.html" style="display: inline-block; padding: 0.8em 2em; background: #444; color: white; text-decoration: none; border-radius: 6px; font-weight: 500;">View All Railroads</a>
+            <div class="text-center mt-4">
+                <a href="railroadList.html" class="btn btn-dark">View All Railroads</a>
             </div>
         </div>
     </section>
 
     <!-- Browse By Category -->
-    <section class="section" style="background: #fff;">
+    <section class="py-5 bg-white">
         <div class="container">
-            <div class="section-title">
-                <h2>Browse By Category</h2>
-                <p>Find exactly what you're looking for</p>
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-2">Browse By Category</h2>
+                <p class="text-muted">Find exactly what you're looking for</p>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+            <div class="row row-cols-1 row-cols-md-3 g-4">
                 <!-- Locomotive Models -->
-                <div style="background: #f8f8f8; padding: 2rem; border-radius: 8px;">
-                    <h3 style="font-size: 1.2em; margin-bottom: 1rem; color: #333;">Locomotive Models</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="margin-bottom: 0.8rem;">
-                            <a href="modelListid=SD70MAC.html" style="color: #444; text-decoration: none; display: flex; justify-content: space-between; align-items: center;">
-                                <span>EMD SD70MAC</span>
-                                <span style="color: #666;">›</span>
-                            </a>
-                        </li>
-                        <li style="margin-bottom: 0.8rem;">
-                            <a href="modelListid=ES44AC.html" style="color: #444; text-decoration: none; display: flex; justify-content: space-between; align-items: center;">
-                                <span>GE ES44AC</span>
-                                <span style="color: #666;">›</span>
-                            </a>
-                        </li>
-                        <li style="margin-bottom: 0.8rem;">
-                            <a href="modelList.html" style="color: #444; text-decoration: none; display: flex; justify-content: space-between; align-items: center;">
-                                <span>View All Models</span>
-                                <span style="color: #666;">›</span>
-                            </a>
-                        </li>
-                    </ul>
+                <div class="col">
+                    <div class="card h-100 bg-light border-0">
+                        <div class="card-body">
+                            <h3 class="h5 mb-3">Locomotive Models</h3>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="search.html?model=SD70ACe" class="text-decoration-none text-dark">SD70ACe</a></li>
+                                <li class="mb-2"><a href="search.html?model=ES44AC" class="text-decoration-none text-dark">ES44AC</a></li>
+                                <li class="mb-2"><a href="search.html?model=SD40-2" class="text-decoration-none text-dark">SD40-2</a></li>
+                                <li class="mb-2"><a href="search.html?model=GP38-2" class="text-decoration-none text-dark">GP38-2</a></li>
+                                <li class="mb-2"><a href="search.html?model=ET44AC" class="text-decoration-none text-dark">ET44AC</a></li>
+                                <li class="mb-2"><a href="search.html?model=AC4400CW" class="text-decoration-none text-dark">AC4400CW</a></li>
+                                <li class="mb-2"><a href="search.html?modeltype=all" class="text-decoration-none text-dark fw-medium">View All Models →</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Locations -->
-                <div style="background: #f8f8f8; padding: 2rem; border-radius: 8px;">
-                    <h3 style="font-size: 1.2em; margin-bottom: 1rem; color: #333;">Popular Locations</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="margin-bottom: 0.8rem;">
-                            <a href="search.html?location=Chicago" style="color: #444; text-decoration: none; display: flex; justify-content: space-between; align-items: center;">
-                                <span>Chicago, IL</span>
-                                <span style="color: #666;">›</span>
-                            </a>
-                        </li>
-                        <li style="margin-bottom: 0.8rem;">
-                            <a href="search.html?location=Los+Angeles" style="color: #444; text-decoration: none; display: flex; justify-content: space-between; align-items: center;">
-                                <span>Los Angeles, CA</span>
-                                <span style="color: #666;">›</span>
-                            </a>
-                        </li>
-                        <li style="margin-bottom: 0.8rem;">
-                            <a href="search.html" style="color: #444; text-decoration: none; display: flex; justify-content: space-between; align-items: center;">
-                                <span>Search by Location</span>
-                                <span style="color: #666;">›</span>
-                            </a>
-                        </li>
-                    </ul>
+                <div class="col">
+                    <div class="card h-100 bg-light border-0">
+                        <div class="card-body">
+                            <h3 class="h5 mb-3">Popular Locations</h3>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="search.html?location=Cajon Pass" class="text-decoration-none text-dark">Cajon Pass, CA</a></li>
+                                <li class="mb-2"><a href="search.html?location=Tehachapi Loop" class="text-decoration-none text-dark">Tehachapi Loop, CA</a></li>
+                                <li class="mb-2"><a href="search.html?location=Horseshoe Curve" class="text-decoration-none text-dark">Horseshoe Curve, PA</a></li>
+                                <li class="mb-2"><a href="search.html?location=Chicago" class="text-decoration-none text-dark">Chicago, IL</a></li>
+                                <li class="mb-2"><a href="search.html?location=Donner Pass" class="text-decoration-none text-dark">Donner Pass, CA</a></li>
+                                <li class="mb-2"><a href="search.html?location=Denver" class="text-decoration-none text-dark">Denver, CO</a></li>
+                                <li class="mb-2"><a href="search.html?location=all" class="text-decoration-none text-dark fw-medium">View All Locations →</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Time Period -->
-                <div style="background: #f8f8f8; padding: 2rem; border-radius: 8px;">
-                    <h3 style="font-size: 1.2em; margin-bottom: 1rem; color: #333;">Browse by Time</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="margin-bottom: 0.8rem;">
-                            <a href="newestphotos.html" style="color: #444; text-decoration: none; display: flex; justify-content: space-between; align-items: center;">
-                                <span>Latest Uploads</span>
-                                <span style="color: #666;">›</span>
-                            </a>
-                        </li>
-                        <li style="margin-bottom: 0.8rem;">
-                            <a href="photoCalendar.html" style="color: #444; text-decoration: none; display: flex; justify-content: space-between; align-items: center;">
-                                <span>Calendar View</span>
-                                <span style="color: #666;">›</span>
-                            </a>
-                        </li>
-                        <li style="margin-bottom: 0.8rem;">
-                            <a href="contribPicks.html" style="color: #444; text-decoration: none; display: flex; justify-content: space-between; align-items: center;">
-                                <span>Popular Photos</span>
-                                <span style="color: #666;">›</span>
-                            </a>
-                        </li>
-                    </ul>
+                <div class="col">
+                    <div class="card h-100 bg-light border-0">
+                        <div class="card-body">
+                            <h3 class="h5 mb-3">Browse by Time</h3>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="search.html?era=2020s" class="text-decoration-none text-dark">2020s</a></li>
+                                <li class="mb-2"><a href="search.html?era=2010s" class="text-decoration-none text-dark">2010s</a></li>
+                                <li class="mb-2"><a href="search.html?era=2000s" class="text-decoration-none text-dark">2000s</a></li>
+                                <li class="mb-2"><a href="search.html?era=1990s" class="text-decoration-none text-dark">1990s</a></li>
+                                <li class="mb-2"><a href="search.html?era=1980s" class="text-decoration-none text-dark">1980s</a></li>
+                                <li class="mb-2"><a href="search.html?era=1970s" class="text-decoration-none text-dark">1970s</a></li>
+                                <li class="mb-2"><a href="search.html?era=all" class="text-decoration-none text-dark fw-medium">View All Eras →</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-        </div>
-    </main>
+    <!-- Theme Toggler (Simple version) -->
+    <div class="container-fluid py-2 text-center bg-body-tertiary border-top">
+        <button type="button" class="btn btn-sm btn-outline-secondary px-3" id="themeToggleBtn" aria-label="Toggle dark/light mode">
+            <span class="d-flex align-items-center">
+                <!-- Light icon (shown in dark mode) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-brightness-high theme-light-icon me-2" viewBox="0 0 16 16" style="display: none;">
+                    <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/>
+                </svg>
+                <!-- Dark icon (shown in light mode) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon theme-dark-icon me-2" viewBox="0 0 16 16">
+                    <path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278M4.858 1.311A7.27 7.27 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.32 7.32 0 0 0 5.205-2.162q-.506.063-1.029.063c-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286"/>
+                </svg>
+                <span class="theme-name">Light Mode</span>
+            </span>
+        </button>
+    </div>
 
     <!-- Footer will be inserted by footer.js -->
+
+    <!-- Bootstrap JS -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Date Display Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Make sure the footer has proper styling
+            // Set current date in the header
+            const today = new Date();
+            const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
+            const formattedDate = today.toLocaleDateString('en-US', options);
+            
+            const headerDateEl = document.getElementById('header-date');
+            if (headerDateEl) {
+                headerDateEl.textContent = formattedDate;
+            }
+            
+            // Handle footer styling if needed
             setTimeout(function() {
                 const footer = document.querySelector('.site-footer');
                 if (footer) {
-                    footer.style.position = 'static';
-                    footer.style.marginTop = '2rem';
-                    footer.style.width = '100%';
+                    footer.classList.add('mt-4');
                 }
             }, 100);
             
-            // Mobile menu functionality
-            const mobileMenuButton = document.querySelector('.mobile-nav-button');
-            const mobileMenu = document.querySelector('.mobile-menu-container');
-            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
-            const mobileMenuClose = document.querySelector('.mobile-menu-close');
-            
-            if (mobileMenuButton && mobileMenu && mobileMenuOverlay && mobileMenuClose) {
-                // Open mobile menu
-                mobileMenuButton.addEventListener('click', function() {
-                    mobileMenu.classList.add('active');
-                    mobileMenuOverlay.classList.add('active');
-                    document.body.style.overflow = 'hidden'; // Prevent scrolling
-                    mobileMenuButton.classList.add('active'); // Add active class to the button
-                });
-                
-                // Close mobile menu (via close button)
-                mobileMenuClose.addEventListener('click', function() {
-                    closeMobileMenu();
-                });
-                
-                // Close mobile menu (via overlay click)
-                mobileMenuOverlay.addEventListener('click', function() {
-                    closeMobileMenu();
-                });
-                
-                // Close mobile menu and reset state
-                function closeMobileMenu() {
-                    mobileMenu.classList.remove('active');
-                    mobileMenuOverlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                    mobileMenuButton.classList.remove('active');
-                }
-                
-                // Add animation delay to menu items
-                const menuItems = document.querySelectorAll('.mobile-menu-nav a');
-                menuItems.forEach((item, index) => {
-                    item.style.transitionDelay = (0.1 + index * 0.05) + 's';
-                });
-            }
-            
-            // Mobile search functionality
-            const mobileSearchToggle = document.querySelector('.mobile-search-toggle');
-            const mobileSearchForm = document.querySelector('.mobile-search-form');
-            
-            if (mobileSearchToggle && mobileSearchForm) {
-                mobileSearchToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    mobileSearchForm.style.display = mobileSearchForm.style.display === 'block' ? 'none' : 'block';
-                });
-                
-                // Close search form when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!mobileSearchForm.contains(e.target) && !mobileSearchToggle.contains(e.target)) {
-                        mobileSearchForm.style.display = 'none';
-                    }
-                });
+            // Update mobile date display
+            const mobileDateElement = document.getElementById('mobile-header-date');
+            if (mobileDateElement) {
+                mobileDateElement.textContent = formattedDate;
             }
             
             // Handle user profile display
             function updateUserInterface() {
-                // This function will handle displaying user profile picture when signed in
-                // For demonstration, checking if Clerk has user info
+                // Check if Clerk has user info
                 if (window.Clerk && window.Clerk.user) {
-                    // Mark body as signed in for CSS targeting
                     document.body.classList.add('user-signed-in');
-                    
-                    const userInfo = document.getElementById('userInfo');
-                    if (userInfo) {
-                        const user = window.Clerk.user;
-                        
-                        // Create profile container
-                        const profileContainer = document.createElement('div');
-                        profileContainer.className = 'user-profile-container';
-                        
-                        // Add profile picture if available
-                        if (user.profileImageUrl) {
-                            const profilePic = document.createElement('img');
-                            profilePic.src = user.profileImageUrl;
-                            profilePic.alt = user.fullName || user.username || 'User';
-                            profilePic.className = 'user-profile-pic';
-                            profileContainer.appendChild(profilePic);
-                        }
-                        
-                        // Add username (only visible on desktop)
-                        const usernameSpan = document.createElement('span');
-                        usernameSpan.textContent = user.fullName || user.username || 'User';
-                        usernameSpan.className = 'username-text';
-                        profileContainer.appendChild(usernameSpan);
-                        
-                        // Replace content
-                        userInfo.innerHTML = '';
-                        userInfo.appendChild(profileContainer);
-                    }
-                    
-                    // Additional setup for mobile view when signed in
-                    setupMobileAuthButtons();
-                } else {
-                    // User not signed in
-                    document.body.classList.remove('user-signed-in');
-                    setupMobileAuthButtons();
                 }
-            }
-            
-            // Function to set up auth buttons for mobile
-            function setupMobileAuthButtons() {
-                // Check for auth buttons after a short delay to ensure Clerk has rendered them
-                setTimeout(() => {
-                    const authButtons = document.querySelectorAll('#auth-buttons .cl-button, #auth-buttons .cl-userButtonTrigger');
-                    
-                    authButtons.forEach(button => {
-                        // Make sure icons are visible while text can be hidden with CSS
-                        const icon = button.querySelector('svg, img');
-                        if (icon) {
-                            icon.style.margin = '0 auto';
-                        }
-                    });
-                }, 500);
             }
             
             // Call this function if Clerk is loaded
@@ -1098,8 +576,118 @@
             } else {
                 document.addEventListener('clerk-ready', updateUserInterface);
             }
+            
+            // Simplified theme toggle functionality
+            const htmlElement = document.documentElement;
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const lightIcon = document.querySelector('.theme-light-icon');
+            const darkIcon = document.querySelector('.theme-dark-icon');
+            
+            // Get current theme from data-bs-theme attribute or localStorage
+            const currentTheme = htmlElement.getAttribute('data-bs-theme') || 
+                                localStorage.getItem('theme') || 
+                                'light';
+            
+            // Update toggle button to show the correct icon
+            updateThemeToggleButton(currentTheme);
+            
+            // Add click event listener to theme toggle button
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const currentTheme = htmlElement.getAttribute('data-bs-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    
+                    // Apply theme
+                    htmlElement.setAttribute('data-bs-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    
+                    // Update button
+                    updateThemeToggleButton(newTheme);
+                    
+                    // Update CSS variables for footer
+                    updateFooterStyles(newTheme);
+                });
+            }
+            
+            // Function to update the theme toggle button appearance
+            function updateThemeToggleButton(theme) {
+                if (theme === 'dark') {
+                    if (lightIcon) lightIcon.style.display = 'inline-block';
+                    if (darkIcon) darkIcon.style.display = 'none';
+                    
+                    // Update text to show current mode
+                    const themeName = document.querySelector('.theme-name');
+                    if (themeName) themeName.textContent = 'Dark Mode';
+                } else {
+                    if (lightIcon) lightIcon.style.display = 'none';
+                    if (darkIcon) darkIcon.style.display = 'inline-block';
+                    
+                    // Update text to show current mode
+                    const themeName = document.querySelector('.theme-name');
+                    if (themeName) themeName.textContent = 'Light Mode';
+                }
+            }
+            
+            // Function to update CSS variables for footer
+            function updateFooterStyles(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.style.setProperty('--footer-bg', '#212529');
+                    document.documentElement.style.setProperty('--footer-text', '#e9ecef');
+                    document.documentElement.style.setProperty('--border-color', '#495057');
+                } else {
+                    document.documentElement.style.setProperty('--footer-bg', '#f8f8f8');
+                    document.documentElement.style.setProperty('--footer-text', '#666');
+                    document.documentElement.style.setProperty('--border-color', '#eee');
+                }
+            }
+            
+            // Function to update the footer theme toggle
+            function updateFooterThemeToggle(theme) {
+                // Wait for the footer to be created
+                setTimeout(() => {
+                    // Get the footer toggle
+                    const footerToggle = document.getElementById('theme-toggle');
+                    if (!footerToggle) return;
+                    
+                    // Get icons
+                    const moonIcon = footerToggle.querySelector('.moon-icon');
+                    const sunIcon = footerToggle.querySelector('.sun-icon');
+                    
+                    // Update icon visibility based on current theme
+                    if (theme === 'dark') {
+                        if (moonIcon) moonIcon.style.display = 'none';
+                        if (sunIcon) sunIcon.style.display = 'block';
+                    } else {
+                        if (moonIcon) moonIcon.style.display = 'block';
+                        if (sunIcon) sunIcon.style.display = 'none';
+                    }
+                }, 500); // Wait for footer to be created
+            }
+            
+            // Update the footer theme toggle on page load
+            document.addEventListener('DOMContentLoaded', () => {
+                updateFooterThemeToggle(savedTheme);
+            });
         });
     </script>
-<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f241e05c96544681a1d25bb8679ad028"}'></script><!-- Cloudflare Pages Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"bf34209a073f4713bc2da36b35669ffd","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+    
+    <!-- Cloudflare Pages Analytics -->
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f241e05c96544681a1d25bb8679ad028"}'></script>
+    <!-- Cloudflare Pages Analytics -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"bf34209a073f4713bc2da36b35669ffd","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
-</html> 
+</html>
+
+Looking at the todo list, I've already created the theme.js file and now I need to update the footer.js file to work with our new theme system. Let me explain what still needs to be done:
+
+Complete the footer.js update: I need to finish updating the setupThemeToggle function in footer.js to use our new ThemeSystem from theme.js instead of handling theme toggling directly. This will simplify the code and centralize theme management.
+
+Remove theme toggle from index.html: After updating footer.js, I'll need to remove any duplicate theme toggle buttons from index.html to prevent conflicts.
+
+Fix login/signup buttons display: Currently, there's an issue where the login/signup buttons aren't visible until after Clerk authentication completes. I need to modify the code to show these buttons immediately, with appropriate states.
+
+Redesign desktop header: The header layout for desktop view needs improvements for better aesthetics and usability.
+
+Improve homepage design and scaling: The homepage needs design enhancements, including better typography, spacing, layout adjustments, and improved responsiveness across different screen sizes.
+
+Would you like me to continue with updating the footer.js file now, or shall we address these tasks later?
