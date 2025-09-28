@@ -13,49 +13,28 @@ function createFooter() {
     const container = document.createElement('div');
     container.style.cssText = 'max-width: 1400px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;';
 
-    // Create content for left side
-    const content = document.createElement('div');
-    content.style.cssText = 'display: flex; align-items: center; gap: 0.5rem;';
+    // Create left column (copyright info)
+    const leftCol = document.createElement('div');
+    leftCol.style.cssText = 'display: flex; align-items: center; gap: 0.5rem; flex: 1;';
     
     // Copyright text
     const currentYear = new Date().getFullYear();
-    content.innerHTML = `Railhub Pictures © 2024-${currentYear}`;
+    leftCol.innerHTML = `Railhub Pictures © 2024-${currentYear}`;
 
     // Bullet point
     const bullet1 = document.createElement('span');
     bullet1.textContent = '•';
-    content.appendChild(bullet1);
+    leftCol.appendChild(bullet1);
 
     // Photos copyright
     const photosText = document.createElement('span');
     photosText.textContent = 'All Photos © Respective Authors';
-    content.appendChild(photosText);
+    leftCol.appendChild(photosText);
 
-    // Create right side with links and theme toggle
-    const rightSide = document.createElement('div');
-    rightSide.style.cssText = 'display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;';
-
-    // About link
-    const aboutLink = document.createElement('a');
-    aboutLink.href = 'aboutme.html';
-    aboutLink.textContent = 'About';
-    aboutLink.style.cssText = 'text-decoration: none; transition: all 0.2s; color: var(--footer-text, #666);';
-    rightSide.appendChild(aboutLink);
-
-    // Privacy Policy link
-    const privacyLink = document.createElement('a');
-    privacyLink.href = 'privacyPolicy.html';
-    privacyLink.textContent = 'Privacy Policy';
-    privacyLink.style.cssText = 'text-decoration: none; transition: all 0.2s; color: var(--footer-text, #666);';
-    rightSide.appendChild(privacyLink);
-
-    // Terms of Service link
-    const tosLink = document.createElement('a');
-    tosLink.href = 'termsOfService.html';
-    tosLink.textContent = 'Terms of Service';
-    tosLink.style.cssText = 'text-decoration: none; transition: all 0.2s; color: var(--footer-text, #666);';
-    rightSide.appendChild(tosLink);
-
+    // Create middle column (theme toggle)
+    const middleCol = document.createElement('div');
+    middleCol.style.cssText = 'display: flex; align-items: center; justify-content: center; padding: 0 1rem;';
+    
     // Theme toggle button
     const themeToggle = document.createElement('button');
     themeToggle.id = 'theme-toggle';
@@ -118,13 +97,44 @@ function createFooter() {
         sunIcon.appendChild(line);
     });
     
+    // Add theme label
+    const themeLabel = document.createElement('span');
+    themeLabel.className = 'theme-label';
+    themeLabel.textContent = 'Light Mode';
+    themeLabel.style.cssText = 'margin-left: 0.5rem; font-size: 0.9rem;';
+    
+    // Append icons and label to toggle button
     themeToggle.appendChild(moonIcon);
     themeToggle.appendChild(sunIcon);
-    rightSide.appendChild(themeToggle);
+    themeToggle.appendChild(themeLabel);
+    
+    // Style the button
+    themeToggle.style.cssText = 'border: none; background: transparent; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--footer-text, #666);';
+    
+    middleCol.appendChild(themeToggle);
+
+    // Create right side with links
+    const rightCol = document.createElement('div');
+    rightCol.style.cssText = 'display: flex; align-items: center; gap: 1rem; justify-content: flex-end; flex: 1;';
+
+    // Privacy Policy link
+    const privacyLink = document.createElement('a');
+    privacyLink.href = 'privacyPolicy.html';
+    privacyLink.textContent = 'Privacy Policy';
+    privacyLink.style.cssText = 'text-decoration: none; transition: all 0.2s; color: var(--footer-text, #666);';
+    rightCol.appendChild(privacyLink);
+
+    // Terms of Service link
+    const tosLink = document.createElement('a');
+    tosLink.href = 'termsOfService.html';
+    tosLink.textContent = 'Terms of Service';
+    tosLink.style.cssText = 'text-decoration: none; transition: all 0.2s; color: var(--footer-text, #666);';
+    rightCol.appendChild(tosLink);
 
     // Append everything to the DOM
-    container.appendChild(content);
-    container.appendChild(rightSide);
+    container.appendChild(leftCol);
+    container.appendChild(middleCol);
+    container.appendChild(rightCol);
     footer.appendChild(container);
     document.body.appendChild(footer);
 }
@@ -137,16 +147,230 @@ function setupThemeToggle() {
     const themeToggle = document.getElementById('theme-toggle');
     if (!themeToggle) return;
     
-    // Only show moon icon by default
+    const htmlElement = document.documentElement;
     const moonIcon = themeToggle.querySelector('.moon-icon');
     const sunIcon = themeToggle.querySelector('.sun-icon');
     
-    if (moonIcon) moonIcon.style.display = 'block';
-    if (sunIcon) sunIcon.style.display = 'none';
+    // Get current theme from data-bs-theme attribute or localStorage
+    const currentTheme = htmlElement.getAttribute('data-bs-theme') || 
+                         localStorage.getItem('theme') || 
+                         'light';
     
-    themeToggle.addEventListener('click', function() {
-        console.log('Theme toggle clicked - functionality coming soon');
-        // You can add your new theme toggle code here in the future
+    // Set initial icon state
+    if (currentTheme === 'dark') {
+        if (moonIcon) moonIcon.style.display = 'none';
+        if (sunIcon) sunIcon.style.display = 'block';
+    } else {
+        if (moonIcon) moonIcon.style.display = 'block';
+        if (sunIcon) sunIcon.style.display = 'none';
+    }
+    
+    // Create theme selector dropdown
+    const themeSelector = document.createElement('div');
+    themeSelector.className = 'theme-selector';
+    themeSelector.style.cssText = `
+        position: fixed;
+        background-color: var(--footer-bg, #fff);
+        border: 1px solid var(--border-color, #eee);
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.15);
+        padding: 0.5rem;
+        display: none;
+        z-index: 1050;
+        margin-bottom: 0.5rem;
+    `;
+    
+    // Create theme options - remove the 'auto' option as requested
+    const themes = [
+        { id: 'light', icon: '☀️', label: 'Light Mode' },
+        { id: 'dark', icon: '🌙', label: 'Dark Mode' }
+    ];
+    
+    themes.forEach(theme => {
+        const option = document.createElement('div');
+        option.className = 'theme-option';
+        option.setAttribute('data-theme', theme.id);
+        option.style.cssText = `
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: 0.25rem;
+            white-space: nowrap;
+            transition: background-color 0.2s;
+            color: var(--footer-text, #666);
+        `;
+        option.innerHTML = `
+            <span style="margin-right: 0.5rem; font-size: 1rem;">${theme.icon}</span>
+            <span>${theme.label}</span>
+        `;
+        
+        // Highlight active theme
+        if ((theme.id === 'light' && (currentTheme === 'light' || !currentTheme)) ||
+            (theme.id === 'dark' && currentTheme === 'dark')) {
+            option.style.fontWeight = 'bold';
+            option.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+        }
+        
+        // Hover effect
+        option.addEventListener('mouseover', () => {
+            option.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+        });
+        
+        option.addEventListener('mouseout', () => {
+            if (!((theme.id === 'light' && (currentTheme === 'light' || !currentTheme)) ||
+                (theme.id === 'dark' && currentTheme === 'dark'))) {
+                option.style.backgroundColor = 'transparent';
+            }
+        });
+        
+        // Click handler
+        option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyTheme(theme.id);
+            
+            // Update highlighted option
+            document.querySelectorAll('.theme-option').forEach(opt => {
+                opt.style.fontWeight = 'normal';
+                opt.style.backgroundColor = 'transparent';
+            });
+            option.style.fontWeight = 'bold';
+            option.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+            
+            themeSelector.style.display = 'none';
+        });
+        
+        themeSelector.appendChild(option);
+    });
+    
+    // Append the selector to the body for better positioning
+    document.body.appendChild(themeSelector);
+    
+    // Function to apply a theme
+    function applyTheme(themeId) {
+        // Update theme
+        htmlElement.setAttribute('data-bs-theme', themeId);
+        localStorage.setItem('theme', themeId);
+        
+        // Toggle icon display
+        if (themeId === 'dark') {
+            if (moonIcon) moonIcon.style.display = 'none';
+            if (sunIcon) sunIcon.style.display = 'block';
+        } else {
+            if (moonIcon) moonIcon.style.display = 'block';
+            if (sunIcon) sunIcon.style.display = 'none';
+        }
+        
+        // Update CSS variables for footer
+        if (themeId === 'dark') {
+            document.documentElement.style.setProperty('--footer-bg', '#212529');
+            document.documentElement.style.setProperty('--footer-text', '#e9ecef');
+            document.documentElement.style.setProperty('--border-color', '#495057');
+        } else {
+            document.documentElement.style.setProperty('--footer-bg', '#f8f8f8');
+            document.documentElement.style.setProperty('--footer-text', '#666');
+            document.documentElement.style.setProperty('--border-color', '#eee');
+        }
+        
+        // Update theme name in the page's theme button if it exists
+        const themeNameElement = document.querySelector('.theme-name');
+        if (themeNameElement) {
+            themeNameElement.textContent = themeId === 'dark' ? 'Dark Mode' : 'Light Mode';
+        }
+        
+        // Update any theme buttons in the page if they exist
+        const lightThemeBtn = document.getElementById('lightThemeBtn');
+        const darkThemeBtn = document.getElementById('darkThemeBtn');
+        const systemThemeBtn = document.getElementById('systemThemeBtn');
+        
+        if (lightThemeBtn && darkThemeBtn && systemThemeBtn) {
+            // Remove active classes
+            lightThemeBtn.classList.remove('active', 'btn-secondary');
+            darkThemeBtn.classList.remove('active', 'btn-secondary');
+            systemThemeBtn.classList.remove('active', 'btn-secondary');
+            
+            // Add outline classes
+            lightThemeBtn.classList.add('btn-outline-secondary');
+            darkThemeBtn.classList.add('btn-outline-secondary');
+            systemThemeBtn.classList.add('btn-outline-secondary');
+            
+            // Add active class to selected button based on the theme ID (not effective theme)
+            if (themeId === 'light') {
+                lightThemeBtn.classList.remove('btn-outline-secondary');
+                lightThemeBtn.classList.add('active', 'btn-secondary');
+            } else if (themeId === 'dark') {
+                darkThemeBtn.classList.remove('btn-outline-secondary');
+                darkThemeBtn.classList.add('active', 'btn-secondary');
+            } else {
+                systemThemeBtn.classList.remove('btn-outline-secondary');
+                systemThemeBtn.classList.add('active', 'btn-secondary');
+            }
+        }
+    }
+    
+    // Position the dropdown when toggle is clicked
+    themeToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        // Get position of the toggle button
+        const toggleRect = themeToggle.getBoundingClientRect();
+        
+        // Toggle display
+        if (themeSelector.style.display === 'block') {
+            themeSelector.style.display = 'none';
+        } else {
+            // Position above the button, but check if there's enough space
+            const spaceAbove = toggleRect.top;
+            const selectorHeight = 100; // Approximate height
+            
+            if (spaceAbove >= selectorHeight) {
+                // Position above
+                themeSelector.style.bottom = (window.innerHeight - toggleRect.top + 5) + 'px';
+                themeSelector.style.top = 'auto';
+            } else {
+                // Position below
+                themeSelector.style.top = (toggleRect.bottom + 5) + 'px';
+                themeSelector.style.bottom = 'auto';
+            }
+            
+            // Position horizontally
+            themeSelector.style.left = Math.max(5, toggleRect.left - 80) + 'px'; // Center, but ensure it's visible
+            
+            // Show the selector
+            themeSelector.style.display = 'block';
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function() {
+        themeSelector.style.display = 'none';
+    });
+    
+    // If system theme changes, update if in auto mode
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (localStorage.getItem('theme') === 'auto') {
+            htmlElement.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light');
+            
+            // Update icon
+            if (e.matches) {
+                if (moonIcon) moonIcon.style.display = 'none';
+                if (sunIcon) sunIcon.style.display = 'block';
+            } else {
+                if (moonIcon) moonIcon.style.display = 'block';
+                if (sunIcon) sunIcon.style.display = 'none';
+            }
+            
+            // Update CSS variables for footer
+            if (e.matches) {
+                document.documentElement.style.setProperty('--footer-bg', '#212529');
+                document.documentElement.style.setProperty('--footer-text', '#e9ecef');
+                document.documentElement.style.setProperty('--border-color', '#495057');
+            } else {
+                document.documentElement.style.setProperty('--footer-bg', '#f8f8f8');
+                document.documentElement.style.setProperty('--footer-text', '#666');
+                document.documentElement.style.setProperty('--border-color', '#eee');
+            }
+        }
     });
 }
 
