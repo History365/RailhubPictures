@@ -15,6 +15,8 @@
         })();
     </script>
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="assets/css/user-dropdown.css" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
     
@@ -678,16 +680,4 @@
 </body>
 </html>
 
-Looking at the todo list, I've already created the theme.js file and now I need to update the footer.js file to work with our new theme system. Let me explain what still needs to be done:
-
-Complete the footer.js update: I need to finish updating the setupThemeToggle function in footer.js to use our new ThemeSystem from theme.js instead of handling theme toggling directly. This will simplify the code and centralize theme management.
-
-Remove theme toggle from index.html: After updating footer.js, I'll need to remove any duplicate theme toggle buttons from index.html to prevent conflicts.
-
-Fix login/signup buttons display: Currently, there's an issue where the login/signup buttons aren't visible until after Clerk authentication completes. I need to modify the code to show these buttons immediately, with appropriate states.
-
-Redesign desktop header: The header layout for desktop view needs improvements for better aesthetics and usability.
-
-Improve homepage design and scaling: The homepage needs design enhancements, including better typography, spacing, layout adjustments, and improved responsiveness across different screen sizes.
-
-Would you like me to continue with updating the footer.js file now, or shall we address these tasks later?
+ 
