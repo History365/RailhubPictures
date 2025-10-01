@@ -3,18 +3,28 @@
 /**
  * API Configuration
  */
-const API_BASE_URL = 'https://api.railhubpictures.org'; // Update with your actual API URL
+const API_BASE_URL = 'https://railhubpictures.org'; // Updated to use main domain without /api path
 
 /**
  * Get the current user's session token for API calls
  */
 async function getAuthToken() {
-  if (!window.Clerk || !Clerk.session) {
+  console.log('Getting auth token. Clerk available:', !!window.Clerk);
+  
+  if (!window.Clerk) {
+    console.error('Clerk is not available');
+    return null;
+  }
+  
+  if (!Clerk.session) {
+    console.error('Clerk session is not available');
     return null;
   }
   
   try {
+    console.log('Requesting token from Clerk session');
     const token = await Clerk.session.getToken();
+    console.log('Token received:', token ? 'yes (token hidden for security)' : 'no token returned');
     return token;
   } catch (error) {
     console.error('Error getting auth token:', error);
@@ -42,9 +52,16 @@ async function makeAuthenticatedRequest(endpoint, options = {}) {
   }
   
   // Add user_id as query parameter for development/testing
-  const url = new URL(`${API_BASE_URL}${endpoint}`);
+  // Make sure endpoint starts with /api/ for proper routing
+  const apiEndpoint = endpoint.startsWith('/api/') ? endpoint : `/api${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+  const url = new URL(`${API_BASE_URL}${apiEndpoint}`);
+  
+  console.log('Making authenticated request to:', url.toString());
+  console.log('Authorization header present:', !!token);
+  
   if (window.Clerk && Clerk.user && token) {
     url.searchParams.set('user_id', Clerk.user.id);
+    console.log('Added user_id param:', Clerk.user.id);
   }
   
   const response = await fetch(url.toString(), {
@@ -94,10 +111,53 @@ async function updateUserProfile(profileData) {
  */
 async function fetchNotificationCount() {
   try {
-    const result = await makeAuthenticatedRequest('/api/notifications?limit=1');
-    return result.unread_count || 0;
+    // First check if the user is authenticated
+    if (!Clerk || !Clerk.user) {
+      console.log('Clerk user not available for notifications');
+      return 0;
+    }
+    
+    console.log('Fetching notifications for', Clerk.user.id);
+    
+    // Make the API request with error handling
+    try {
+      // Debug test endpoint first
+      console.log('Testing debug endpoint first...');
+      try {
+        const debugResult = await makeAuthenticatedRequest('/api/debug', { method: 'GET' });
+        console.log('Debug endpoint response:', debugResult);
+      } catch (debugError) {
+        console.error('Debug endpoint error:', debugError);
+      }
+      
+      // Try to get user profile first to ensure it exists
+      console.log('Fetching user profile...');
+      try {
+        const profile = await makeAuthenticatedRequest('/api/profile', { method: 'GET' });
+        console.log('Profile response:', profile);
+      } catch (profileError) {
+        console.error('Profile error:', profileError);
+        
+        // Try with debug bypass
+        console.log('Trying with debug bypass...');
+        try {
+          const debugProfile = await makeAuthenticatedRequest('/api/profile?debug_auth=true', { method: 'GET' });
+          console.log('Debug profile response:', debugProfile);
+        } catch (bypassError) {
+          console.error('Debug bypass error:', bypassError);
+        }
+      }
+      
+      const result = await makeAuthenticatedRequest('/api/notifications?limit=1');
+      console.log('Notification response:', result);
+      return result.unread_count || 0;
+    } catch (error) {
+      console.error('Error fetching notification count:', error);
+      // Don't show notifications if there's an API error
+      return 0;
+    }
   } catch (error) {
-    console.error('Error fetching notification count:', error);
+    console.error('Error in notification handling:', error);
     return 0;
   }
 }
