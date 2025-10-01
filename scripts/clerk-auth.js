@@ -3,7 +3,7 @@
 /**
  * API Configuration
  */
-const API_BASE_URL = 'https://railhubpictures.org/api'; // Updated to use main domain with /api path
+const API_BASE_URL = 'https://railhubpictures.org/api/'; // Updated to use main domain with /api/ path (with trailing slash)
 
 /**
  * Get the current user's session token for API calls
