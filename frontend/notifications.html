@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications | Railhub Pictures</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/stylesheet/theme.css" rel="stylesheet">
+    <link href="assets/stylesheet/styles.css" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_Y29tbXVuYWwtY2F0LTI1LmNsZXJrLmFjY291bnRzLmRldiQ"
+      src="https://communal-cat-25.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+      type="text/javascript">
+    </script>
+    <script src="assets/scripts/clerk-auth.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+            padding-top: 100px;
+        }
+        .notification-item {
+            border-left: 4px solid #667eea;
+            transition: all 0.2s ease;
+        }
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+        .notification-item.unread {
+            background-color: #f8f9ff;
+            border-left-color: #667eea;
+        }
+        .notification-item.read {
+            border-left-color: #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee; box-sizing: border-box;">
+        <div style="display: flex; flex-direction: column; max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+            <!-- Top Row with Logo and Account -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <a href="index.html" style="display: flex; align-items: center;">
+                    <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 250px; height: auto;">
+                </a>
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <span style="color: #666; font-size: 0.95em;" id="userInfo"></span>
+                    <script>
+                        var today = new Date();
+                        var dd = String(today.getDate()).padStart(2, '0');
+                        var mm = String(today.getMonth() + 1).padStart(2, '0');
+                        var yyyy = today.getFullYear();
+                        document.write('<span style="color: #666;">' + mm + '/' + dd + '/' + yyyy + '</span>');
+                    </script>
+                    <div style="display: flex; gap: 1rem;" id="auth-buttons">
+                        <!-- Auth buttons will be dynamically inserted by Clerk -->
+                    </div>
+                </div>
+            </div>
+            <!-- Bottom Row with Navigation and Search -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <nav style="display: flex; gap: 1.75rem;">
+                    <a href="index.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Home</a>
+                    <a href="newestphotos.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Newest Photos</a>
+                    <a href="contribPicks.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Contributor Picks</a>
+                    <a href="railroadList.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Railroads</a>
+                </nav>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <form action="search.html" method="get" style="display: flex; gap: 0.5rem;">
+                        <input type="text" name="q" placeholder="Search..." style="padding: 0.6em 0.9em; border: 1px solid #eee; border-radius: 6px; font-size: 0.95em; width: 220px; background: #f5f5f5; color: #444; font-family: 'Inter', sans-serif;">
+                        <button type="submit" style="background: #444; color: #fff; border: none; padding: 0.6em 1em; border-radius: 6px; font-size: 0.95em; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500;">Search</button>
+                    </form>
+                    <a href="upload.html" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 0.95em; background: #444; padding: 0.6em 1.2em; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Upload
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notifications Content -->
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Notifications</h1>
+                <button class="btn btn-outline-secondary btn-sm" onclick="markAllAsRead()">Mark All as Read</button>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Notifications List -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-0" id="notifications-container">
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="text-muted mt-2">Loading notifications...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Notification Settings</h5>
+                            <p class="text-muted small">Manage how you receive notifications</p>
+                            <div class="d-grid">
+                                <a href="account-settings.html#notifications" class="btn btn-outline-primary">
+                                    <i class="bi bi-gear me-2"></i>Notification Preferences
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card border-0 shadow-sm mt-3">
+                        <div class="card-body">
+                            <h6 class="card-title">Summary</h6>
+                            <div class="d-flex justify-content-between">
+                                <span>Unread:</span>
+                                <span class="badge bg-primary" id="unread-count">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>This week:</span>
+                                <span id="week-count">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Total:</span>
+                                <span id="total-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initAuthButtons === 'function') {
+                initAuthButtons();
+            }
+            
+            // Load notifications when page loads
+            loadNotifications();
+        });
+        
+        async function loadNotifications() {
+            try {
+                // Wait for Clerk to load
+                if (!window.Clerk) {
+                    await new Promise(resolve => {
+                        const checkClerk = () => {
+                            if (window.Clerk) resolve();
+                            else setTimeout(checkClerk, 100);
+                        };
+                        checkClerk();
+                    });
+                }
+                
+                await Clerk.load();
+                
+                if (!Clerk.user) {
+                    // Redirect to sign in if not authenticated
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                // Fetch notifications from API
+                const result = await fetchNotifications();
+                displayNotifications(result.notifications, result.unread_count);
+                updateSummary(result.unread_count, result.notifications);
+                
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                displayError('Failed to load notifications. Please try again.');
+            }
+        }
+        
+        async function fetchNotifications() {
+            try {
+                const token = await getAuthToken();
+                const url = new URL(`${API_BASE_URL}/api/notifications`);
+                if (window.Clerk && Clerk.user) {
+                    url.searchParams.set('user_id', Clerk.user.id);
+                }
+                
+                const response = await fetch(url.toString(), {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                return response.json();
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+                throw error;
+            }
+        }
+        
+        function displayNotifications(notifications, unreadCount) {
+            const container = document.getElementById('notifications-container');
+            
+            if (!notifications || notifications.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-bell text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-3">No notifications yet</p>
+                        <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let notificationsHTML = '';
+            
+            notifications.forEach(notification => {
+                const isUnread = !notification.is_read;
+                const icon = getNotificationIcon(notification.type);
+                const timeAgo = getTimeAgo(notification.created_at);
+                
+                notificationsHTML += `
+                    <div class="notification-item ${isUnread ? 'unread' : 'read'} p-3 border-bottom" data-id="${notification.id}">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                ${icon}
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="mb-1">${notification.message}</p>
+                                <small class="text-muted">${timeAgo}</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                ${isUnread ? '<span class="badge bg-primary">New</span>' : ''}
+                                <button class="btn btn-sm btn-link text-muted ms-2" onclick="markAsRead(${notification.id})" title="Mark as read">
+                                    <i class="bi bi-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = notificationsHTML;
+        }
+        
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'like':
+                    return '<i class="bi bi-heart-fill text-danger"></i>';
+                case 'comment':
+                    return '<i class="bi bi-chat-fill text-success"></i>';
+                case 'follow':
+                    return '<i class="bi bi-person-plus-fill text-info"></i>';
+                case 'system':
+                    return '<i class="bi bi-info-circle-fill text-primary"></i>';
+                case 'login':
+                    return '<i class="bi bi-box-arrow-in-right text-success"></i>';
+                case 'upload':
+                    return '<i class="bi bi-upload text-primary"></i>';
+                default:
+                    return '<i class="bi bi-bell-fill text-secondary"></i>';
+            }
+        }
+        
+        function getTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minutes ago`;
+            if (diffHours < 24) return `${diffHours} hours ago`;
+            if (diffDays < 7) return `${diffDays} days ago`;
+            return date.toLocaleDateString();
+        }
+        
+        function updateSummary(unreadCount, notifications) {
+            document.getElementById('unread-count').textContent = unreadCount;
+            document.getElementById('total-count').textContent = notifications.length;
+            
+            // Calculate notifications from this week
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            
+            const weekCount = notifications.filter(n => 
+                new Date(n.created_at) > weekAgo
+            ).length;
+            
+            document.getElementById('week-count').textContent = weekCount;
+        }
+        
+        async function markAsRead(notificationId) {
+            try {
+                const token = await getAuthToken();
+                const url = new URL(`${API_BASE_URL}/api/notifications/${notificationId}/read`);
+                if (window.Clerk && Clerk.user) {
+                    url.searchParams.set('user_id', Clerk.user.id);
+                }
+                
+                const response = await fetch(url.toString(), {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    // Update UI - remove unread styling
+                    const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
+                    if (notificationElement) {
+                        notificationElement.classList.remove('unread');
+                        notificationElement.classList.add('read');
+                        
+                        // Remove "New" badge
+                        const badge = notificationElement.querySelector('.badge');
+                        if (badge) badge.remove();
+                        
+                        // Update unread count
+                        const unreadCountElement = document.getElementById('unread-count');
+                        const currentCount = parseInt(unreadCountElement.textContent);
+                        unreadCountElement.textContent = Math.max(0, currentCount - 1);
+                    }
+                }
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+        
+        async function markAllAsRead() {
+            try {
+                const token = await getAuthToken();
+                const url = new URL(`${API_BASE_URL}/api/notifications/mark-all-read`);
+                if (window.Clerk && Clerk.user) {
+                    url.searchParams.set('user_id', Clerk.user.id);
+                }
+                
+                const response = await fetch(url.toString(), {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    // Update UI - mark all as read
+                    document.querySelectorAll('.notification-item.unread').forEach(item => {
+                        item.classList.remove('unread');
+                        item.classList.add('read');
+                        
+                        // Remove "New" badge
+                        const badge = item.querySelector('.badge');
+                        if (badge) badge.remove();
+                    });
+                    
+                    // Update unread count
+                    document.getElementById('unread-count').textContent = '0';
+                    
+                    showSuccess('All notifications marked as read');
+                }
+            } catch (error) {
+                console.error('Error marking all notifications as read:', error);
+                showError('Failed to mark notifications as read');
+            }
+        }
+        
+        function displayError(message) {
+            const container = document.getElementById('notifications-container');
+            container.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                    <p class="text-danger mt-3">${message}</p>
+                    <button class="btn btn-primary" onclick="loadNotifications()">Try Again</button>
+                </div>
+            `;
+        }
+        
+        function showSuccess(message) {
+            const container = document.querySelector('.container');
+            const successHTML = `
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            container.insertAdjacentHTML('afterbegin', successHTML);
+            
+            // Auto-dismiss after 3 seconds
+            setTimeout(() => {
+                const alert = document.querySelector('.alert-success');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 3000);
+        }
+        
+        function showError(message) {
+            const container = document.querySelector('.container');
+            const errorHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            container.insertAdjacentHTML('afterbegin', errorHTML);
+        }
+    </script>
+</body>
+</html>

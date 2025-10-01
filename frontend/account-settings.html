@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings | Railhub Pictures</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifications">
+                                            <label class="form-check-label" for="emailNotifications">
+                                                New comments and photo interactions
+                                            </label>
+                                        </div>00;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/stylesheet/theme.css" rel="stylesheet">
+    <link href="assets/stylesheet/styles.css" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_Y29tbXVuYWwtY2F0LTI1LmNsZXJrLmFjY291bnRzLmRldiQ"
+      src="https://communal-cat-25.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+      type="text/javascript">
+    </script>
+    <script src="assets/scripts/clerk-auth.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+            padding-top: 100px;
+        }
+        .settings-nav .nav-link {
+            color: #666;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+        }
+        .settings-nav .nav-link.active {
+            background-color: #667eea;
+            color: white;
+        }
+        .settings-nav .nav-link:hover {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .settings-nav .nav-link.active:hover {
+            background-color: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee; box-sizing: border-box;">
+        <div style="display: flex; flex-direction: column; max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+            <!-- Top Row with Logo and Account -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <a href="index.html" style="display: flex; align-items: center;">
+                    <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 250px; height: auto;">
+                </a>
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <span style="color: #666; font-size: 0.95em;" id="userInfo"></span>
+                    <script>
+                        var today = new Date();
+                        var dd = String(today.getDate()).padStart(2, '0');
+                        var mm = String(today.getMonth() + 1).padStart(2, '0');
+                        var yyyy = today.getFullYear();
+                        document.write('<span style="color: #666;">' + mm + '/' + dd + '/' + yyyy + '</span>');
+                    </script>
+                    <div style="display: flex; gap: 1rem;" id="auth-buttons">
+                        <!-- Auth buttons will be dynamically inserted by Clerk -->
+                    </div>
+                </div>
+            </div>
+            <!-- Bottom Row with Navigation and Search -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <nav style="display: flex; gap: 1.75rem;">
+                    <a href="index.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Home</a>
+                    <a href="newestphotos.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Newest Photos</a>
+                    <a href="contribPicks.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Contributor Picks</a>
+                    <a href="railroadList.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Railroads</a>
+                </nav>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <form action="search.html" method="get" style="display: flex; gap: 0.5rem;">
+                        <input type="text" name="q" placeholder="Search..." style="padding: 0.6em 0.9em; border: 1px solid #eee; border-radius: 6px; font-size: 0.95em; width: 220px; background: #f5f5f5; color: #444; font-family: 'Inter', sans-serif;">
+                        <button type="submit" style="background: #444; color: #fff; border: none; padding: 0.6em 1em; border-radius: 6px; font-size: 0.95em; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500;">Search</button>
+                    </form>
+                    <a href="upload.html" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 0.95em; background: #444; padding: 0.6em 1.2em; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Upload
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Account Settings -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <!-- Settings Navigation -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Settings</h5>
+                            <nav class="nav flex-column settings-nav">
+                                <a class="nav-link active" href="#profile" data-bs-toggle="pill">
+                                    <i class="bi bi-person me-2"></i>Profile
+                                </a>
+                                <a class="nav-link" href="#account" data-bs-toggle="pill">
+                                    <i class="bi bi-gear me-2"></i>Account
+                                </a>
+                                <a class="nav-link" href="#privacy" data-bs-toggle="pill">
+                                    <i class="bi bi-shield-lock me-2"></i>Privacy
+                                </a>
+                                <a class="nav-link" href="#notifications" data-bs-toggle="pill">
+                                    <i class="bi bi-bell me-2"></i>Notifications
+                                </a>
+                                <a class="nav-link" href="#security" data-bs-toggle="pill">
+                                    <i class="bi bi-lock me-2"></i>Security
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-9 mt-4 mt-lg-0">
+                    <div class="tab-content">
+                        <!-- Profile Tab -->
+                        <div class="tab-pane fade show active" id="profile">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-4">Profile Information</h5>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-3 text-center">
+                                            <div id="settings-avatar" class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
+                                                <i class="bi bi-person fs-1 text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <button class="btn btn-outline-primary btn-sm">Change Photo</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <form>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="firstName" class="form-label">First Name</label>
+                                                        <input type="text" class="form-control" id="firstName">
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="lastName" class="form-label">Last Name</label>
+                                                        <input type="text" class="form-control" id="lastName">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="email" class="form-label">Email Address</label>
+                                                    <input type="email" class="form-control" id="email" readonly>
+                                                    <div class="form-text">Email can be changed in Account settings</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="bio" class="form-label">Bio</label>
+                                                    <textarea class="form-control" id="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                                                </div>
+                                                <button type="button" class="btn btn-primary" id="saveProfile">Save Changes</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Tab -->
+                        <div class="tab-pane fade" id="account">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-4">Account Settings</h5>
+                                    
+                                    <div class="mb-4">
+                                        <h6>Email Management</h6>
+                                        <p class="text-muted small">Manage your email addresses and verification</p>
+                                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                                            <div>
+                                                <span id="account-email">Loading...</span>
+                                                <span class="badge bg-success ms-2">Verified</span>
+                                            </div>
+                                            <button class="btn btn-outline-primary btn-sm">Change Email</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6>Username</h6>
+                                        <p class="text-muted small">This is how others will see you on Railhub Pictures</p>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control" placeholder="username" id="username">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <button type="button" class="btn btn-outline-primary" id="saveAccount">Update Username</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="text-danger">Danger Zone</h6>
+                                        <p class="text-muted small">These actions cannot be undone</p>
+                                        <button class="btn btn-outline-danger">Delete Account</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Tab -->
+                        <div class="tab-pane fade" id="privacy">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-4">Privacy Settings</h5>
+                                    
+                                    <div class="mb-4">
+                                        <h6>Profile Visibility</h6>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="profileVisibility" id="publicProfile" checked>
+                                            <label class="form-check-label" for="publicProfile">
+                                                <strong>Public</strong> - Anyone can see your profile and photos
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="profileVisibility" id="privateProfile">
+                                            <label class="form-check-label" for="privateProfile">
+                                                <strong>Private</strong> - Only you can see your profile
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6>Photo Visibility</h6>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="showInSearch" checked>
+                                            <label class="form-check-label" for="showInSearch">
+                                                Show my photos in search results
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="allowDownloads" checked>
+                                            <label class="form-check-label" for="allowDownloads">
+                                                Allow others to download my photos
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-primary" id="savePrivacy">Save Privacy Settings</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications Tab -->
+                        <div class="tab-pane fade" id="notifications">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-4">Notification Preferences</h5>
+                                    
+                                    <div class="mb-4">
+                                        <h6>Email Notifications</h6>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="emailComments" checked>
+                                            <label class="form-check-label" for="emailComments">
+                                                New comments on my photos
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="emailFollowers" checked>
+                                            <label class="form-check-label" for="emailFollowers">
+                                                New followers
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="emailWeekly">
+                                            <label class="form-check-label" for="emailWeekly">
+                                                Weekly digest of new photos
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6>Push Notifications</h6>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="pushNotifications">
+                                            <label class="form-check-label" for="pushNotifications">
+                                                New comments
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="pushLikes">
+                                            <label class="form-check-label" for="pushLikes">
+                                                Photo likes and favorites
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-primary" id="saveNotifications">Save Notification Settings</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Tab -->
+                        <div class="tab-pane fade" id="security">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-4">Security Settings</h5>
+                                    
+                                    <div class="mb-4">
+                                        <h6>Password</h6>
+                                        <p class="text-muted small">Change your account password</p>
+                                        <button class="btn btn-outline-primary">Change Password</button>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6>Two-Factor Authentication</h6>
+                                        <p class="text-muted small">Add an extra layer of security to your account</p>
+                                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                                            <div>
+                                                <span>Two-factor authentication</span>
+                                                <span class="badge bg-warning ms-2">Disabled</span>
+                                            </div>
+                                            <button class="btn btn-outline-primary btn-sm">Enable 2FA</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6>Active Sessions</h6>
+                                        <p class="text-muted small">Manage where you're signed in</p>
+                                        <div class="p-3 bg-light rounded">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>Current Session</strong>
+                                                    <br>
+                                                    <small class="text-muted">Chrome on Windows • Active now</small>
+                                                </div>
+                                                <span class="badge bg-success">Current</span>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-outline-danger btn-sm mt-2">Sign out all other sessions</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let currentProfile = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize auth buttons
+            if (typeof initAuthButtons === 'function') {
+                initAuthButtons();
+            }
+            
+            // Add event listeners for forms
+            setupFormHandlers();
+            
+            // Load user data when Clerk is ready
+            window.addEventListener("load", async () => {
+                try {
+                    await Clerk.load();
+                    
+                    if (Clerk.user) {
+                        // Load Clerk data first
+                        loadClerkData();
+                        
+                        // Then load profile data from API
+                        await loadProfileData();
+                    } else {
+                        // Redirect to home if not logged in
+                        window.location.href = 'index.html';
+                    }
+                } catch (error) {
+                    console.error('Error loading settings:', error);
+                    window.location.href = 'index.html';
+                }
+            });
+        });
+        
+        function loadClerkData() {
+            const firstName = Clerk.user.firstName || '';
+            const lastName = Clerk.user.lastName || '';
+            const displayName = formatUserName(firstName, lastName);
+            const userInitials = (firstName ? firstName[0] : '') + (lastName ? lastName[0] : '');
+            const userImageUrl = Clerk.user.imageUrl;
+            const email = Clerk.user.emailAddresses[0]?.emailAddress || '';
+            
+            // Update form fields with Clerk data
+            document.getElementById('firstName').value = firstName;
+            document.getElementById('lastName').value = lastName;
+            document.getElementById('email').value = email;
+            
+            const accountEmailElement = document.getElementById('account-email');
+            if (accountEmailElement) {
+                accountEmailElement.textContent = email;
+            }
+            
+            // Update avatar
+            const avatarContainer = document.getElementById('settings-avatar');
+            if (avatarContainer) {
+                if (userImageUrl) {
+                    avatarContainer.innerHTML = `<img src="${userImageUrl}" alt="${displayName}" class="w-100 h-100 rounded-circle" style="object-fit: cover;">`;
+                } else {
+                    avatarContainer.innerHTML = `<div class="w-100 h-100 rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="font-size: 2.5rem; font-weight: 500;">${userInitials}</div>`;
+                }
+            }
+        }
+        
+        async function loadProfileData() {
+            try {
+                // Fetch profile data from API
+                currentProfile = await fetchUserProfile();
+                
+                // Update form fields with profile data
+                if (currentProfile.username && currentProfile.username !== 'New User') {
+                    document.getElementById('username').value = currentProfile.username;
+                }
+                
+                if (currentProfile.about_me && currentProfile.about_me !== 'No bio yet.') {
+                    document.getElementById('bio').value = currentProfile.about_me;
+                }
+                
+                // Load settings
+                if (currentProfile.settings) {
+                    const settings = currentProfile.settings;
+                    
+                    // Privacy settings
+                    if (settings.privacy) {
+                        if (settings.privacy.showProfile === false) {
+                            document.getElementById('privateProfile').checked = true;
+                        } else {
+                            document.getElementById('publicProfile').checked = true;
+                        }
+                    }
+                    
+                    // Notification settings
+                    if (settings.notifications) {
+                        const emailNotif = document.getElementById('emailNotifications');
+                        const pushNotif = document.getElementById('pushNotifications');
+                        
+                        if (emailNotif) emailNotif.checked = settings.notifications.email !== false;
+                        if (pushNotif) pushNotif.checked = settings.notifications.push === true;
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error loading profile data:', error);
+                showMessage('Could not load some profile settings. Basic information is available.', 'warning');
+            }
+        }
+        
+        function setupFormHandlers() {
+            // Profile form save button
+            const saveProfileBtn = document.getElementById('saveProfile');
+            if (saveProfileBtn) {
+                saveProfileBtn.addEventListener('click', saveProfile);
+            }
+            
+            // Account form save button  
+            const saveAccountBtn = document.getElementById('saveAccount');
+            if (saveAccountBtn) {
+                saveAccountBtn.addEventListener('click', saveAccount);
+            }
+            
+            // Privacy form save button
+            const savePrivacyBtn = document.getElementById('savePrivacy');
+            if (savePrivacyBtn) {
+                savePrivacyBtn.addEventListener('click', savePrivacy);
+            }
+            
+            // Notifications form save button
+            const saveNotificationsBtn = document.getElementById('saveNotifications');
+            if (saveNotificationsBtn) {
+                saveNotificationsBtn.addEventListener('click', saveNotifications);
+            }
+        }
+        
+        async function saveProfile() {
+            try {
+                showSaving('saveProfile');
+                
+                const profileData = {
+                    about_me: document.getElementById('bio').value || 'No bio yet.'
+                };
+                
+                await updateUserProfile(profileData);
+                showMessage('Profile updated successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                showMessage('Failed to save profile. Please try again.', 'danger');
+            } finally {
+                hideSaving('saveProfile');
+            }
+        }
+        
+        async function saveAccount() {
+            try {
+                showSaving('saveAccount');
+                
+                const accountData = {
+                    username: document.getElementById('username').value || 'New User'
+                };
+                
+                await updateUserProfile(accountData);
+                showMessage('Account settings updated successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving account:', error);
+                showMessage('Failed to save account settings. Please try again.', 'danger');
+            } finally {
+                hideSaving('saveAccount');
+            }
+        }
+        
+        async function savePrivacy() {
+            try {
+                showSaving('savePrivacy');
+                
+                const isPublic = document.getElementById('publicProfile').checked;
+                
+                const settings = currentProfile?.settings || {};
+                settings.privacy = {
+                    ...settings.privacy,
+                    showProfile: isPublic,
+                    showEmail: false // Keep email private by default
+                };
+                
+                await updateUserProfile({ settings });
+                showMessage('Privacy settings updated successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving privacy:', error);
+                showMessage('Failed to save privacy settings. Please try again.', 'danger');
+            } finally {
+                hideSaving('savePrivacy');
+            }
+        }
+        
+        async function saveNotifications() {
+            try {
+                showSaving('saveNotifications');
+                
+                const emailNotifications = document.getElementById('emailNotifications')?.checked !== false;
+                const pushNotifications = document.getElementById('pushNotifications')?.checked === true;
+                
+                const settings = currentProfile?.settings || {};
+                settings.notifications = {
+                    email: emailNotifications,
+                    push: pushNotifications
+                };
+                
+                await updateUserProfile({ settings });
+                showMessage('Notification settings updated successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving notifications:', error);
+                showMessage('Failed to save notification settings. Please try again.', 'danger');
+            } finally {
+                hideSaving('saveNotifications');
+            }
+        }
+        
+        function showSaving(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+            }
+        }
+        
+        function hideSaving(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = 'Save Changes';
+            }
+        }
+        
+        function showMessage(message, type) {
+            // Remove existing messages
+            const existingAlerts = document.querySelectorAll('.settings-alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
+            const alertHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show settings-alert" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            
+            const container = document.querySelector('.container');
+            container.insertAdjacentHTML('afterbegin', alertHTML);
+            
+            // Auto-dismiss success messages after 3 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    const alert = document.querySelector('.settings-alert');
+                    if (alert) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
