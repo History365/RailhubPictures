@@ -1,20 +1,208 @@
 // Enhanced Clerk Authentication Handler
 
 /**
- * Function to confirm before signing out
- * Shows a confirmation dialog and signs out if confirmed
+ * API Configuration
+ */
+const API_BASE_URL = 'https://api.railhubpictures.org'; // Update with your actual API URL
+
+/**
+ * Get the current user's session token for API calls
+ */
+async function getAuthToken() {
+  if (!window.Clerk || !Clerk.session) {
+    return null;
+  }
+  
+  try {
+    const token = await Clerk.session.getToken();
+    return token;
+  } catch (error) {
+    console.error('Error getting auth token:', error);
+    return null;
+  }
+}
+
+/**
+ * Make authenticated API request
+ */
+async function makeAuthenticatedRequest(endpoint, options = {}) {
+  const token = await getAuthToken();
+  
+  if (!token && !options.allowUnauthenticated) {
+    throw new Error('User not authenticated');
+  }
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  // Add user_id as query parameter for development/testing
+  const url = new URL(`${API_BASE_URL}${endpoint}`);
+  if (window.Clerk && Clerk.user && token) {
+    url.searchParams.set('user_id', Clerk.user.id);
+  }
+  
+  const response = await fetch(url.toString(), {
+    ...options,
+    headers
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Request failed' }));
+    throw new Error(error.error || `HTTP ${response.status}`);
+  }
+  
+  return response.json();
+}
+
+/**
+ * Fetch user profile data
+ */
+async function fetchUserProfile() {
+  try {
+    const profile = await makeAuthenticatedRequest('/api/profile');
+    return profile;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update user profile data
+ */
+async function updateUserProfile(profileData) {
+  try {
+    const result = await makeAuthenticatedRequest('/api/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData)
+    });
+    return result;
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch user notifications count
+ */
+async function fetchNotificationCount() {
+  try {
+    const result = await makeAuthenticatedRequest('/api/notifications?limit=1');
+    return result.unread_count || 0;
+  } catch (error) {
+    console.error('Error fetching notification count:', error);
+    return 0;
+  }
+}
+async function fetchUserStats() {
+  try {
+    const stats = await makeAuthenticatedRequest('/api/profile/stats');
+    return stats;
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    throw error;
+  }
+}
+
+/**
+ * Initialize auth buttons before Clerk loads
+ * This ensures buttons are visible even if Clerk is still loading
+ */
+function initAuthButtons() {
+  const authContainer = document.getElementById('auth-buttons');
+  const mobileAuthContainer = document.querySelector('.mobile-auth-buttons');
+  
+  if (authContainer) {
+    // Show loading state instead of buttons
+    authContainer.innerHTML = `
+      <div class="d-flex align-items-center gap-2">
+        <div class="spinner-border spinner-border-sm text-secondary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <span class="text-muted small">Loading...</span>
+      </div>
+    `;
+  }
+  
+  if (mobileAuthContainer) {
+    // Mobile loading state
+    mobileAuthContainer.innerHTML = `
+      <div class="spinner-border spinner-border-sm text-secondary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    `;
+  }
+}
+
+/**
+ * Show custom sign out confirmation modal
+ */
+function showSignOutModal() {
+  // Create modal HTML
+  const modalHTML = `
+    <div class="modal fade" id="signOutModal" tabindex="-1" aria-labelledby="signOutModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold" id="signOutModalLabel">Sign Out</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body pt-2">
+            <p class="mb-0">Are you sure you want to sign out of your account?</p>
+          </div>
+          <div class="modal-footer border-0 pt-2">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" onclick="confirmSignOut()">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Remove existing modal if any
+  const existingModal = document.getElementById('signOutModal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
+  // Add modal to body
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  
+  // Show modal
+  const modal = new bootstrap.Modal(document.getElementById('signOutModal'));
+  modal.show();
+  
+  // Clean up modal after it's hidden
+  document.getElementById('signOutModal').addEventListener('hidden.bs.modal', function() {
+    this.remove();
+  });
+}
+
+/**
+ * Function to confirm and execute sign out
  */
 function confirmSignOut() {
-  if (confirm("Are you sure you want to sign out?")) {
+  // Close the modal first
+  const modal = bootstrap.Modal.getInstance(document.getElementById('signOutModal'));
+  if (modal) {
+    modal.hide();
+  }
+  
+  // Sign out
+  if (window.Clerk) {
     Clerk.signOut();
   }
 }
 
 /**
  * Format a user's name nicely
- * @param {string} firstName - User's first name
- * @param {string} lastName - User's last name
- * @return {string} - Formatted name
  */
 function formatUserName(firstName, lastName) {
   if (firstName && lastName) {
@@ -29,19 +217,19 @@ function formatUserName(firstName, lastName) {
 }
 
 window.addEventListener("load", async () => {
+  // Initialize auth buttons right away
+  initAuthButtons();
+  
   try {
     // Wait for Clerk to load
     await Clerk.load();
     
     // Get the auth buttons container
     const authButtonsContainer = document.getElementById("auth-buttons");
+    const mobileAuthButtons = document.querySelector('.mobile-auth-buttons');
     const userInfo = document.getElementById("userInfo");
-    const mobileMenuUserSection = document.querySelector('.mobile-menu-user-section');
     
     if (Clerk.user) {
-      // Check if user is the owner
-      const isOwner = Clerk.user.id === "user_321PdlXuM1MAAu1uTGsNHiw8B4X"; // Replace with your actual owner ID
-      
       // Get user information for display
       const firstName = Clerk.user.firstName || '';
       const lastName = Clerk.user.lastName || '';
@@ -52,285 +240,137 @@ window.addEventListener("load", async () => {
       // Add user-signed-in class to body for CSS targeting
       document.body.classList.add('user-signed-in');
       
-      // Update desktop auth buttons with enhanced dropdown
+      // Get notification count
+      let notificationCount = 0;
+      try {
+        notificationCount = await fetchNotificationCount();
+      } catch (error) {
+        console.log('Could not fetch notification count, using default');
+      }
+      
+      const notificationBadge = notificationCount > 0 ? 
+        `<span class="badge bg-danger rounded-pill ms-2">${notificationCount}</span>` : '';
+      
+      // Clean, minimal desktop auth UI - just avatar dropdown
       authButtonsContainer.innerHTML = `
-        <div class="dropdown user-dropdown">
-          <button class="btn btn-link text-decoration-none text-dark d-flex align-items-center avatar-button" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <div class="dropdown">
+          <button class="btn btn-link p-0 border-0 d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             ${userImageUrl ? 
-              `<img src="${userImageUrl}" alt="${displayName}" class="rounded-circle user-avatar" width="36" height="36">` :
-              `<div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center user-avatar" style="width: 36px; height: 36px; font-size: 15px;">${userInitials}</div>`
+              `<img src="${userImageUrl}" alt="${displayName}" class="rounded-circle" width="32" height="32" style="object-fit: cover;">` :
+              `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 14px; font-weight: 500;">${userInitials}</div>`
             }
-            <span class="d-none d-lg-inline ms-2 me-1 user-name">${displayName}</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms-1 dropdown-caret">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 user-dropdown-menu py-0" aria-labelledby="userDropdown">
-            <!-- User header with avatar -->
-            <li class="dropdown-header d-flex p-3 align-items-center bg-light border-bottom">
-              ${userImageUrl ? 
-                `<img src="${userImageUrl}" alt="${displayName}" class="rounded-circle me-3" width="48" height="48">` :
-                `<div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 18px;">${userInitials}</div>`
-              }
-              <div>
-                <h6 class="mb-0 fw-bold">${displayName}</h6>
-                <small class="text-muted">${Clerk.user.emailAddresses[0]?.emailAddress || ''}</small>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 200px;" aria-labelledby="userDropdown">
+            <li class="dropdown-header border-bottom pb-2 mb-2">
+              <div class="d-flex align-items-center">
+                ${userImageUrl ? 
+                  `<img src="${userImageUrl}" alt="${displayName}" class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;">` :
+                  `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px; font-size: 16px; font-weight: 500;">${userInitials}</div>`
+                }
+                <div>
+                  <div class="fw-bold small">${displayName}</div>
+                  <div class="text-muted" style="font-size: 12px;">${Clerk.user.emailAddresses[0]?.emailAddress || ''}</div>
+                </div>
               </div>
             </li>
-            
-            <!-- User content section -->
-            <div class="py-1">
-              <li><a class="dropdown-item d-flex align-items-center py-2" href="userprofile.html">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                <span>View Profile</span>
-              </a></li>
-              <li><a class="dropdown-item d-flex align-items-center py-2" href="my-photos.html">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                  <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
-                <span>My Photos</span>
-              </a></li>
-              <li><a class="dropdown-item d-flex align-items-center py-2" href="upload.html">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                <span>Upload Photos</span>
-              </a></li>
-              <li><a class="dropdown-item d-flex align-items-center py-2" href="notifications.html">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-                <span>Notifications</span>
-                <span class="badge bg-danger rounded-pill ms-auto">3</span>
-              </a></li>
-            </div>
-            
-            <!-- Account Settings Section -->
-            <div class="border-top py-1">
-              <li><a class="dropdown-item d-flex align-items-center py-2" href="account-settings.html">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-                <span>Account Settings</span>
-              </a></li>
-              <li><a class="dropdown-item d-flex align-items-center py-2" href="favorites.html">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                </svg>
-                <span>Saved Photos</span>
-              </a></li>
-            </div>
-            
-            <!-- Admin section (conditional) -->
-            ${isOwner ? `
-            <div class="border-top py-1">
-              <li><a class="dropdown-item d-flex align-items-center py-2" href="admin.html">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                  <path d="M12 20h9"></path>
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                </svg>
-                <span>Admin Dashboard</span>
-              </a></li>
-              <li><a class="dropdown-item d-flex align-items-center py-2" href="site-settings.html">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-                <span>Site Settings</span>
-              </a></li>
-            </div>
-            ` : ''}
-            
-            <!-- Sign out option -->
-            <div class="border-top py-1">
-              <li><button class="dropdown-item d-flex align-items-center py-2 text-danger" onclick="confirmSignOut()">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-                <span>Sign Out</span>
-              </button></li>
-            </div>
+            <li><a class="dropdown-item py-2" href="profile.html">
+              <i class="bi bi-person me-2"></i>View Profile
+            </a></li>
+            <li><a class="dropdown-item py-2" href="my-photos.html">
+              <i class="bi bi-images me-2"></i>My Photos
+            </a></li>
+            <li><a class="dropdown-item py-2" href="notifications.html">
+              <i class="bi bi-bell me-2"></i>Notifications
+              ${notificationBadge}
+            </a></li>
+            <li><a class="dropdown-item py-2" href="account-settings.html">
+              <i class="bi bi-gear me-2"></i>Account Settings
+            </a></li>
+            <li><hr class="dropdown-divider my-2"></li>
+            <li><button class="dropdown-item py-2 text-danger" onclick="showSignOutModal()">
+              <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+            </button></li>
           </ul>
         </div>
       `;
       
-      // Update mobile menu user section if it exists
-      if (mobileMenuUserSection) {
-        mobileMenuUserSection.innerHTML = `
-          <div class="p-3 bg-light rounded-3 mb-3">
-            <div class="d-flex align-items-center mb-3 border-bottom pb-3">
-              ${userImageUrl ? 
-                `<img src="${userImageUrl}" alt="${displayName}" class="rounded-circle me-3" width="48" height="48">` :
-                `<div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 18px;">${userInitials}</div>`
-              }
-              <div>
-                <h6 class="mb-0 fw-bold">${displayName}</h6>
-                <small class="text-muted">${Clerk.user.emailAddresses[0]?.emailAddress || ''}</small>
-              </div>
-            </div>
-            
-            <!-- User Action Items -->
-            <div class="d-flex flex-column gap-2 mb-3">
-              <a href="userprofile.html" class="mobile-menu-item d-flex align-items-center text-decoration-none text-body py-2">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-3">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                <span>View Profile</span>
-              </a>
-              
-              <a href="my-photos.html" class="mobile-menu-item d-flex align-items-center text-decoration-none text-body py-2">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-3">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                  <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
-                <span>My Photos</span>
-              </a>
-              
-              <a href="upload.html" class="mobile-menu-item d-flex align-items-center text-decoration-none text-body py-2">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-3">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                <span>Upload Photos</span>
-              </a>
-              
-              <a href="notifications.html" class="mobile-menu-item d-flex align-items-center text-decoration-none text-body py-2 justify-content-between">
-                <div class="d-flex align-items-center">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-3">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                  </svg>
-                  <span>Notifications</span>
+      // Mobile auth buttons - centered modal dropdown
+      if (mobileAuthButtons) {
+        mobileAuthButtons.innerHTML = `
+          <button class="btn btn-link p-1" type="button" data-bs-toggle="modal" data-bs-target="#mobileUserModal">
+            ${userImageUrl ? 
+              `<img src="${userImageUrl}" alt="${displayName}" class="rounded-circle" width="28" height="28" style="object-fit: cover;">` :
+              `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 12px; font-weight: 500;">${userInitials}</div>`
+            }
+          </button>
+          
+          <!-- Mobile User Modal -->
+          <div class="modal fade" id="mobileUserModal" tabindex="-1" aria-labelledby="mobileUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header border-0 pb-2">
+                  <div class="d-flex align-items-center">
+                    ${userImageUrl ? 
+                      `<img src="${userImageUrl}" alt="${displayName}" class="rounded-circle me-3" width="48" height="48" style="object-fit: cover;">` :
+                      `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 18px; font-weight: 500;">${userInitials}</div>`
+                    }
+                    <div>
+                      <h5 class="modal-title fw-bold mb-0" id="mobileUserModalLabel">${displayName}</h5>
+                      <small class="text-muted">${Clerk.user.emailAddresses[0]?.emailAddress || ''}</small>
+                    </div>
+                  </div>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <span class="badge bg-danger rounded-pill">3</span>
-              </a>
-              
-              <a href="account-settings.html" class="mobile-menu-item d-flex align-items-center text-decoration-none text-body py-2">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-3">
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-                <span>Account Settings</span>
-              </a>
-              
-              <!-- Admin links if user is owner -->
-              ${isOwner ? `
-              <a href="admin.html" class="mobile-menu-item d-flex align-items-center text-decoration-none text-body py-2">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-3">
-                  <path d="M12 20h9"></path>
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                </svg>
-                <span>Admin Dashboard</span>
-              </a>
-              ` : ''}
-            </div>
-            
-            <!-- Sign Out Button -->
-            <div class="pt-2 border-top">
-              <button onclick="confirmSignOut()" class="btn btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-                Sign Out
-              </button>
+                <div class="modal-body pt-0">
+                  <div class="list-group list-group-flush">
+                    <a href="profile.html" class="list-group-item list-group-item-action border-0 py-3">
+                      <i class="bi bi-person me-3"></i>View Profile
+                    </a>
+                    <a href="my-photos.html" class="list-group-item list-group-item-action border-0 py-3">
+                      <i class="bi bi-images me-3"></i>My Photos
+                    </a>
+                    <a href="notifications.html" class="list-group-item list-group-item-action border-0 py-3 d-flex justify-content-between align-items-center">
+                      <div><i class="bi bi-bell me-3"></i>Notifications</div>
+                      ${notificationCount > 0 ? `<span class="badge bg-danger rounded-pill">${notificationCount}</span>` : ''}
+                    </a>
+                    <a href="account-settings.html" class="list-group-item list-group-item-action border-0 py-3">
+                      <i class="bi bi-gear me-3"></i>Account Settings
+                    </a>
+                  </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                  <button type="button" class="btn btn-danger w-100" onclick="showSignOutModal()" data-bs-dismiss="modal">
+                    <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         `;
       }
       
-      // Mount the user button
-      const userButtonElement = document.getElementById("user-button");
-      if (userButtonElement) {
-        Clerk.mountUserButton(userButtonElement, {
-          userProfileMode: 'navigation',
-          userProfileUrl: '/userprofile.html',
-          appearance: {
-            elements: {
-              rootBox: {
-                boxShadow: 'none',
-                width: 'auto'
-              },
-              avatarBox: {
-                width: '32px',
-                height: '32px'
-              }
-            }
-          }
-        });
-      }
+      console.log("User is signed in:", displayName);
       
-      // Log user info and update userInfo element if it exists
-      console.log("User is signed in:", Clerk.user.firstName);
-      
-      // Don't display welcome message to reduce clutter
-      if (userInfo) {
-        userInfo.innerHTML = ``;
-      }
     } else {
-      // User is not logged in
+      // User is not logged in - clean sign in/up buttons
       document.body.classList.remove('user-signed-in');
       
-      // Desktop auth buttons - Bootstrap styled
       authButtonsContainer.innerHTML = `
         <div class="d-flex gap-2">
-          <button onclick="Clerk.openSignIn()" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" title="Log In">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-              <polyline points="10 17 15 12 10 7"></polyline>
-              <line x1="15" y1="12" x2="3" y2="12"></line>
-            </svg>
-            <span class="d-none d-md-inline">Log In</span>
+          <button onclick="Clerk.openSignIn()" class="btn btn-outline-primary btn-sm px-3">
+            Sign In
           </button>
-          <button onclick="Clerk.openSignUp()" class="btn btn-dark btn-sm d-flex align-items-center gap-2" title="Register">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="8.5" cy="7" r="4"></circle>
-              <line x1="20" y1="8" x2="20" y2="14"></line>
-              <line x1="23" y1="11" x2="17" y2="11"></line>
-            </svg>
-            <span class="d-none d-md-inline">Sign Up</span>
+          <button onclick="Clerk.openSignUp()" class="btn btn-primary btn-sm px-3">
+            Sign Up
           </button>
         </div>
       `;
       
-      // Update mobile menu user section for logged out users
-      if (mobileMenuUserSection) {
-        mobileMenuUserSection.innerHTML = `
-          <div class="p-3 bg-light rounded-3 mb-3">
-            <h6 class="mb-3 text-center">Join Railhub Pictures</h6>
-            <div class="d-flex flex-column gap-2">
-              <button onclick="Clerk.openSignIn()" class="btn btn-outline-dark d-flex align-items-center justify-content-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                  <polyline points="10 17 15 12 10 7"></polyline>
-                  <line x1="15" y1="12" x2="3" y2="12"></line>
-                </svg>
-                Log In
-            </button>
-            <button onclick="Clerk.openSignUp()" class="btn btn-dark d-flex align-items-center justify-content-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="8.5" cy="7" r="4"></circle>
-                <line x1="20" y1="8" x2="20" y2="14"></line>
-                <line x1="23" y1="11" x2="17" y2="11"></line>
-              </svg>
-              Sign Up
-            </button>
+      if (mobileAuthButtons) {
+        mobileAuthButtons.innerHTML = `
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm" onclick="Clerk.openSignIn()">Sign In</button>
+            <button class="btn btn-primary btn-sm" onclick="Clerk.openSignUp()">Sign Up</button>
           </div>
         `;
       }
@@ -340,60 +380,16 @@ window.addEventListener("load", async () => {
   } catch (error) {
     console.error("Error initializing Clerk:", error);
     
-    // Fallback to regular links if there's an error
+    // Fallback UI
     const authButtonsContainer = document.getElementById("auth-buttons");
     if (authButtonsContainer) {
       authButtonsContainer.innerHTML = `
         <div class="d-flex gap-2">
-          <a href="login.html" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" title="Log In">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-              <polyline points="10 17 15 12 10 7"></polyline>
-              <line x1="15" y1="12" x2="3" y2="12"></line>
-            </svg>
-            <span class="d-none d-md-inline">Log In</span>
-          </a>
-          <a href="register.html" class="btn btn-dark btn-sm d-flex align-items-center gap-2" title="Register">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="8.5" cy="7" r="4"></circle>
-              <line x1="20" y1="8" x2="20" y2="14"></line>
-              <line x1="23" y1="11" x2="17" y2="11"></line>
-            </svg>
-            <span class="d-none d-md-inline">Sign Up</span>
-          </a>
+          <a href="login.html" class="btn btn-outline-primary btn-sm px-3">Sign In</a>
+          <a href="register.html" class="btn btn-primary btn-sm px-3">Sign Up</a>
         </div>
       `;
-      
-      // Update mobile menu for fallback as well
-      const mobileMenuUserSection = document.querySelector('.mobile-menu-user-section');
-      if (mobileMenuUserSection) {
-        mobileMenuUserSection.innerHTML = `
-          <div class="p-3 bg-light rounded-3 mb-3">
-            <h6 class="mb-3 text-center">Join Railhub Pictures</h6>
-            <div class="d-flex flex-column gap-2">
-              <a href="login.html" class="btn btn-outline-dark d-flex align-items-center justify-content-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                  <polyline points="10 17 15 12 10 7"></polyline>
-                  <line x1="15" y1="12" x2="3" y2="12"></line>
-                </svg>
-                Log In
-              </a>
-              <a href="register.html" class="btn btn-dark d-flex align-items-center justify-content-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="8.5" cy="7" r="4"></circle>
-                  <line x1="20" y1="8" x2="20" y2="14"></line>
-                  <line x1="23" y1="11" x2="17" y2="11"></line>
-                </svg>
-                Sign Up
-              </a>
-            </div>
-          </div>
-        `;
-      }
-      console.log("Using fallback authentication links");
     }
+    console.log("Using fallback authentication links");
   }
 });
