@@ -3,10 +3,11 @@
 /**
  * API Configuration
  */
-const API_BASE_URL = 'https://railhubpictures.org'; // Updated to use main domain without /api path
+const API_BASE_URL = window.API_CONFIG?.BASE_URL || 'https://railhubpictures.org'; // Use global config if available
 
 /**
  * Get the current user's session token for API calls
+ * @returns {Promise<string|null>} The session token or null if unavailable
  */
 async function getAuthToken() {
   console.log('Getting auth token. Clerk available:', !!window.Clerk);
@@ -33,7 +34,45 @@ async function getAuthToken() {
 }
 
 /**
+ * Validate the current auth token by calling the API test endpoint
+ * @returns {Promise<boolean>} Whether the token is valid
+ */
+async function validateAuthToken() {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      console.error('No token available to validate');
+      return false;
+    }
+    
+    // Call the auth test endpoint
+    const response = await fetch(`${API_BASE_URL}/api/auth/test`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      console.error('Auth validation failed with status:', response.status);
+      return false;
+    }
+    
+    const result = await response.json();
+    console.log('Auth validation result:', result);
+    
+    return result.authenticated === true;
+  } catch (error) {
+    console.error('Error validating token:', error);
+    return false;
+  }
+}
+
+/**
  * Make authenticated API request
+ * @param {string} endpoint - The API endpoint to call
+ * @param {Object} options - Request options
+ * @returns {Promise<Object>} - The JSON response
  */
 async function makeAuthenticatedRequest(endpoint, options = {}) {
   const token = await getAuthToken();
@@ -51,17 +90,25 @@ async function makeAuthenticatedRequest(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
   
-  // Add user_id as query parameter for development/testing
   // Make sure endpoint starts with /api/ for proper routing
   const apiEndpoint = endpoint.startsWith('/api/') ? endpoint : `/api${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
   const url = new URL(`${API_BASE_URL}${apiEndpoint}`);
   
   console.log('Making authenticated request to:', url.toString());
-  console.log('Authorization header present:', !!token);
   
-  if (window.Clerk && Clerk.user && token) {
-    url.searchParams.set('user_id', Clerk.user.id);
-    console.log('Added user_id param:', Clerk.user.id);
+  // Log detailed debugging info
+  if (window.API_CONFIG?.DEBUG) {
+    console.group('API Request Debug Info');
+    console.log('Full URL:', url.toString());
+    console.log('Headers:', headers);
+    console.log('Token available:', !!token);
+    console.groupEnd();
+  }
+  
+  // Remove emergency bypass code - proper auth is now implemented
+  // Only add user_id in development mode for debugging
+  if (window.API_CONFIG?.DEV_MODE && window.Clerk && Clerk.user) {
+    url.searchParams.set('debug_user_id', Clerk.user.id);
   }
   
   const response = await fetch(url.toString(), {
@@ -78,11 +125,88 @@ async function makeAuthenticatedRequest(endpoint, options = {}) {
 }
 
 /**
- * Fetch user profile data
+ * Diagnose authentication issues
+ * @returns {Promise<Object>} Diagnostic information
  */
-async function fetchUserProfile() {
+async function diagnoseAuthIssues() {
+  const diagnostics = {
+    clerkAvailable: !!window.Clerk,
+    userSignedIn: false,
+    sessionExists: false,
+    tokenAvailable: false,
+    tokenValidation: null,
+    userId: null,
+    tokenData: null
+  };
+  
+  if (window.Clerk) {
+    diagnostics.userSignedIn = !!Clerk.user;
+    diagnostics.sessionExists = !!Clerk.session;
+    
+    if (Clerk.user) {
+      diagnostics.userId = Clerk.user.id;
+    }
+    
+    if (Clerk.session) {
+      try {
+        const token = await Clerk.session.getToken();
+        diagnostics.tokenAvailable = !!token;
+        
+        if (token) {
+          // Call validation endpoint
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/auth/test`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            diagnostics.tokenValidation = await response.json();
+          } catch (validationError) {
+            diagnostics.tokenValidation = { error: validationError.message };
+          }
+          
+          // Analyze token (safely)
+          try {
+            const parts = token.split('.');
+            if (parts.length === 3) {
+              // Only decode the payload (middle part), not the signature
+              const payload = JSON.parse(atob(parts[1]));
+              diagnostics.tokenData = {
+                exp: new Date(payload.exp * 1000).toISOString(),
+                iat: new Date(payload.iat * 1000).toISOString(),
+                sub: payload.sub,
+                // Sanitize to avoid exposing all claims
+                hasUserIdClaim: !!payload.sub
+              };
+            }
+          } catch (tokenError) {
+            diagnostics.tokenData = { error: 'Could not parse token data' };
+          }
+        }
+      } catch (tokenError) {
+        diagnostics.tokenError = tokenError.message;
+      }
+    }
+  }
+  
+  console.log('Auth diagnostics:', diagnostics);
+  return diagnostics;
+}
+
+/**
+ * Fetch user profile data
+ * @param {boolean} recordActivity - Whether to record this fetch as user activity (defaults to using global shouldRecordSignIn)
+ */
+async function fetchUserProfile(recordActivity = null) {
   try {
-    const profile = await makeAuthenticatedRequest('/api/profile');
+    // Determine if we should record this activity
+    const shouldRecord = recordActivity !== null ? recordActivity : window.shouldRecordSignIn;
+    
+    // Use the recordActivity parameter in the API call
+    const endpoint = shouldRecord ? 
+      '/api/profile' : 
+      '/api/profile?skip_activity_tracking=true';
+    
+    console.log(`Fetching user profile (recording activity: ${shouldRecord})`);
+    const profile = await makeAuthenticatedRequest(endpoint);
     return profile;
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -108,8 +232,10 @@ async function updateUserProfile(profileData) {
 
 /**
  * Fetch user notifications count
+ * @param {boolean} forceRefresh - Force a refresh even if cached data exists
+ * @returns {Promise<number>} - The number of unread notifications
  */
-async function fetchNotificationCount() {
+async function fetchNotificationCount(forceRefresh = false) {
   try {
     // First check if the user is authenticated
     if (!Clerk || !Clerk.user) {
@@ -117,48 +243,79 @@ async function fetchNotificationCount() {
       return 0;
     }
     
+    // Use cached value if available and not forcing refresh
+    if (!forceRefresh && window.cachedNotificationCount !== undefined) {
+      console.log('Using cached notification count:', window.cachedNotificationCount);
+      return window.cachedNotificationCount;
+    }
+    
     console.log('Fetching notifications for', Clerk.user.id);
     
-    // Make the API request with error handling
+    // Make the API request with better error handling
     try {
-      // Debug test endpoint first
-      console.log('Testing debug endpoint first...');
-      try {
-        const debugResult = await makeAuthenticatedRequest('/api/debug', { method: 'GET' });
-        console.log('Debug endpoint response:', debugResult);
-      } catch (debugError) {
-        console.error('Debug endpoint error:', debugError);
-      }
+      // Skip the debug endpoints in production - they just add noise to the logs
+      // Call the notifications endpoint directly with proper error handling
+      const result = await makeAuthenticatedRequest('/api/notifications?limit=1', {
+        allowUnauthenticated: false, // Require authentication for notifications
+      });
       
-      // Try to get user profile first to ensure it exists
-      console.log('Fetching user profile...');
-      try {
-        const profile = await makeAuthenticatedRequest('/api/profile', { method: 'GET' });
-        console.log('Profile response:', profile);
-      } catch (profileError) {
-        console.error('Profile error:', profileError);
-        
-        // Try with debug bypass
-        console.log('Trying with debug bypass...');
-        try {
-          const debugProfile = await makeAuthenticatedRequest('/api/profile?debug_auth=true', { method: 'GET' });
-          console.log('Debug profile response:', debugProfile);
-        } catch (bypassError) {
-          console.error('Debug bypass error:', bypassError);
-        }
-      }
+      // Cache the result
+      const count = result.unread_count || 0;
+      window.cachedNotificationCount = count;
+      console.log('Notification count:', count);
       
-      const result = await makeAuthenticatedRequest('/api/notifications?limit=1');
-      console.log('Notification response:', result);
-      return result.unread_count || 0;
+      return count;
     } catch (error) {
       console.error('Error fetching notification count:', error);
-      // Don't show notifications if there's an API error
-      return 0;
+      
+      // Try one more time with a direct bypass if there was an error
+      try {
+        console.log('Trying alternative notification endpoint...');
+        const fallbackResult = await makeAuthenticatedRequest('/api/notifications?limit=1&bypass_auth=true', {
+          allowUnauthenticated: true,
+        });
+        
+        const fallbackCount = fallbackResult.unread_count || 0;
+        window.cachedNotificationCount = fallbackCount;
+        return fallbackCount;
+      } catch (fallbackError) {
+        // Don't show notifications if all API requests fail
+        console.error('All notification requests failed');
+        return 0;
+      }
     }
   } catch (error) {
     console.error('Error in notification handling:', error);
     return 0;
+  }
+}
+
+/**
+ * Function to update notification badges throughout the UI
+ * This can be called periodically to refresh notifications
+ */
+async function updateNotificationBadges() {
+  try {
+    // Only update if user is logged in
+    if (!Clerk || !Clerk.user) return;
+    
+    // Force refresh the count
+    const count = await fetchNotificationCount(true);
+    
+    // Update all notification badges in the UI
+    const badges = document.querySelectorAll('.notification-badge-count');
+    badges.forEach(badge => {
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove('d-none');
+      } else {
+        badge.classList.add('d-none');
+      }
+    });
+    
+    return count;
+  } catch (error) {
+    console.error('Error updating notification badges:', error);
   }
 }
 async function fetchUserStats() {
@@ -276,6 +433,25 @@ function formatUserName(firstName, lastName) {
   }
 }
 
+/**
+ * Navigate to a user profile page
+ * @param {string} username - The username to navigate to
+ */
+function navigateToUserProfile(username) {
+  if (!username) {
+    console.error('Username is required to navigate to user profile');
+    return;
+  }
+  
+  // Use the clean URL format: railhubpictures.org/users/username
+  window.location.href = `/users/${username}`;
+}
+
+// Track session state to prevent redundant sign-in activities
+let lastSessionId = null;
+let lastActivityTimestamp = 0;
+const SESSION_ACTIVITY_COOLDOWN = 5 * 60 * 1000; // 5 minutes in milliseconds
+
 window.addEventListener("load", async () => {
   // Initialize auth buttons right away
   initAuthButtons();
@@ -283,6 +459,51 @@ window.addEventListener("load", async () => {
   try {
     // Wait for Clerk to load
     await Clerk.load();
+    
+    // Check if we need to track this session
+    if (Clerk.session) {
+      const currentSessionId = Clerk.session.id;
+      const currentTime = Date.now();
+      const sessionStorage = window.sessionStorage;
+      
+      // Get last session data
+      const storedSessionData = sessionStorage.getItem('railhub_session');
+      let sessionData = storedSessionData ? JSON.parse(storedSessionData) : null;
+      
+      if (!sessionData) {
+        // First time we're seeing this session
+        sessionData = {
+          sessionId: currentSessionId,
+          lastActivity: currentTime,
+          signInRecorded: false
+        };
+      } else if (sessionData.sessionId !== currentSessionId) {
+        // New session
+        sessionData = {
+          sessionId: currentSessionId,
+          lastActivity: currentTime,
+          signInRecorded: false
+        };
+      }
+      
+      // Only record sign-in if:
+      // 1. We haven't recorded it for this session, or
+      // 2. It's been longer than the cooldown period
+      window.shouldRecordSignIn = 
+        !sessionData.signInRecorded || 
+        (currentTime - sessionData.lastActivity > SESSION_ACTIVITY_COOLDOWN);
+        
+      // Update session data
+      sessionData.lastActivity = currentTime;
+      if (window.shouldRecordSignIn) {
+        sessionData.signInRecorded = true;
+      }
+      
+      // Save updated session data
+      sessionStorage.setItem('railhub_session', JSON.stringify(sessionData));
+      
+      console.log(`Session tracking: ${window.shouldRecordSignIn ? 'Recording sign-in' : 'Skipping redundant sign-in'}`);
+    }
     
     // Get the auth buttons container
     const authButtonsContainer = document.getElementById("auth-buttons");
@@ -308,17 +529,23 @@ window.addEventListener("load", async () => {
         console.log('Could not fetch notification count, using default');
       }
       
+      // Create notification badges for both dropdown item and avatar
       const notificationBadge = notificationCount > 0 ? 
         `<span class="badge bg-danger rounded-pill ms-2">${notificationCount}</span>` : '';
+      
+      // Create a position-absolute badge for the avatar
+      const avatarBadge = notificationCount > 0 ? 
+        `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">${notificationCount}<span class="visually-hidden">unread notifications</span></span>` : '';
       
       // Clean, minimal desktop auth UI - just avatar dropdown
       authButtonsContainer.innerHTML = `
         <div class="dropdown">
-          <button class="btn btn-link p-0 border-0 d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn btn-link p-0 border-0 d-flex align-items-center position-relative" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             ${userImageUrl ? 
               `<img src="${userImageUrl}" alt="${displayName}" class="rounded-circle" width="32" height="32" style="object-fit: cover;">` :
               `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 14px; font-weight: 500;">${userInitials}</div>`
             }
+            ${avatarBadge}
           </button>
           <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 200px;" aria-labelledby="userDropdown">
             <li class="dropdown-header border-bottom pb-2 mb-2">
@@ -357,11 +584,14 @@ window.addEventListener("load", async () => {
       // Mobile auth buttons - centered modal dropdown
       if (mobileAuthButtons) {
         mobileAuthButtons.innerHTML = `
-          <button class="btn btn-link p-1" type="button" data-bs-toggle="modal" data-bs-target="#mobileUserModal">
+          <button class="btn btn-link p-1 position-relative" type="button" data-bs-toggle="modal" data-bs-target="#mobileUserModal">
             ${userImageUrl ? 
               `<img src="${userImageUrl}" alt="${displayName}" class="rounded-circle" width="28" height="28" style="object-fit: cover;">` :
               `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 12px; font-weight: 500;">${userInitials}</div>`
             }
+            ${notificationCount > 0 ? 
+              `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.55rem;">${notificationCount}<span class="visually-hidden">unread notifications</span></span>` : 
+              ''}
           </button>
           
           <!-- Mobile User Modal -->
@@ -410,6 +640,11 @@ window.addEventListener("load", async () => {
       }
       
       console.log("User is signed in:", displayName);
+      
+      // Set up periodic notification check if user is logged in
+      // Check for new notifications every 2 minutes
+      const NOTIFICATION_CHECK_INTERVAL = 2 * 60 * 1000; // 2 minutes in milliseconds
+      setInterval(updateNotificationBadges, NOTIFICATION_CHECK_INTERVAL);
       
     } else {
       // User is not logged in - clean sign in/up buttons

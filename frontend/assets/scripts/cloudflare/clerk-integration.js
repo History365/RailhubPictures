@@ -2,32 +2,30 @@
  * RailHub Pictures Clerk Auth Integration
  * 
  * This file integrates Clerk authentication with the RailHub API
+ * IMPORTANT: This file is being deprecated in favor of clerk-auth.js
+ * This file is kept for backward compatibility only
  */
 
-// Function to load Clerk script
+// Import functions from clerk-auth.js
+console.log('Loading clerk-integration.js (deprecated)');
+console.log('This file is deprecated. Use clerk-auth.js instead.');
+
+// Function to load Clerk script - THIS IS DEPRECATED, DO NOT USE
 function loadClerkScript() {
+  console.warn('loadClerkScript is deprecated. The Clerk script should be loaded in HTML.');
   return new Promise((resolve, reject) => {
     // Check if Clerk is already loaded
     if (window.Clerk) {
+      console.log('Clerk already loaded, using existing instance');
       resolve(window.Clerk);
       return;
     }
 
-    // Create script element
-    const script = document.createElement('script');
-    script.src = 'https://cdn.clerk.dev/v1/clerk.js';
-    script.async = true;
-    script.crossOrigin = 'anonymous';
+    console.error('Clerk should be loaded via HTML script tag with proper publishable key');
+    reject(new Error('Clerk loading method deprecated'));
     
-    script.onload = () => {
-      // Initialize Clerk with your publishable key
-      window.Clerk.load({
-        publishableKey: 'pk_your_clerk_publishable_key' // Replace with your actual key
-      }).then(clerk => {
-        resolve(clerk);
-      }).catch(error => {
-        reject(error);
-      });
+    // NO LONGER USED - Clerk is now loaded via HTML script tag
+    // with the correct publishable key: pk_test_Y29tbXVuYWwtY2F0LTI1LmNsZXJrLmFjY291bnRzLmRldiQ
     };
     
     script.onerror = () => {
