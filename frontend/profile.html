@@ -314,9 +314,9 @@
                 // Update header with Clerk data first
                 updateProfileHeader();
                 
-                // Fetch enhanced profile data from API
+                // Fetch enhanced profile data from API - this is a direct user action so record it
                 const [profile, stats] = await Promise.all([
-                    fetchUserProfile(),
+                    fetchUserProfile(true), // Explicitly record this as user activity
                     fetchUserStats()
                 ]);
                 
