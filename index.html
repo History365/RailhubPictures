@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Railhub Pictures</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="assets/stylesheet/stylesheet.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <script src="assets/scripts/api-loader.js"></script>
+    <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
+    <script src="assets/scripts/cloudflare/photo-display.js"></script>
+    <script src="assets/scripts/cloudflare/cloudflare-integration.js"></script>
+    <script src="assets/scripts/footer.js" defer></script>
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_Y29tbXVuYWwtY2F0LTI1LmNsZXJrLmFjY291bnRzLmRldiQ"
+      src="https://communal-cat-25.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+      type="text/javascript">
+    </script>
+    <script src="assets/scripts/clerk-auth.js"></script>
+</head>
+<body>
+    <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee; box-sizing: border-box;">
+        <div style="display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <a href="index.html" style="display: flex; align-items: center;">
+                    <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 300px; height: auto;">
+                </a>
+                <div style="display: flex; align-items: center; gap: 2rem;">
+                    <span style="color: #666; font-size: 0.95em;" id="userInfo"></span>
+                    <script>
+                        var today = new Date();
+                        var dd = String(today.getDate()).padStart(2, '0');
+                        var mm = String(today.getMonth() + 1).padStart(2, '0');
+                        var yyyy = today.getFullYear();
+                        document.write('<span style="color: #666;">' + mm + '/' + dd + '/' + yyyy + '</span>');
+                    </script>
+                    <div style="display: flex; gap: 1rem;" id="auth-buttons">
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <nav style="display: flex; gap: 2.5rem;">
+                    <a href="index.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Home</a>
+                    <a href="newestphotos.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Newest Photos</a>
+                    <a href="contribPicks.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Contributor Picks</a>
+                    <a href="railroadList.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Railroads</a>
+                </nav>
+                <div style="display: flex; gap: 1.5rem; align-items: center; margin-left: 4rem;">
+                    <form action="search.html" method="get" style="display: flex; gap: 0.5rem;">
+                        <input type="text" name="q" placeholder="Search..." style="padding: 0.7em 1em; border: 1px solid #eee; border-radius: 6px; font-size: 0.95em; width: 240px; background: #f5f5f5; color: #444; font-family: 'Inter', sans-serif;">
+                        <button type="submit" style="background: #444; color: #fff; border: none; padding: 0.7em 1.2em; border-radius: 6px; font-size: 0.95em; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500;">Search</button>
+                    </form>
+                    <a href="upload.html" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 0.95em; background: #444; padding: 0.7em 1.4em; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Upload
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero d-flex align-items-center">
+        <div class="container text-center">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <h1 class="display-4 fw-bold mb-3">Find Your Perfect Railroad Photo</h1>
+                    <p class="fs-5 mb-4">Browse thousands of high-quality railroad photographs by location, railroad, or locomotive model.</p>
+                    <div class="d-flex justify-content-center flex-wrap gap-2 mt-4">
+                        <a href="newestphotos.html" class="btn btn-lg cta-button text-white">Latest Photos</a>
+                        <a href="search.html" class="btn btn-lg cta-button text-white" style="background: rgba(255,255,255,0.15);">Search Photos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Search Section -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-2">Quick Find</h2>
+                <p class="text-muted">Jump straight to what you're looking for</p>
+            </div>
+            <div class="row row-cols-2 row-cols-md-4 g-3">
+                <div class="col">
+                    <a href="newestphotos.html" class="card h-100 text-center text-decoration-none text-dark bg-light border-0 p-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Latest Photos</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="contribPicks.html" class="card h-100 text-center text-decoration-none text-dark bg-light border-0 p-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Popular Photos</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="photoCalendar.html" class="card h-100 text-center text-decoration-none text-dark bg-light border-0 p-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Photos by Date</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="search.html" class="card h-100 text-center text-decoration-none text-dark bg-light border-0 p-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Advanced Search</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Browse By Railroad -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-2">Major Railroads</h2>
+                <p class="text-muted">Find photos from North America's largest railroads</p>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                <div class="col">
+                    <a href="Railroadid=UP.html" class="railroad-card text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            <img src="assets/images/railroads/up.jpg" class="card-img-top" alt="Union Pacific">
+                            <div class="card-body">
+                                <h5 class="card-title">Union Pacific</h5>
+                                <p class="card-text text-muted">Western United States</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="Railroadid=BNSF.html" class="railroad-card text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            <img src="assets/images/railroads/bnsf.jpg" class="card-img-top" alt="BNSF Railway">
+                            <div class="card-body">
+                                <h5 class="card-title">BNSF Railway</h5>
+                                <p class="card-text text-muted">Western & Central US</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="Railroadid=CSX.html" class="railroad-card text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            <img src="assets/images/railroads/csx.jpg" class="card-img-top" alt="CSX Transportation">
+                            <div class="card-body">
+                                <h5 class="card-title">CSX Transportation</h5>
+                                <p class="card-text text-muted">Eastern United States</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="Railroadid=NS.html" class="railroad-card text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            <img src="assets/images/railroads/ns.jpg" class="card-img-top" alt="Norfolk Southern">
+                            <div class="card-body">
+                                <h5 class="card-title">Norfolk Southern</h5>
+                                <p class="card-text text-muted">Eastern United States</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="railroadList.html" class="btn btn-dark">View All Railroads</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Browse By Category -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-2">Browse By Category</h2>
+                <p class="text-muted">Find exactly what you're looking for</p>
+            </div>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <!-- Locomotive Models -->
+                <div class="col">
+                    <div class="card h-100 bg-light border-0">
+                        <div class="card-body">
+                            <h3 class="h5 mb-3">Locomotive Models</h3>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="search.html?model=SD70ACe" class="text-decoration-none text-dark">SD70ACe</a></li>
+                                <li class="mb-2"><a href="search.html?model=ES44AC" class="text-decoration-none text-dark">ES44AC</a></li>
+                                <li class="mb-2"><a href="search.html?model=SD40-2" class="text-decoration-none text-dark">SD40-2</a></li>
+                                <li class="mb-2"><a href="search.html?model=GP38-2" class="text-decoration-none text-dark">GP38-2</a></li>
+                                <li class="mb-2"><a href="search.html?model=ET44AC" class="text-decoration-none text-dark">ET44AC</a></li>
+                                <li class="mb-2"><a href="search.html?model=AC4400CW" class="text-decoration-none text-dark">AC4400CW</a></li>
+                                <li class="mb-2"><a href="search.html?modeltype=all" class="text-decoration-none text-dark fw-medium">View All Models →</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Locations -->
+                <div class="col">
+                    <div class="card h-100 bg-light border-0">
+                        <div class="card-body">
+                            <h3 class="h5 mb-3">Popular Locations</h3>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="search.html?location=Cajon Pass" class="text-decoration-none text-dark">Cajon Pass, CA</a></li>
+                                <li class="mb-2"><a href="search.html?location=Tehachapi Loop" class="text-decoration-none text-dark">Tehachapi Loop, CA</a></li>
+                                <li class="mb-2"><a href="search.html?location=Horseshoe Curve" class="text-decoration-none text-dark">Horseshoe Curve, PA</a></li>
+                                <li class="mb-2"><a href="search.html?location=Chicago" class="text-decoration-none text-dark">Chicago, IL</a></li>
+                                <li class="mb-2"><a href="search.html?location=Donner Pass" class="text-decoration-none text-dark">Donner Pass, CA</a></li>
+                                <li class="mb-2"><a href="search.html?location=Denver" class="text-decoration-none text-dark">Denver, CO</a></li>
+                                <li class="mb-2"><a href="search.html?location=all" class="text-decoration-none text-dark fw-medium">View All Locations →</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time Period -->
+                <div class="col">
+                    <div class="card h-100 bg-light border-0">
+                        <div class="card-body">
+                            <h3 class="h5 mb-3">Browse by Time</h3>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="search.html?era=2020s" class="text-decoration-none text-dark">2020s</a></li>
+                                <li class="mb-2"><a href="search.html?era=2010s" class="text-decoration-none text-dark">2010s</a></li>
+                                <li class="mb-2"><a href="search.html?era=2000s" class="text-decoration-none text-dark">2000s</a></li>
+                                <li class="mb-2"><a href="search.html?era=1990s" class="text-decoration-none text-dark">1990s</a></li>
+                                <li class="mb-2"><a href="search.html?era=1980s" class="text-decoration-none text-dark">1980s</a></li>
+                                <li class="mb-2"><a href="search.html?era=1970s" class="text-decoration-none text-dark">1970s</a></li>
+                                <li class="mb-2"><a href="search.html?era=all" class="text-decoration-none text-dark fw-medium">View All Eras →</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Theme Toggler (Simple version) -->
+    <div class="container-fluid py-2 text-center bg-body-tertiary border-top">
+        <button type="button" class="btn btn-sm btn-outline-secondary px-3" id="themeToggleBtn" aria-label="Toggle dark/light mode">
+            <span class="d-flex align-items-center">
+                <!-- Light icon (shown in dark mode) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-brightness-high theme-light-icon me-2" viewBox="0 0 16 16" style="display: none;">
+                    <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/>
+                </svg>
+                <!-- Dark icon (shown in light mode) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon theme-dark-icon me-2" viewBox="0 0 16 16">
+                    <path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278M4.858 1.311A7.27 7.27 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.32 7.32 0 0 0 5.205-2.162q-.506.063-1.029.063c-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286"/>
+                </svg>
+                <span class="theme-name">Light Mode</span>
+            </span>
+        </button>
+    </div>
+
+    <!-- Footer will be inserted by footer.js -->
+
+    <!-- Bootstrap JS -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Date Display and UI Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize auth buttons right away
+            if (typeof initAuthButtons === 'function') {
+                initAuthButtons();
+            }
+            
+            // Set current date in the header
+            const today = new Date();
+            const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
+            const formattedDate = today.toLocaleDateString('en-US', options);
+            
+            // Update mobile date display
+            const mobileDateElement = document.getElementById('mobile-header-date');
+            if (mobileDateElement && !mobileDateElement.innerHTML.trim()) {
+                mobileDateElement.textContent = formattedDate;
+            }
+            
+            // Handle footer styling if needed
+            setTimeout(function() {
+                const footer = document.querySelector('.site-footer');
+                if (footer) {
+                    footer.classList.add('mt-4');
+                }
+            }, 100);
+            
+            // Simplified theme toggle functionality
+            const htmlElement = document.documentElement;
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const lightIcon = document.querySelector('.theme-light-icon');
+            const darkIcon = document.querySelector('.theme-dark-icon');
+            
+            // Get current theme from data-bs-theme attribute or localStorage
+            const currentTheme = htmlElement.getAttribute('data-bs-theme') || 
+                                localStorage.getItem('theme') || 
+                                'light';
+            
+            // Update toggle button to show the correct icon
+            updateThemeToggleButton(currentTheme);
+            
+            // Add click event listener to theme toggle button
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const currentTheme = htmlElement.getAttribute('data-bs-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    
+                    // Apply theme
+                    htmlElement.setAttribute('data-bs-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    
+                    // Update button
+                    updateThemeToggleButton(newTheme);
+                    
+                    // Update CSS variables for footer
+                    updateFooterStyles(newTheme);
+                });
+            }
+            
+            // Function to update the theme toggle button appearance
+            function updateThemeToggleButton(theme) {
+                if (theme === 'dark') {
+                    if (lightIcon) lightIcon.style.display = 'inline-block';
+                    if (darkIcon) darkIcon.style.display = 'none';
+                    
+                    // Update text to show current mode
+                    const themeName = document.querySelector('.theme-name');
+                    if (themeName) themeName.textContent = 'Dark Mode';
+                } else {
+                    if (lightIcon) lightIcon.style.display = 'none';
+                    if (darkIcon) darkIcon.style.display = 'inline-block';
+                    
+                    // Update text to show current mode
+                    const themeName = document.querySelector('.theme-name');
+                    if (themeName) themeName.textContent = 'Light Mode';
+                }
+            }
+            
+            // Function to update CSS variables for footer
+            function updateFooterStyles(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.style.setProperty('--footer-bg', '#212529');
+                    document.documentElement.style.setProperty('--footer-text', '#e9ecef');
+                    document.documentElement.style.setProperty('--border-color', '#495057');
+                } else {
+                    document.documentElement.style.setProperty('--footer-bg', '#f8f8f8');
+                    document.documentElement.style.setProperty('--footer-text', '#666');
+                    document.documentElement.style.setProperty('--border-color', '#eee');
+                }
+            }
+            
+            // Function to update the footer theme toggle
+            function updateFooterThemeToggle(theme) {
+                // Wait for the footer to be created
+                setTimeout(() => {
+                    // Get the footer toggle
+                    const footerToggle = document.getElementById('theme-toggle');
+                    if (!footerToggle) return;
+                    
+                    // Get icons
+                    const moonIcon = footerToggle.querySelector('.moon-icon');
+                    const sunIcon = footerToggle.querySelector('.sun-icon');
+                    
+                    // Update icon visibility based on current theme
+                    if (theme === 'dark') {
+                        if (moonIcon) moonIcon.style.display = 'none';
+                        if (sunIcon) sunIcon.style.display = 'block';
+                    } else {
+                        if (moonIcon) moonIcon.style.display = 'block';
+                        if (sunIcon) sunIcon.style.display = 'none';
+                    }
+                }, 500); // Wait for footer to be created
+            }
+            
+            // Update the footer theme toggle on page load
+            document.addEventListener('DOMContentLoaded', () => {
+                updateFooterThemeToggle(savedTheme);
+            });
+        });
+    </script>
+    
+    <!-- Cloudflare Pages Analytics -->
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f241e05c96544681a1d25bb8679ad028"}'></script>
+    <!-- Cloudflare Pages Analytics -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"bf34209a073f4713bc2da36b35669ffd","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
+
+Looking at the todo list, I've already created the theme.js file and now I need to update the footer.js file to work with our new theme system. Let me explain what still needs to be done:
+
+Complete the footer.js update: I need to finish updating the setupThemeToggle function in footer.js to use our new ThemeSystem from theme.js instead of handling theme toggling directly. This will simplify the code and centralize theme management.
+
+Remove theme toggle from index.html: After updating footer.js, I'll need to remove any duplicate theme toggle buttons from index.html to prevent conflicts.
+
+Fix login/signup buttons display: Currently, there's an issue where the login/signup buttons aren't visible until after Clerk authentication completes. I need to modify the code to show these buttons immediately, with appropriate states.
+
+Redesign desktop header: The header layout for desktop view needs improvements for better aesthetics and usability.
+
+Improve homepage design and scaling: The homepage needs design enhancements, including better typography, spacing, layout adjustments, and improved responsiveness across different screen sizes.
+
+Would you like me to continue with updating the footer.js file now, or shall we address these tasks later?
