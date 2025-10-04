@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notifications | Railhub Pictures</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/stylesheet/theme.css" rel="stylesheet">
-    <link href="assets/stylesheet/styles.css" rel="stylesheet">
-    <!-- Favicon -->
+    <link href="assets/stylesheet/stylesheet.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
     <script src="assets/scripts/api-loader.js"></script>
     <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
@@ -24,191 +20,15 @@
       type="text/javascript">
     </script>
     <script src="assets/scripts/clerk-auth.js"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #ffffff;
-            padding-top: 100px;
-        }
-        .notification-item {
-            border-left: 4px solid #0066cc;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            background-color: #ffffff;
-        }
-        .notification-item:hover {
-            background-color: #f0f5ff;
-        }
-        .notification-item:active {
-            background-color: #e5eeff;
-            transform: translateY(1px);
-        }
-        .notification-item.unread {
-            background-color: #f8f9ff;
-            border-left-color: #0066cc;
-        }
-        .notification-item.read {
-            border-left-color: #dee2e6;
-            background-color: #ffffff;
-        }
-        .notification-content {
-            padding-right: 40px; /* Space for action buttons */
-        }
-        .notification-actions {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            gap: 8px;
-        }
-        .notification-item:hover .notification-actions {
-            opacity: 1;
-        }
-        .btn-action {
-            padding: 6px 10px;
-            font-size: 0.75rem;
-            color: #6c757d;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-        .btn-action:hover {
-            color: #0066cc;
-            background-color: #e9ecef;
-            border-color: #0066cc;
-        }
-        .btn-delete {
-            color: #6c757d;
-        }
-        .btn-delete:hover {
-            color: #fff;
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-        .notification-badge {
-            display: inline-block;
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background-color: #0066cc;
-            color: white;
-            margin-left: 8px;
-        }
-        .notification-icon {
-            width: 40px;
-            height: 40px;
-            background-color: #f0f8ff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            color: #0066cc;
-            border: 1px solid #e1edff;
-        }
-        .fade-out {
-            opacity: 0;
-            transform: translateX(10px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .notification-highlight {
-            background-color: #e5eeff !important;
-            transition: background-color 0.5s ease;
-        }
-        .btn-action-pulse {
-            animation: button-pulse 0.6s ease;
-        }
-        @keyframes button-pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        .dropdown-item.active {
-            background-color: #0066cc;
-            color: white;
-        }
-        /* Custom styling for card shadows to match rest of the site */
-        .card {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            border: 1px solid #f0f0f0;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #ffffff;
-        }
-        .card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.07);
-        }
-        /* Make badge style consistent with rest of site */
-        .badge {
-            font-weight: 500;
-            padding: 0.35em 0.65em;
-        }
-        /* Toast styling to match site theme */
-        .toast {
-            background-color: white;
-            border-left: 4px solid #0066cc;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.07);
-            border-radius: 6px;
-        }
-        .toast-header {
-            background-color: rgba(0,102,204,0.05);
-            border-bottom: 1px solid rgba(0,102,204,0.1);
-        }
-        .btn-primary {
-            background-color: #0066cc;
-            border-color: #0066cc;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #0055aa;
-            border-color: #0055aa;
-            color: white;
-        }
-        .btn-outline-primary {
-            color: #0066cc;
-            border-color: #0066cc;
-            background-color: transparent;
-        }
-        .btn-outline-primary:hover {
-            background-color: #0066cc;
-            color: white;
-        }
-        /* Additional lightmode styling */
-        .dropdown-menu {
-            background-color: white;
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-        .dropdown-item {
-            color: #333;
-        }
-        .dropdown-item:hover {
-            background-color: #f8f9fa;
-        }
-        .text-muted {
-            color: #6c757d !important;
-        }
-        section {
-            background-color: white;
-        }
-    </style>
 </head>
 <body>
-    <!-- Header -->
     <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee; box-sizing: border-box;">
-        <div style="display: flex; flex-direction: column; max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
-            <!-- Top Row with Logo and Account -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <div style="display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <a href="index.html" style="display: flex; align-items: center;">
-                    <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 250px; height: auto;">
+                    <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 300px; height: auto;">
                 </a>
-                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 2rem;">
                     <span style="color: #666; font-size: 0.95em;" id="userInfo"></span>
                     <script>
                         var today = new Date();
@@ -218,25 +38,23 @@
                         document.write('<span style="color: #666;">' + mm + '/' + dd + '/' + yyyy + '</span>');
                     </script>
                     <div style="display: flex; gap: 1rem;" id="auth-buttons">
-                        <!-- Auth buttons will be dynamically inserted by Clerk -->
                     </div>
                 </div>
             </div>
-            <!-- Bottom Row with Navigation and Search -->
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <nav style="display: flex; gap: 1.75rem;">
+                <nav style="display: flex; gap: 2.5rem;">
                     <a href="index.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Home</a>
                     <a href="newestphotos.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Newest Photos</a>
                     <a href="contribPicks.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Contributor Picks</a>
                     <a href="railroadList.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Railroads</a>
                 </nav>
-                <div style="display: flex; gap: 1rem; align-items: center;">
+                <div style="display: flex; gap: 1.5rem; align-items: center; margin-left: 4rem;">
                     <form action="search.html" method="get" style="display: flex; gap: 0.5rem;">
-                        <input type="text" name="q" placeholder="Search..." style="padding: 0.6em 0.9em; border: 1px solid #eee; border-radius: 6px; font-size: 0.95em; width: 220px; background: #f5f5f5; color: #444; font-family: 'Inter', sans-serif;">
-                        <button type="submit" style="background: #444; color: #fff; border: none; padding: 0.6em 1em; border-radius: 6px; font-size: 0.95em; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500;">Search</button>
+                        <input type="text" name="q" placeholder="Search..." style="padding: 0.7em 1em; border: 1px solid #eee; border-radius: 6px; font-size: 0.95em; width: 240px; background: #f5f5f5; color: #444; font-family: 'Inter', sans-serif;">
+                        <button type="submit" style="background: #444; color: #fff; border: none; padding: 0.7em 1.2em; border-radius: 6px; font-size: 0.95em; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500;">Search</button>
                     </form>
-                    <a href="upload.html" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 0.95em; background: #444; padding: 0.6em 1.2em; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <a href="upload.html" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 0.95em; background: #444; padding: 0.7em 1.4em; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
                             <line x1="12" y1="3" x2="12" y2="15"/>
@@ -249,141 +67,167 @@
     </header>
 
     <!-- Notifications Content -->
-    <section class="py-5" style="background-color: #ffffff;">
-        <div class="container" style="background-color: #ffffff;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>Notifications</h1>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-danger btn-sm" onclick="deleteAllRead()">
-                        <i class="bi bi-trash me-1"></i>Delete Read
-                    </button>
-                    <button class="btn btn-outline-primary btn-sm" onclick="markAllAsRead()">
-                        <i class="bi bi-check-all me-1"></i>Mark All as Read
-                    </button>
+    <main>
+        <section>
+            <div class="notification-container">
+                <div>
+                    <h1>Notifications</h1>
                 </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-lg-8">
-                    <!-- Action Bar -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-outline-primary active" onclick="filterNotifications('all')">
-                                <i class="bi bi-list me-1"></i>All
-                            </button>
-                            <button type="button" class="btn btn-outline-primary" onclick="filterNotifications('unread')">
-                                <i class="bi bi-bell-fill me-1"></i>Unread
-                            </button>
-                            <button type="button" class="btn btn-outline-primary" onclick="filterNotifications('read')">
-                                <i class="bi bi-check-all me-1"></i>Read
-                            </button>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-outline-primary" onclick="markAllAsRead()">
-                                <i class="bi bi-check-all me-1"></i>Mark All Read
-                            </button>
-                            <button class="btn btn-outline-danger" onclick="showDeleteConfirmation()">
-                                <i class="bi bi-trash me-1"></i>Delete
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Notifications List -->
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                            <h5 class="mb-0">Your Notifications</h5>
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-funnel me-1"></i>Advanced Filter
+                
+                <div class="d-flex notification-layout">
+                    <div class="notification-main">
+                        <!-- Main Notification Card -->
+                    <div class="notification-card">
+                        <!-- Card Header with Title and Actions -->
+                        <div class="notification-header">
+                            <h2 class="notification-title">Your Notifications</h2>
+                            
+                            <div class="d-flex align-items-center">
+                                <!-- Mark all as read button -->
+                                <button class="btn btn-outline" onclick="markAllAsRead()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="icon-margin-right">
+                                        <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 9.793l3.146-3.147a.5.5 0 0 1 .708 0z"/>
+                                        <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                    </svg>
+                                    Mark All Read
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
-                                    <li><a class="dropdown-item active" href="#" onclick="filterNotifications('all')"><i class="bi bi-list me-2"></i>All</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('unread')"><i class="bi bi-bell-fill me-2"></i>Unread</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('read')"><i class="bi bi-bell me-2"></i>Read</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><h6 class="dropdown-header">Notification Types</h6></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('comments')"><i class="bi bi-chat-fill me-2 text-success"></i>Comments</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('likes')"><i class="bi bi-heart-fill me-2 text-danger"></i>Likes</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('system')"><i class="bi bi-info-circle-fill me-2 text-primary"></i>System</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('welcome')"><i class="bi bi-hand-wave-fill me-2 text-warning"></i>Welcome</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('login')"><i class="bi bi-box-arrow-in-right me-2 text-success"></i>Login Activity</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="card-body p-0" id="notifications-container">
-                            <div class="text-center py-5">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
+                                
+                                <!-- Filter dropdown -->
+                                <div class="filter-dropdown">
+                                    <button class="btn btn-outline" onclick="toggleFilterMenu()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="icon-margin-right">
+                                            <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                                        </svg>
+                                        Filter
+                                    </button>
+                                    
+                                    <!-- Filter dropdown menu -->
+                                    <div class="dropdown-menu" id="filter-menu">
+                                        <a class="dropdown-item active" onclick="filterNotifications('all')">All Notifications</a>
+                                        <a class="dropdown-item" onclick="filterNotifications('unread')">Unread Only</a>
+                                        <a class="dropdown-item" onclick="filterNotifications('read')">Read Only</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" onclick="filterNotifications('comments')">Comments</a>
+                                        <a class="dropdown-item" onclick="filterNotifications('likes')">Likes</a>
+                                        <a class="dropdown-item" onclick="filterNotifications('system')">System</a>
+                                        <a class="dropdown-item" onclick="filterNotifications('welcome')">Welcome</a>
+                                        <a class="dropdown-item" onclick="filterNotifications('login')">Login Activity</a>
+                                    </div>
                                 </div>
-                                <p class="text-muted mt-2">Loading notifications...</p>
+                                
+                                <!-- Actions dropdown -->
+                                <div class="filter-dropdown">
+                                    <button class="btn btn-outline" onclick="toggleActionsMenu()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="icon-margin-right">
+                                            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                        </svg>
+                                        Actions
+                                    </button>
+                                    
+                                    <!-- Actions dropdown menu -->
+                                    <div class="dropdown-menu" id="actions-menu">
+                                        <a class="dropdown-item" onclick="deleteAllRead()">Delete All Read</a>
+                                        <a class="dropdown-item" onclick="confirmDeleteAll()">Delete All</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-footer bg-white text-center py-3 d-none" id="notification-load-more">
-                            <button class="btn btn-outline-primary btn-sm" onclick="loadMoreNotifications()">
-                                Load More Notifications
-                            </button>
+                        
+                        <!-- Notification Container -->
+                        <div id="notifications-container">
+                            <!-- Loading indicator -->
+                            <div class="empty-state">
+                                <div class="spinner"></div>
+                                <p class="empty-state-text mt-3">Loading notifications...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Load More Footer -->
+                        <div class="text-center py-2 d-none" id="notification-load-more">
+                            <button class="btn btn-outline" onclick="loadMoreNotifications()">Load More Notifications</button>
                         </div>
                     </div>
                 </div>
                 
-                <div class="col-lg-4 mt-4 mt-lg-0">
-                    <div class="card border-0 shadow-sm mb-3">
-                        <div class="card-header bg-white py-3 d-flex align-items-center">
-                            <i class="bi bi-graph-up text-primary me-2"></i>
-                            <h5 class="mb-0">Notification Stats</h5>
+                <div class="notification-sidebar">
+                    <!-- Notification Stats -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-card-header">
+                            Notification Summary
                         </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between mb-2 p-2 bg-light rounded">
-                                <span><i class="bi bi-bell-fill text-primary me-2"></i>Unread:</span>
-                                <span class="badge bg-primary" id="unread-count">0</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2 p-2" style="background-color: #f9f9f9; border-radius: 0.25rem;">
-                                <span><i class="bi bi-calendar-week text-info me-2"></i>This week:</span>
-                                <span class="badge bg-info" id="week-count">0</span>
-                            </div>
-                            <div class="d-flex justify-content-between p-2 bg-light rounded">
-                                <span><i class="bi bi-list-check me-2"></i>Total:</span>
-                                <span class="badge bg-secondary" id="total-count">0</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card border-0 shadow-sm mb-3">
-                        <div class="card-header bg-white py-3 d-flex align-items-center">
-                            <i class="bi bi-gear-fill text-primary me-2"></i>
-                            <h5 class="mb-0">Settings</h5>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted small mb-3">Manage how you receive notifications across RailHub Pictures</p>
-                            <div class="d-grid">
-                                <a href="account-settings.html#notifications" class="btn btn-outline-primary">
-                                    <i class="bi bi-sliders me-2"></i>Notification Preferences
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white py-3 d-flex align-items-center">
-                            <i class="bi bi-lightbulb-fill text-primary me-2"></i>
-                            <h5 class="mb-0">Quick Tips</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="ps-3 mb-0 small text-muted">
-                                <li class="mb-2"><strong>Click</strong> on a notification to view more details</li>
-                                <li class="mb-2">Use the <strong>filter buttons</strong> to sort by notification status</li>
-                                <li class="mb-2">Use <strong>Advanced Filter</strong> to filter by notification type</li>
-                                <li><strong>Delete</strong> notifications you no longer need</li>
+                        <div class="sidebar-card-body">
+                            <ul class="stats-list">
+                                <li>
+                                    <span class="stats-label">Unread</span>
+                                    <span class="stats-value" id="unread-count">0</span>
+                                </li>
+                                <li>
+                                    <span class="stats-label">This Week</span>
+                                    <span class="stats-value" id="week-count">0</span>
+                                </li>
+                                <li>
+                                    <span class="stats-label">Total</span>
+                                    <span class="stats-value" id="total-count">0</span>
+                                </li>
                             </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Filters -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-card-header">
+                            Quick Filters
+                        </div>
+                        <div class="sidebar-card-body">
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                <button class="btn btn-outline btn-sm" onclick="filterNotifications('all')">All</button>
+                                <button class="btn btn-outline btn-sm" onclick="filterNotifications('unread')">Unread</button>
+                                <button class="btn btn-outline btn-sm" onclick="filterNotifications('likes')">Likes</button>
+                                <button class="btn btn-outline btn-sm" onclick="filterNotifications('comments')">Comments</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+    </main>
 
-    <!-- Bootstrap JS -->
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to toggle filter dropdown menu
+        function toggleFilterMenu() {
+            const menu = document.getElementById('filter-menu');
+            menu.classList.toggle('show');
+            
+            // Close actions menu if it's open
+            document.getElementById('actions-menu')?.classList.remove('show');
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function closeFilterMenu(e) {
+                if (!e.target.closest('.filter-dropdown') || e.target.closest('.dropdown-item')) {
+                    menu.classList.remove('show');
+                    document.removeEventListener('click', closeFilterMenu);
+                }
+            });
+        }
+        
+        // Function to toggle actions dropdown menu
+        function toggleActionsMenu() {
+            const menu = document.getElementById('actions-menu');
+            menu.classList.toggle('show');
+            
+            // Close filter menu if it's open
+            document.getElementById('filter-menu')?.classList.remove('show');
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function closeActionsMenu(e) {
+                if (!e.target.closest('.filter-dropdown') || e.target.closest('.dropdown-item')) {
+                    menu.classList.remove('show');
+                    document.removeEventListener('click', closeActionsMenu);
+                }
+            });
+        }
+    </script>
     <script>
         // Variables to track pagination
         let currentPage = 1;
@@ -433,13 +277,13 @@
                     return;
                 }
                 
-                // Show initial loading indicator
+                // Show simplified loading indicator
                 document.getElementById('notifications-container').innerHTML = `
-                    <div class="text-center py-5">
+                    <div class="text-center py-4" style="background-color: #ffffff;">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="text-muted mt-2">Loading notifications...</p>
+                        <p class="mt-2">Loading notifications...</p>
                     </div>
                 `;
                 
@@ -486,11 +330,11 @@
             if (show) {
                 if (!document.getElementById('loading-indicator')) {
                     const loadingHTML = `
-                        <div id="loading-indicator" class="text-center py-3 my-2" style="background-color: #ffffff;">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <div id="loading-indicator" class="text-center py-2 my-1">
+                            <div class="spinner-border spinner-border-sm" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
-                            <span class="ms-2 text-primary">Loading more notifications...</span>
+                            <span class="ms-2">Loading...</span>
                         </div>
                     `;
                     container.insertAdjacentHTML('beforeend', loadingHTML);
@@ -498,8 +342,7 @@
             } else {
                 const indicator = document.getElementById('loading-indicator');
                 if (indicator) {
-                    indicator.classList.add('fade-out');
-                    setTimeout(() => indicator.remove(), 300);
+                    indicator.remove();
                 }
             }
         }
@@ -629,10 +472,10 @@
             // Check if we have valid notifications to display
             if (!notifications || !Array.isArray(notifications) || notifications.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-5" style="background-color: #ffffff;">
-                        <i class="bi bi-bell text-primary" style="font-size: 3rem;"></i>
-                        <p class="text-dark mt-3">No notifications yet</p>
-                        <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
+                    <div class="empty-state">
+                        <i class="bi bi-bell empty-state-icon"></i>
+                        <p class="empty-state-text">No notifications yet</p>
+                        <a href="index.html" class="btn btn-sm btn-outline">Back to Home</a>
                     </div>
                 `;
                 return;
@@ -662,18 +505,24 @@
                 notifEl.setAttribute('data-type', notifType);
                 notifEl.onclick = function(event) { viewNotificationDetails(notification.id, event); };
                 
-                // Set inner HTML
+                // Determine icon class based on notification type
+                const iconClass = notifType === 'like' ? 'like-icon' : 
+                                  notifType === 'comment' ? 'comment-icon' : 
+                                  notifType === 'welcome' ? 'welcome-icon' : 
+                                  notifType === 'login' ? 'login-icon' : 'system-icon';
+                
+                // Set inner HTML with simplified styling
                 notifEl.innerHTML = `
-                    <div class="d-flex">
-                        <div class="notification-icon me-3 d-flex align-items-center justify-content-center">
+                    <div class="d-flex align-items-start">
+                        <div class="notification-icon ${iconClass} d-flex align-items-center justify-content-center">
                             ${icon}
                         </div>
                         <div class="notification-content flex-grow-1">
-                            <p class="mb-1">${notification.message}</p>
-                            <small class="text-muted d-flex align-items-center">
-                                <i class="bi bi-clock me-1"></i>${timeAgo}
+                            <p>${notification.message}</p>
+                            <div class="notification-meta">
+                                ${timeAgo}
                                 ${isUnread ? '<span class="notification-badge ms-2">New</span>' : ''}
-                            </small>
+                            </div>
                         </div>
                         <div class="notification-actions">
                             <button class="btn btn-action" onclick="markAsRead(${notification.id}, event)" title="Mark as read">
@@ -701,19 +550,21 @@
         function getNotificationIcon(type) {
             switch (type) {
                 case 'like':
-                    return '<i class="bi bi-heart-fill text-danger"></i>';
+                    return '<i class="bi bi-heart-fill"></i>';
                 case 'comment':
-                    return '<i class="bi bi-chat-fill text-success"></i>';
+                    return '<i class="bi bi-chat-fill"></i>';
                 case 'follow':
-                    return '<i class="bi bi-person-plus-fill text-info"></i>';
+                    return '<i class="bi bi-person-plus-fill"></i>';
                 case 'system':
-                    return '<i class="bi bi-info-circle-fill text-primary"></i>';
+                    return '<i class="bi bi-info-circle-fill"></i>';
                 case 'login':
-                    return '<i class="bi bi-box-arrow-in-right text-success"></i>';
+                    return '<i class="bi bi-box-arrow-in-right"></i>';
                 case 'upload':
-                    return '<i class="bi bi-upload text-primary"></i>';
+                    return '<i class="bi bi-cloud-upload-fill"></i>';
+                case 'welcome':
+                    return '<i class="bi bi-hand-thumbs-up-fill"></i>';
                 default:
-                    return '<i class="bi bi-bell-fill text-secondary"></i>';
+                    return '<i class="bi bi-bell-fill"></i>';
             }
         }
         
@@ -1178,7 +1029,13 @@
                             shouldDisplay = notificationType === 'like';
                             break;
                         case 'system':
-                            shouldDisplay = notificationType === 'system';
+                            shouldDisplay = notificationType === 'system' || notificationType === 'welcome' || notificationType === 'login';
+                            break;
+                        case 'welcome':
+                            shouldDisplay = notificationType === 'welcome';
+                            break;
+                        case 'login':
+                            shouldDisplay = notificationType === 'login';
                             break;
                         default:
                             shouldDisplay = true;
@@ -1210,7 +1067,9 @@
                     'read': 'Read Notifications',
                     'comments': 'Comment Notifications',
                     'likes': 'Like Notifications',
-                    'system': 'System Notifications'
+                    'system': 'System Notifications',
+                    'welcome': 'Welcome Messages',
+                    'login': 'Login Activity'
                 };
                 
                 // Update header with current filter
@@ -1228,11 +1087,11 @@
                 if (visibleCount === 0) {
                     if (!document.getElementById('no-results')) {
                         container.innerHTML += `
-                            <div class="text-center py-4" id="no-results" style="background-color: #ffffff;">
-                                <i class="bi bi-search text-primary" style="font-size: 2rem;"></i>
-                                <p class="text-dark mt-2">No notifications match your filter</p>
-                                <button class="btn btn-outline-primary btn-sm mt-2" onclick="filterNotifications('all')">
-                                    Show All Notifications
+                            <div class="text-center py-4" id="no-results">
+                                <i class="bi bi-funnel text-muted" style="font-size: 1.5rem;"></i>
+                                <p class="mt-2">No matching notifications</p>
+                                <button class="btn btn-sm btn-outline-primary" onclick="filterNotifications('all')">
+                                    Show All
                                 </button>
                             </div>
                         `;
@@ -1253,69 +1112,30 @@
             }, 200); // Short delay for animation
         }
         
-        // Helper function to show a toast notification
+        // Empty placeholder function to replace toast notifications
         function showToast(message) {
-            // Create toast container if it doesn't exist
-            if (!document.querySelector('.toast-container')) {
-                const toastContainer = document.createElement('div');
-                toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-                document.body.appendChild(toastContainer);
-            }
-            
-            // Create a unique ID for this toast
-            const toastId = 'toast-' + Date.now();
-            
-            // Create toast HTML
-            const toastHTML = `
-                <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <i class="bi bi-bell-fill text-primary me-2"></i>
-                        <strong class="me-auto">Notification</strong>
-                        <small>Just now</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                </div>
-            `;
-            
-            // Add the toast to the container
-            document.querySelector('.toast-container').insertAdjacentHTML('beforeend', toastHTML);
-            
-            // Initialize and show the toast
-            const toastElement = document.getElementById(toastId);
-            const toast = new bootstrap.Toast(toastElement, {
-                autohide: true,
-                delay: 3000
-            });
-            toast.show();
-            
-            // Remove toast after it's hidden
-            toastElement.addEventListener('hidden.bs.toast', function () {
-                toastElement.remove();
-            });
+            // Do nothing - toast notifications have been removed
+            console.log('Notification (disabled):', message);
         }
         
         // Show delete confirmation modal
         function showDeleteConfirmation() {
-            // Create modal HTML
+            // Create simplified modal HTML
             const modalHTML = `
-                <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="deleteConfirmationModalLabel">Delete Notifications</h5>
+                                <h5 class="modal-title">Delete Notifications</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <p>What would you like to delete?</p>
                                 <div class="d-grid gap-2">
                                     <button class="btn btn-outline-danger" onclick="deleteAllRead(); document.getElementById('deleteConfirmationModal').querySelector('.btn-close').click();">
-                                        <i class="bi bi-check-circle me-2"></i>Delete All Read Notifications
+                                        Delete Read Notifications
                                     </button>
                                     <button class="btn btn-outline-danger" onclick="confirmDeleteAll(); document.getElementById('deleteConfirmationModal').querySelector('.btn-close').click();">
-                                        <i class="bi bi-trash me-2"></i>Delete All Notifications
+                                        Delete All Notifications
                                     </button>
                                 </div>
                             </div>
@@ -1375,10 +1195,10 @@
                 if (response && !response.error) {
                     // Clear the notifications container
                                 document.getElementById('notifications-container').innerHTML = `
-                                    <div class="text-center py-5" style="background-color: #ffffff;">
-                                        <i class="bi bi-bell text-primary" style="font-size: 3rem;"></i>
-                                        <p class="text-dark mt-3">No notifications yet</p>
-                                        <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
+                                    <div class="empty-state">
+                                        <i class="bi bi-bell text-primary empty-state-icon"></i>
+                                        <p class="empty-state-text">No notifications yet</p>
+                                        <p class="text-secondary small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
                                     </div>
                                 `;                    // Update counts
                     document.getElementById('unread-count').textContent = '0';
@@ -1395,32 +1215,6 @@
     </script>
     
     <!-- Add toast container -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
-    
-    <!-- Scroll to top button -->
-    <button id="scrollToTopBtn" class="btn btn-primary rounded-circle position-fixed" 
-            style="bottom: 20px; right: 20px; width: 45px; height: 45px; display: none; z-index: 1000; opacity: 0.8;" 
-            onclick="scrollToTop()">
-        <i class="bi bi-arrow-up"></i>
-    </button>
-    
-    <script>
-        // Show/hide scroll to top button based on scroll position
-        window.onscroll = function() {
-            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-                document.getElementById("scrollToTopBtn").style.display = "block";
-            } else {
-                document.getElementById("scrollToTopBtn").style.display = "none";
-            }
-        };
-        
-        // Scroll to top function
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-    </script>
+    <!-- Toast container and scroll to top button have been removed -->
 </body>
 </html>

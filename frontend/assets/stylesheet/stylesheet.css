@@ -1,627 +1,1132 @@
-BODY {
-	font-size : 10px;
-	font-style : normal;
-	line-height : normal;
-	font-weight : normal;
-	color : #000000;
-	text-decoration : none;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-	MARGIN: 0pt;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: auto;
+            min-height: 100%;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+            padding-top: 120px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .photos-grid {
+            display: block;
+            margin-bottom: 3rem;
+            width: 1200px;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+/* Theme variables for Railhub Pictures */
+:root {
+    /* Light theme variables */
+    --background-color: #f8f8f8;
+    --text-color: #333;
+    --secondary-text: #666;
+    --card-background: #fff;
+    --header-background: #fff;
+    --border-color: #eee;
+    --shadow-color: rgba(0,0,0,0.08);
+    --hover-shadow: rgba(0,0,0,0.12);
+    --button-background: #444;
+    --button-text: #fff;
+    --button-border: transparent;
+    --section-alt-background: #f5f5f5;
+    --input-background: #f5f5f5;
+    --input-border: #eee;
+    --card-bg: #ffffff;
+    --footer-bg: #f8f8f8;
+    --footer-text: #666;
+    --accent-color: #4a7dff;
+    --nav-text: #333;
+    --nav-active: #333;
+    --nav-hover: #000;
+    --search-background: #f5f5f5;
+    --quick-find-bg: #f5f5f5;
+    --major-railroads-bg: #f8f8f8;
+    --category-bg: #f5f5f5;
+    --category-border: #e5e5e5;
+
+    /* Dark theme variables */
+    --background-color: #121212;
+    --text-color: #e9ecef;
+    --secondary-text: #adb5bd;
+    --border-color: #2d3238;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --card-background: #1e1e1e;
+    --item-hover-bg: rgba(255, 255, 255, 0.05);
+    --active-item-bg: rgba(74, 125, 255, 0.1);
 }
 
-H1  {
-font-size : 110pt;
-font-family : Verdana, Arial, Helvetica, sans-serif;
-font-weight : bold;
-color : #000000;
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
-H2  {
-font-size : 10pt;
-font-family : Verdana, Arial, Helvetica, sans-serif;
-font-weight : bold;
-color : #000000;
+/* Card styling */
+
+/* Links and buttons */
+a {
+    color: var(--accent-color);
 }
 
-H3  {
-font-size : 10pt;
-font-family : Verdana, Arial, Helvetica, sans-serif;
-font-weight : bold;
-color : #100000;
+button {
+    background-color: var(--button-background);
+    color: var(--button-text);
+    border: 1px solid var(--button-border);
+    box-shadow: 0 1px 3px var(--shadow-color);
 }
 
-.dataTable  {
-	font-size : 10pt;
-	font-style : normal;
-	line-height : normal;
-	font-weight : normal;
-	color : #000000;
-	text-decoration : none;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-	border: 1px solid #000000;
+/* Input fields */
+input {
+    background-color: var(--input-background);
+    border-color: var(--input-border);
+    color: var(--text-color);
 }
 
-.dataTable  A:link, .dataTable A:visited, .dataTable A:active  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Sections and containers */
+
+/* Header elements */
+header {
+    background-color: var(--header-background);
+    border-bottom-color: var(--border-color);
 }
 
-.dataTable A:hover  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+header a {
+    color: var(--nav-text);
 }
 
-.dataTable TR TH  {
-	font-size : 10pt;
-	font-style : normal;
-	line-height : normal;
-	font-weight : bold;
-	color : black;
-	text-decoration : none;
-	background-color : #f3f0dd;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-	font-variant: normal;
-	border-bottom : 1px solid #000000;
-	text-align: left;
+header a:hover {
+    color: var(--nav-hover);
 }
 
-.dataTable TR TD 
-{
-    border-bottom: solid #cccccc 1px;
+/* Navigation */
+nav a {
+    color: var(--nav-text);
 }
 
-.SmallText  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+nav a:hover {
+    color: var(--nav-hover);
 }
 
-.homePageText  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Transitions for smooth theme changes */
+body, a, button, input, header, div, span, p, h1, h2, h3 {
+    transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.homePageText  A:link, .homePageText A:visited, .homePageText A:active {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Theme toggle button styling */
+
+/* Only show moon icon by default */
+
+/* Basic transitions for interactive elements */
+a, button, input {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+html, body {
+  height: 100%;
+  margin: 0;
 }
 
-.homePageText A:hover  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+body {
+  background-color: #ffffff;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
 }
 
-.DefText  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Header and Navigation */
+header {
+  background-color: #ffffff;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 60px;
 }
 
-.DefText  A:link, .DefText A:visited, .DefText A:active  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1800px;
+  margin: 0 auto;
+  min-height: 930x; /* or desired minimum height */
+
 }
 
-.DefText A:hover  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Remove bullet points from all lists */
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.DefTextAlt  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-background-color : #ededed;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Dropdown animation */
+
+/* Section spacing improvements */
+h1, h2, h3 {
+  margin: 0;
+  line-height: 1.2;
 }
 
-.DefTextAlt  A:link, .DefTextAlt A:visited, .DefTextAlt A:active  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Grid section titles */
+div h3 {
+  margin-bottom: 0.75rem;
+  margin-top: 0;
 }
 
-.DefTextAlt A:hover  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Additional utility classes to match your HTML */
+
+
+/* Link styles */
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-.DefTextLocked  {
-	font-size : 10pt;
-	font-style : normal;
-	line-height : normal;
-	font-weight : normal;
-	color : #000000;
-	text-decoration : none;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-	border: 1px solid #FFFFFF;
+a:hover {
+  text-decoration: underline;
 }
 
-.button  {
-	font-size : 10pt;
-	font-style : normal;
-	line-height : normal;
-	font-weight : normal;
-	color : gray;
-	text-decoration : none;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-	border: 1px solid #c10c10c10;
-	background-color; #FFFFFF;
+
+/* Privacy Policy Specific Styles */
+    
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 1200px;
+            margin: -3rem auto 0;
+            padding: 0;
+            overflow: hidden;
+        }
+/* Hero Section */
+
+/* Sections */
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 
-.noDisp {
-	display:none;
+.section-title {
+    text-align: center;
+    margin-bottom: 3rem;
 }
 
-INPUT {
-font : xx-small Verdana;
-}
-   
-.Error  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #100000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Photo Grid */
+
+/* Categories */
+
+/* Features */
+
+/* Footer hover effects */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+            margin-top: 120px;
+            padding: 2rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .policy-container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 3rem;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #444;
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        p, ul {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+
+        ul {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .policy-date {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        a {
+            color: #444;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #000;
+        }
+
+        .section-intro {
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        .policy-toc {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .policy-toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .policy-toc li {
+            margin-bottom: 0.5rem;
+        }
+
+        .policy-toc a {
+            text-decoration: none;
+            color: #444;
+        }
+
+        .policy-toc a:hover {
+            text-decoration: underline;
+            color: #000;
+        }
+
+        .highlight-box {
+            background: #f8f8f8;
+            border-left: 4px solid #444;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        /* Fix for anchor links with fixed header */
+        h2[id] {
+            scroll-margin-top: 140px; /* Add extra space to account for fixed header */
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+            margin-top: 120px;
+            padding: 2rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .policy-container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 3rem;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #444;
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        p, ul {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+
+        ul {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .policy-date {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        a {
+            color: #444;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #000;
+        }
+
+        .section-intro {
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        .policy-toc {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .policy-toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .policy-toc li {
+            margin-bottom: 0.5rem;
+        }
+
+        .policy-toc a {
+            text-decoration: none;
+            color: #444;
+        }
+
+        .policy-toc a:hover {
+            text-decoration: underline;
+            color: #000;
+        }
+
+        .highlight-box {
+            background: #f8f8f8;
+            border-left: 4px solid #444;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        /* Fix for anchor links with fixed header */
+        h2[id] {
+            scroll-margin-top: 140px; /* Add extra space to account for fixed header */
+        }
+
+		/* ==================== NOTIFICATION STYLES ==================== */
+        
+/* Notification Layout */
+.notification-layout {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.25rem; /* Minimal margin to position directly under header */
 }
 
-.Error  A:link, .Error A:visited, .Error A:active  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #100000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.notification-main {
+    flex: 3;  /* Increased from 2 to 3 for more content width */
 }
 
-.Error A:hover  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : blue;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
-}
-	   
-.Closewindow  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : bold;
-color : #100000;
-text-align : right;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.notification-sidebar {
+    flex: 1;
+    max-width: 280px;  /* Slightly reduced sidebar width */
 }
 
-.TableTitle {
-font-size : 10pt;
-font-family : Verdana, Arial, Helvetica, sans-serif;
-font-weight : bold;
-color : #000000;
+/* Notification Card */
+.notification-card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    margin-bottom: 1.5rem;
 }
 
-.TableTitle2 {
-	font-size : 10pt;
-	font-style : normal;
-	line-height : normal;
-	font-weight : bold;
-	color : black;
-	text-decoration : none;
-	background-color : #ffffff;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-	border-bottom : 1px solid #000000;
-	border-left : 1px none #000000;
-	border-right : 1px none #000000;
-	border-top : 1px none #000000;
+.notification-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.Tableheader  {
-	font-size : 10pt;
-	font-style : normal;
-	line-height : normal;
-	font-weight : bold;
-	color : black;
-	text-decoration : none;
-	background-color : #f3f0dd;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-	font-variant: normal;
-	border-bottom : 1px solid #000000;
+.notification-title {
+    font-weight: 600;
+    margin-bottom: 0;
+    color: var(--text-color);
+    font-size: 1.25rem;
 }
 
-.Tableheader2  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : bold;
-color : #000000;
-text-decoration : none;
-background-color : #c4c4c4;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Individual notification items */
+.notification-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
 }
 
-.Groupheader  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : bold;
-color : white;
-text-decoration : none;
-background-color : #000000;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.notification-item.unread {
+    background-color: rgba(74, 125, 255, 0.05);
+    border-left: 3px solid var(--accent-color);
 }
 
-.TableDate  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.notification-item.read {
+    border-left: 3px solid transparent;
 }
 
-.TableDate A:link, .TableDate A:visited, .TableDate A:active {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.notification-item:hover {
+    background-color: var(--item-hover-bg, rgba(0, 0, 0, 0.02));
 }
 
-.TableDate A:hover {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #100000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Notification item components */
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--section-alt-background);
+    color: var(--accent-color);
 }
 
-.TableDatehover, .TableDatehover A:hover, .TableDateHover a:link, .TableDateHover a:visited{
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : none;
-background-color : #e0e0e0;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.like-icon {
+    background-color: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
 }
 
-.TableDataSmall  {
-font-size : 7pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : #000000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
-text-align : center;
+.comment-icon {
+    background-color: rgba(74, 125, 255, 0.1);
+    color: #4a7dff;
 }
 
-.CallOut, .CallOut  A:link, .CallOut A:visited, .CallOut A:active  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : bold;
-color : black;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.system-icon {
+    background-color: rgba(110, 120, 130, 0.1);
+    color: #6e7882;
 }
 
-.CallOut  A:link, .CallOut A:visited, .CallOut A:active  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : bold;
-color : #000000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.welcome-icon {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
 }
 
-.CallOut A:hover  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : bold;
-color : #000000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.login-icon {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
 }
 
-.SmallLabel  {
-font-size : 7pt;
-font-style : normal;
-line-height : normal;
-font-weight : bold;
-color : #000000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.notification-content {
+    flex-grow: 1;
+    line-height: 1.5;  /* Improved line height for better readability */
 }
 
-.CallOutSmall  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : bold;
-color : #000000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.notification-meta {
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+    margin-top: 0.25rem;  /* Added space between content and meta text */
 }
 
-.CallOutSmall  A:link, .CallOutSmall A:visited, .CallOutSmall A:active {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : bold;
-color : #000000;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.notification-actions {
+    display: flex;
+    gap: 0.5rem;
 }
 
-.CallOutSmall A:hover  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : bold;
-color : #000000;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Badge for unread notifications */
+.notification-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+    font-weight: 500;
 }
 
-.Foot, .Foot A:link, .Foot A:visited, .Foot A:active  {
-	font-size : 10pt;
-	font-style : normal;
-	line-height : normal;
-	font-weight : normal;
-	font-variant : normal;
-	text-decoration : none;
-	color : #000000;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
+/* Sidebar cards */
+.sidebar-card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
 }
 
-.Foot A:hover  {
-	font-size : 10pt;
-	font-style : normal;
-	line-height : normal;
-	font-weight : normal;
-	font-variant : normal;
-	text-decoration : underline;
-	color : #6670BA;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
+.sidebar-card-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--text-color);
 }
 
-.PortData {
-	FONT-WEIGHT: normal;
-	FONT-SIZE: 10pt;
-	COLOR: #000000;
-	FONT-STYLE: normal;
-	FONT-FAMILY: Verdana, Helvetica, Arial, sans-serif;
-	FONT-VARIANT: normal;
-	TEXT-DECORATION: none;
-	BACKGROUND-COLOR: #EDEDED;
-}
-.PortData A:link, .PortData A:visited, .PortData A:active{
-	FONT-WEIGHT: normal;
-	FONT-SIZE: 10pt;
-	COLOR: #000000;
-	FONT-STYLE: normal;
-	FONT-FAMILY: Verdana, Helvetica, Arial, sans-serif;
-	FONT-VARIANT: normal;
-	TEXT-DECORATION: none;
-	BACKGROUND-COLOR: #EDEDED;
-}
-.PortData A:hover {
-	FONT-WEIGHT: normal;
-	FONT-SIZE: 10pt;
-	COLOR: #f1010b1c;
-	FONT-STYLE: normal;
-	FONT-FAMILY: Verdana, Helvetica, Arial, sans-serif;
-	FONT-VARIANT: normal;
-	TEXT-DECORATION: none;
-	BACKGROUND-COLOR: #EDEDED;
-}
-.DialogHeader {
-	font-size : 10pt;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-	font-weight : bold;
-	color : #000000;
+.sidebar-card-body {
+    padding: 1rem;
 }
 
-.pageLinks {
-	font-size : 10pt;
-	font-weight : normal;
-	text-decoration : none;
-	color : #000063;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-}
-.pageLinks A:link, .pageLinks A:visited, .pageLinks A:active  {
-	font-size : 10pt;
-	font-weight : normal;
-	text-decoration : underline;
-	color : #000063;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-}
-.pageLinks A:hover  {
-	font-size : 10pt;
-	font-weight : normal;
-	text-decoration : none;
-	color : #6670BA;
-	font-family : Verdana, Arial, Helvetica, sans-serif;		
+/* Stats list */
+.stats-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.SubHeading  {
-	font-size : 10pt;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-	font-weight : bold;
-	color : #100000;
+.stats-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.PageHeader {
-	font-size : 10pt;
-	font-style : normal;
-	line-height : normal;
-	font-weight : normal;
-	color : black;
-	text-decoration : none;
-	background-color : #ffffff;
-	font-family : Verdana, Arial, Helvetica, sans-serif;
-}
-.hiddenText  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : white;
-text-decoration : none;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.stats-list li:last-child {
+    border-bottom: none;
 }
 
-.hiddenText  A:link, .hiddenText A:visited, .hiddenText A:active  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : white;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.stats-label {
+    color: var(--secondary-text);
 }
 
-.hiddenText A:hover  {
-font-size : 10pt;
-font-style : normal;
-line-height : normal;
-font-weight : normal;
-color : white;
-text-decoration : underline;
-font-family : Verdana, Arial, Helvetica, sans-serif;
+.stats-value {
+    font-weight: 500;
+    color: var(--text-color);
 }
-.infoBox {
-	border:1px solid blue;
-	padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 0px;
-	background-color:#e4e7ef;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 10pt;
+
+/* Filter dropdowns */
+.filter-dropdown {
+    position: relative;
+    display: inline-block;
 }
-.errorBox {
-	border:1px solid red;
-	padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 0px;
-	background-color:#fdcecf; 
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 10pt;
-	color:black;
-}
-.greyBox {
-	border:1px solid #E6E6E6;
-	padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 0px;
-	background-color:#F7F7F7; 
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 10pt;
-	color:black;
-}
-UL.menu
-{
-    font-size : 10pt;
-    color : #000000;
-    text-decoration : none;
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1000;
+    display: none;
+    min-width: 10rem;
+    padding: 0.5rem 0;
+    margin: 0.125rem 0 0;
+    font-size: 0.875rem;
     text-align: left;
-    margin-left: 2em;  
-    padding-left: 0; 
-    margin-top: .1em;
+    list-style: none;
+    background-color: var(--card-background);
+    background-clip: padding-box;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 2px 10px var(--shadow-color);
 }
-UL.menu LI
-{
-    list-style-type: none;
-}
-UL.menu LI A
-{
-    width:100%;
-    text-decoration:none;
-    color : #000000;
-}
-UL.menu LI A:hover
-{
-    background-color:#e0e0e0;
-    color : #000000;
-}
-UL.menu LI A:visited
-{
-    text-decoration:none;
-    color : #000000;
-}
-DIV.box {margin:0 0 20px 0;padding:10px;border:1px solid #c0c0c0;background-color:#fafbfc;color:#505050;font-size:10pt;line-height:1.5em; overflow:auto}
-DIV.box H4 { margin-top: 0.3em; color: #505050; letter-spacing:-1px; font-weight:bold; font-size: 10pt; border-bottom:1px solid black;}
 
-DIV.leftPane { width:410%; float:left;}
-DIV.rightPane { width:410%; float:right;}
+.dropdown-menu.show {
+    display: block;
+}
 
-SPAN.note {color: Red; font-size: 7pt; font-style:italic}
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    clear: both;
+    color: var(--text-color);
+    text-align: inherit;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
 
-/* TABLE
-----------------------------------------------------------*/
+.dropdown-item:hover, .dropdown-item:focus {
+    color: var(--text-color);
+    text-decoration: none;
+    background-color: var(--item-hover-bg, rgba(0, 0, 0, 0.05));
+}
 
-TABLE TD.right { text-align:right;}
-TABLE TD.label { font-weight:bold;}
+.dropdown-item.active {
+    color: var(--accent-color);
+    font-weight: 500;
+    background-color: var(--active-item-bg, rgba(74, 125, 255, 0.05));
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: var(--secondary-text);
+    margin-bottom: 1rem;
+}
+
+.empty-state-text {
+    color: var(--secondary-text);
+    margin-bottom: 1rem;
+}
+
+/* Notification highlight animation */
+.notification-highlight {
+    animation: highlight 1s ease;
+}
+
+@keyframes highlight {
+    0% {
+        background-color: rgba(74, 125, 255, 0.2);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Loading spinner */
+.spinner {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    border: 0.25rem solid rgba(0,0,0,0.1);
+    border-radius: 50%;
+    border-top-color: var(--accent-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Action button effects */
+.btn-action {
+    background-color: transparent;
+    color: var(--secondary-text);
+    padding: 0.25rem;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.btn-action:hover {
+    background-color: var(--item-hover-bg, rgba(0,0,0,0.05));
+    color: var(--accent-color);
+}
+
+.btn-action-pulse {
+    animation: pulse 0.6s ease;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Additional utility classes needed for notifications */
+.d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.align-items-start {
+    align-items: flex-start;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.py-3 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.py-4 {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.py-5 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.ms-2 {
+    margin-left: 0.5rem;
+}
+
+.me-2 {
+    margin-right: 0.5rem;
+}
+
+.border-bottom {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.d-none {
+    display: none;
+}
+
+/* Button styles for notifications */
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: "Inter", sans-serif;
+}
+
+.btn-primary {
+    background-color: var(--button-background);
+    color: var(--button-text);
+    border: 1px solid transparent;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+}
+
+/* Responsive layout for notifications */
+@media (max-width: 768px) {
+    .notification-layout {
+        flex-direction: column;
+    }
+    
+    .notification-main {
+        width: 100%;
+    }
+    
+    .notification-sidebar {
+        width: 100%;
+        max-width: none;
+        margin-top: 1.5rem;
+    }
+}
+
+/* Footer positioning and styling for all pages */
+html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+main, section {
+    flex: 1 0 auto;
+}
+
+footer, .site-footer {
+    flex-shrink: 0;
+    margin-top: 3rem; /* Spacing above footer */
+}
+
+/* Special styles for notifications page - force light mode */
+.notifications-page {
+    background-color: #f8f8f8 !important;
+    color: #333 !important;
+    padding-top: 60px !important; /* Reduced padding to position content closer to header */
+}
+
+.notification-container {
+    max-width: 1800px !important;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.filter-dropdown {
+    margin-left: 0.5rem;
+}
+
+.dropdown-menu .dropdown-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 0.5rem 0;
+}
+
+.icon-margin-right {
+    margin-right: 4px;
+}
+
+.notifications-page .notification-card {
+    background-color: #fff !important;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1) !important;
+}
+
+.notifications-page h1 {
+    font-size: 1.8rem;
+    color: #333 !important;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+/* Fix links to prevent underline */
+.dropdown-item, 
+.filter-dropdown button, 
+.dropdown-toggle,
+.notification-actions a, 
+.notification-content a,
+.sidebar-card a, 
+.sidebar-card-body a, 
+.btn-action,
+.empty-state a {
+    text-decoration: none !important;
+}
+
+.dropdown-item:hover,
+.filter-dropdown button:hover, 
+.dropdown-toggle:hover,
+.notification-actions a:hover, 
+.notification-content a:hover,
+.sidebar-card a:hover, 
+.sidebar-card-body a:hover,
+.btn-action:hover,
+.empty-state a:hover {
+    text-decoration: none !important;
+}
+
+/* Better notification header alignment */
+.notification-header {
+    padding: 1rem 1.25rem;
+    align-items: center;
+}
+
+.notification-title {
+    margin: 0;
+    padding: 0;
+}
+
+/* Set proper notification card padding */
+.notification-item {
+    padding: 1.25rem;
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
+}

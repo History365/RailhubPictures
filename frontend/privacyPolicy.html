@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy | Railhub Pictures</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="assets/stylesheet/theme.css" rel="stylesheet">
-    <link href="assets/stylesheet/styles.css" rel="stylesheet">
-    <link href="assets/stylesheet/homepage.css" rel="stylesheet">
-    <link href="assets/stylesheet/homepage2.css" rel="stylesheet">
-    <!-- Favicon -->
+    <link href="assets/stylesheet/stylesheet.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="frontend/assets/images/favicon.png">
     <script src="assets/scripts/api-loader.js"></script>
     <script src="assets/scripts/cloudflare/clerk-integration.js"></script>
@@ -24,150 +20,10 @@
       type="text/javascript">
     </script>
     <script src="assets/scripts/clerk-auth.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8f8f8;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        main {
-            flex: 1;
-            margin-top: 120px;
-            padding: 2rem 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        .policy-container {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 3rem;
-            text-align: left;
-            margin-bottom: 2rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 2rem;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #333;
-            margin: 2rem 0 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #444;
-            margin: 1.5rem 0 0.75rem;
-        }
-
-        p, ul, ol {
-            margin-bottom: 1rem;
-            color: #444;
-        }
-
-        ul, ol {
-            padding-left: 2rem;
-        }
-
-        li {
-            margin-bottom: 0.5rem;
-        }
-
-        .policy-date {
-            font-style: italic;
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
-
-        a {
-            color: #444;
-            text-decoration: underline;
-        }
-
-        a:hover {
-            color: #000;
-        }
-
-        .section-intro {
-            font-weight: 500;
-            margin-bottom: 1.5rem;
-        }
-
-        .policy-toc {
-            background: #f5f5f5;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-        }
-
-        .policy-toc ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-        .policy-toc li {
-            margin-bottom: 0.5rem;
-        }
-
-        .policy-toc a {
-            text-decoration: none;
-            color: #444;
-        }
-
-        .policy-toc a:hover {
-            text-decoration: underline;
-            color: #000;
-        }
-
-        .highlight-box {
-            background: #f8f8f8;
-            border-left: 4px solid #444;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        /* Fix for anchor links with fixed header */
-        h2[id], h3[id] {
-            scroll-margin-top: 140px; /* Add extra space to account for fixed header */
-        }
-    </style>
 </head>
 <body>
-    <!-- Header -->
     <header style="padding: 1rem 0; background: #fff; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-family: 'Inter', Helvetica, Arial, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-bottom: 1px solid #eee;">
         <div style="display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
-            <!-- Top Row with Logo and Account -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <a href="index.html" style="display: flex; align-items: center;">
                     <img src="assets/images/logos/logo.jpg" alt="Logo" style="max-width: 300px; height: auto;">
@@ -182,11 +38,9 @@
                         document.write('<span style="color: #666;">' + mm + '/' + dd + '/' + yyyy + '</span>');
                     </script>
                     <div style="display: flex; gap: 1rem;" id="auth-buttons">
-                        <!-- Auth buttons will be dynamically inserted by Clerk -->
                     </div>
                 </div>
             </div>
-            <!-- Bottom Row with Navigation and Search -->
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <nav style="display: flex; gap: 2.5rem;">
                     <a href="index.html" style="color: #444; text-decoration: none; font-weight: 500; font-size: 0.95em;">Home</a>
