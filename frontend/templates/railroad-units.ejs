@@ -107,7 +107,34 @@
                     <% }); %>
                 <% } else { %>
                     <div class="col-12">
-                        <div class="alert alert-info">No locomotives found for this railroad.</div>
+                        <div class="alert alert-warning">
+                            <h4>No locomotives found for <%= railroad %></h4>
+                            <p>
+                                <% if (typeof error !== 'undefined') { %>
+                                    <%= error %>
+                                <% } else { %>
+                                    There are no locomotives in the database for this railroad.
+                                <% } %>
+                            </p>
+                            <p>Please check:</p>
+                            <ul>
+                                <li>The railroad code is spelled correctly (e.g., "CSX" not "csx")</li>
+                                <li>The railroad exists in our database</li>
+                                <li>Try viewing <a href="/railroads">all railroads</a> to see available options</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h5>Looking for locomotives?</h5>
+                            <p>Try one of these popular railroads:</p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="/railroad/BNSF" class="btn btn-outline-primary">BNSF</a>
+                                <a href="/railroad/UP" class="btn btn-outline-primary">UP</a>
+                                <a href="/railroad/CSX" class="btn btn-outline-primary">CSX</a>
+                                <a href="/railroad/NS" class="btn btn-outline-primary">NS</a>
+                                <a href="/railroad/CPKC" class="btn btn-outline-primary">CPKC</a>
+                            </div>
+                        </div>
                     </div>
                 <% } %>
             </div>
