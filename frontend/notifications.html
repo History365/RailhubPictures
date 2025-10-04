@@ -29,22 +29,136 @@
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
             color: #333;
-            background-color: #f8f8f8;
+            background-color: #f8f9fa;
             padding-top: 100px;
         }
         .notification-item {
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #0066cc;
             transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
         .notification-item:hover {
-            background-color: #f8f9fa;
+            background-color: #f0f5ff;
+        }
+        .notification-item:active {
+            background-color: #e5eeff;
+            transform: translateY(1px);
         }
         .notification-item.unread {
             background-color: #f8f9ff;
-            border-left-color: #667eea;
+            border-left-color: #0066cc;
         }
         .notification-item.read {
             border-left-color: #dee2e6;
+        }
+        .notification-content {
+            padding-right: 40px; /* Space for action buttons */
+        }
+        .notification-actions {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .notification-item:hover .notification-actions {
+            opacity: 1;
+        }
+        .btn-action {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            color: #6c757d;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .btn-action:hover {
+            color: #0066cc;
+            background-color: #e9ecef;
+            border-color: #0066cc;
+        }
+        .btn-delete {
+            color: #6c757d;
+        }
+        .btn-delete:hover {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .notification-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background-color: #0066cc;
+            color: white;
+            margin-left: 8px;
+        }
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        .fade-out {
+            opacity: 0;
+            transform: translateX(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .dropdown-item.active {
+            background-color: #0066cc;
+            color: white;
+        }
+        /* Custom styling for card shadows to match rest of the site */
+        .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        /* Make badge style consistent with rest of site */
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        /* Toast styling to match site theme */
+        .toast {
+            background-color: white;
+            border-left: 4px solid #0066cc;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 6px;
+        }
+        .toast-header {
+            background-color: rgba(0,102,204,0.05);
+            border-bottom: 1px solid rgba(0,102,204,0.1);
+        }
+        .btn-primary {
+            background-color: #0066cc;
+            border-color: #0066cc;
+        }
+        .btn-primary:hover {
+            background-color: #0055aa;
+            border-color: #0055aa;
+        }
+        .btn-outline-primary {
+            color: #0066cc;
+            border-color: #0066cc;
+        }
+        .btn-outline-primary:hover {
+            background-color: #0066cc;
+            color: white;
         }
     </style>
 </head>
@@ -102,13 +216,60 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Notifications</h1>
-                <button class="btn btn-outline-secondary btn-sm" onclick="markAllAsRead()">Mark All as Read</button>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteAllRead()">
+                        <i class="bi bi-trash me-1"></i>Delete Read
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="markAllAsRead()">
+                        <i class="bi bi-check-all me-1"></i>Mark All as Read
+                    </button>
+                </div>
             </div>
             
             <div class="row">
                 <div class="col-lg-8">
+                    <!-- Action Bar -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary active" onclick="filterNotifications('all')">
+                                <i class="bi bi-list me-1"></i>All
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" onclick="filterNotifications('unread')">
+                                <i class="bi bi-bell-fill me-1"></i>Unread
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" onclick="filterNotifications('read')">
+                                <i class="bi bi-check-all me-1"></i>Read
+                            </button>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" onclick="markAllAsRead()">
+                                <i class="bi bi-check-all me-1"></i>Mark All Read
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="showDeleteConfirmation()">
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
+                        </div>
+                    </div>
+                    
                     <!-- Notifications List -->
                     <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0">Your Notifications</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-funnel me-1"></i>Advanced Filter
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
+                                    <li><a class="dropdown-item active" href="#" onclick="filterNotifications('all')"><i class="bi bi-list me-2"></i>All</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('unread')"><i class="bi bi-bell-fill me-2"></i>Unread</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('read')"><i class="bi bi-bell me-2"></i>Read</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('comments')"><i class="bi bi-chat-fill me-2"></i>Comments</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('likes')"><i class="bi bi-heart-fill me-2"></i>Likes</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('system')"><i class="bi bi-info-circle-fill me-2"></i>System</a></li>
+                                </ul>
+                            </div>
+                        </div>
                         <div class="card-body p-0" id="notifications-container">
                             <div class="text-center py-5">
                                 <div class="spinner-border text-primary" role="status">
@@ -117,13 +278,20 @@
                                 <p class="text-muted mt-2">Loading notifications...</p>
                             </div>
                         </div>
+                        <div class="card-footer bg-white text-center py-3 d-none" id="notification-load-more">
+                            <button class="btn btn-outline-primary btn-sm" onclick="loadMoreNotifications()">
+                                Load More Notifications
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="col-lg-4 mt-4 mt-lg-0">
                     <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0">Notification Settings</h5>
+                        </div>
                         <div class="card-body">
-                            <h5 class="card-title">Notification Settings</h5>
                             <p class="text-muted small">Manage how you receive notifications</p>
                             <div class="d-grid">
                                 <a href="account-settings.html#notifications" class="btn btn-outline-primary">
@@ -134,20 +302,33 @@
                     </div>
                     
                     <div class="card border-0 shadow-sm mt-3">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0">Summary</h5>
+                        </div>
                         <div class="card-body">
-                            <h6 class="card-title">Summary</h6>
-                            <div class="d-flex justify-content-between">
-                                <span>Unread:</span>
+                            <div class="d-flex justify-content-between mb-2 p-2 bg-light rounded">
+                                <span><i class="bi bi-bell-fill text-primary me-2"></i>Unread:</span>
                                 <span class="badge bg-primary" id="unread-count">0</span>
                             </div>
-                            <div class="d-flex justify-content-between">
-                                <span>This week:</span>
-                                <span id="week-count">0</span>
+                            <div class="d-flex justify-content-between mb-2 p-2">
+                                <span><i class="bi bi-calendar-week me-2"></i>This week:</span>
+                                <span class="badge bg-secondary" id="week-count">0</span>
                             </div>
-                            <div class="d-flex justify-content-between">
-                                <span>Total:</span>
-                                <span id="total-count">0</span>
+                            <div class="d-flex justify-content-between p-2 bg-light rounded">
+                                <span><i class="bi bi-list-check me-2"></i>Total:</span>
+                                <span class="badge bg-secondary" id="total-count">0</span>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card border-0 shadow-sm mt-3">
+                        <div class="card-body">
+                            <h6>Quick Tips</h6>
+                            <ul class="ps-3 mb-0 small text-muted">
+                                <li>Click on a notification to view details</li>
+                                <li>Use the filter menu to show specific types</li>
+                                <li>Delete notifications you no longer need</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -277,21 +458,30 @@
                 const isUnread = !notification.is_read;
                 const icon = getNotificationIcon(notification.type);
                 const timeAgo = getTimeAgo(notification.created_at);
+                const notifType = notification.type || 'system';
                 
                 notificationsHTML += `
-                    <div class="notification-item ${isUnread ? 'unread' : 'read'} p-3 border-bottom" data-id="${notification.id}">
+                    <div class="notification-item ${isUnread ? 'unread' : 'read'} p-3 border-bottom" 
+                         data-id="${notification.id}" 
+                         data-type="${notifType}"
+                         onclick="viewNotificationDetails(${notification.id}, event)">
                         <div class="d-flex">
-                            <div class="me-3">
+                            <div class="notification-icon me-3 d-flex align-items-center justify-content-center">
                                 ${icon}
                             </div>
-                            <div class="flex-grow-1">
+                            <div class="notification-content flex-grow-1">
                                 <p class="mb-1">${notification.message}</p>
-                                <small class="text-muted">${timeAgo}</small>
+                                <small class="text-muted d-flex align-items-center">
+                                    <i class="bi bi-clock me-1"></i>${timeAgo}
+                                    ${isUnread ? '<span class="notification-badge ms-2">New</span>' : ''}
+                                </small>
                             </div>
-                            <div class="d-flex align-items-center">
-                                ${isUnread ? '<span class="badge bg-primary">New</span>' : ''}
-                                <button class="btn btn-sm btn-link text-muted ms-2" onclick="markAsRead(${notification.id})" title="Mark as read">
+                            <div class="notification-actions">
+                                <button class="btn btn-action" onclick="markAsRead(${notification.id}, event)" title="Mark as read">
                                     <i class="bi bi-check"></i>
+                                </button>
+                                <button class="btn btn-action btn-delete" onclick="deleteNotification(${notification.id}, event)" title="Delete">
+                                    <i class="bi bi-trash"></i>
                                 </button>
                             </div>
                         </div>
@@ -475,6 +665,408 @@
             `;
             container.insertAdjacentHTML('afterbegin', errorHTML);
         }
+        
+        // Function to handle clicking on a notification
+        function viewNotificationDetails(notificationId, event) {
+            // Prevent propagation if clicked on buttons
+            if (event.target.closest('.notification-actions') || 
+                event.target.closest('button')) {
+                return;
+            }
+            
+            // Apply visual feedback
+            const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
+            if (notificationElement) {
+                notificationElement.style.backgroundColor = '#e5eeff';
+                setTimeout(() => {
+                    notificationElement.style.backgroundColor = '';
+                }, 300);
+            }
+            
+            // Mark as read when clicked
+            markAsRead(notificationId);
+            
+            // Get notification type for specialized handling
+            const notificationType = notificationElement?.getAttribute('data-type');
+            
+            console.log(`Viewing details for notification #${notificationId} of type ${notificationType}`);
+            
+            // Handle different notification types differently
+            switch(notificationType) {
+                case 'comment':
+                    showToast(`Opening photo with comment...`);
+                    // In a real implementation, you would navigate to the photo page
+                    // window.location.href = `/photo/${photoId}#comment-${commentId}`;
+                    break;
+                case 'like':
+                    showToast(`Opening your liked photo...`);
+                    // In a real implementation, you would navigate to the photo page
+                    // window.location.href = `/photo/${photoId}`;
+                    break;
+                case 'follow':
+                    showToast(`Opening your profile...`);
+                    // In a real implementation, you would navigate to the profile page
+                    // window.location.href = `/profile`;
+                    break;
+                default:
+                    // For other notification types, just show a message
+                    showToast(`Viewing notification details`);
+            }
+        }
+        
+        // Function to delete a notification
+        async function deleteNotification(notificationId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            try {
+                // Get user ID if available
+                let userId = '';
+                if (window.Clerk && Clerk.user) {
+                    userId = Clerk.user.id;
+                }
+                
+                // Include user ID in the request for better reliability
+                const endpoint = userId ? 
+                    `/api/notifications/${notificationId}/delete?user_id=${userId}` : 
+                    `/api/notifications/${notificationId}/delete`;
+                
+                const response = await makeAuthenticatedRequest(endpoint, {
+                    method: 'DELETE',
+                    allowUnauthenticated: true,
+                    headers: userId ? { 'X-User-ID': userId } : {}
+                });
+                
+                // Check if response is successful
+                if (response && !response.error) {
+                    // Remove notification from UI
+                    const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
+                    if (notificationElement) {
+                        notificationElement.classList.add('fade-out');
+                        setTimeout(() => {
+                            notificationElement.remove();
+                            
+                            // Update counts
+                            const totalCountElement = document.getElementById('total-count');
+                            const currentTotalCount = parseInt(totalCountElement.textContent);
+                            totalCountElement.textContent = Math.max(0, currentTotalCount - 1);
+                            
+                            // Check if it was unread
+                            if (notificationElement.classList.contains('unread')) {
+                                const unreadCountElement = document.getElementById('unread-count');
+                                const currentUnreadCount = parseInt(unreadCountElement.textContent);
+                                unreadCountElement.textContent = Math.max(0, currentUnreadCount - 1);
+                            }
+                            
+                            // Check if notifications list is now empty
+                            if (document.querySelectorAll('.notification-item').length === 0) {
+                                document.getElementById('notifications-container').innerHTML = `
+                                    <div class="text-center py-5">
+                                        <i class="bi bi-bell text-muted" style="font-size: 3rem;"></i>
+                                        <p class="text-muted mt-3">No notifications yet</p>
+                                        <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
+                                    </div>
+                                `;
+                            }
+                        }, 300);
+                    }
+                    
+                    showToast('Notification deleted');
+                }
+            } catch (error) {
+                console.error('Error deleting notification:', error);
+                showError('Failed to delete notification');
+            }
+        }
+        
+        // Function to delete all read notifications
+        async function deleteAllRead() {
+            try {
+                // Get user ID if available
+                let userId = '';
+                if (window.Clerk && Clerk.user) {
+                    userId = Clerk.user.id;
+                }
+                
+                // Include user ID in the request for better reliability
+                const endpoint = userId ? 
+                    `/api/notifications/delete-all-read?user_id=${userId}` : 
+                    '/api/notifications/delete-all-read';
+                
+                const response = await makeAuthenticatedRequest(endpoint, {
+                    method: 'DELETE',
+                    allowUnauthenticated: true,
+                    headers: userId ? { 'X-User-ID': userId } : {}
+                });
+                
+                // Check if response is successful
+                if (response && !response.error) {
+                    // Remove all read notifications from UI
+                    document.querySelectorAll('.notification-item.read').forEach(item => {
+                        item.classList.add('fade-out');
+                        setTimeout(() => {
+                            item.remove();
+                        }, 300);
+                    });
+                    
+                    // Update total count
+                    const totalCountElement = document.getElementById('total-count');
+                    const unreadCountElement = document.getElementById('unread-count');
+                    totalCountElement.textContent = unreadCountElement.textContent;
+                    
+                    // Check if notifications list is now empty
+                    setTimeout(() => {
+                        if (document.querySelectorAll('.notification-item').length === 0) {
+                            document.getElementById('notifications-container').innerHTML = `
+                                <div class="text-center py-5">
+                                    <i class="bi bi-bell text-muted" style="font-size: 3rem;"></i>
+                                    <p class="text-muted mt-3">No notifications yet</p>
+                                    <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
+                                </div>
+                            `;
+                        }
+                    }, 350);
+                    
+                    showSuccess('All read notifications deleted');
+                }
+            } catch (error) {
+                console.error('Error deleting read notifications:', error);
+                showError('Failed to delete read notifications');
+            }
+        }
+        
+        // Function to filter notifications
+        function filterNotifications(filterType) {
+            const allNotifications = document.querySelectorAll('.notification-item');
+            const container = document.getElementById('notifications-container');
+            
+            // Show animation before filtering
+            container.classList.add('opacity-50');
+            
+            setTimeout(() => {
+                allNotifications.forEach(notification => {
+                    const isUnread = notification.classList.contains('unread');
+                    const notificationType = notification.getAttribute('data-type');
+                    
+                    switch(filterType) {
+                        case 'all':
+                            notification.style.display = 'block';
+                            break;
+                        case 'unread':
+                            notification.style.display = isUnread ? 'block' : 'none';
+                            break;
+                        case 'read':
+                            notification.style.display = isUnread ? 'none' : 'block';
+                            break;
+                        case 'comments':
+                            notification.style.display = notificationType === 'comment' ? 'block' : 'none';
+                            break;
+                        case 'likes':
+                            notification.style.display = notificationType === 'like' ? 'block' : 'none';
+                            break;
+                        case 'system':
+                            notification.style.display = notificationType === 'system' ? 'block' : 'none';
+                            break;
+                        default:
+                            notification.style.display = 'block';
+                    }
+                });
+                
+                // Update active filter in dropdown
+                document.querySelectorAll('.dropdown-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                document.querySelector(`.dropdown-item[onclick="filterNotifications('${filterType}')"]`)
+                    ?.classList.add('active');
+                
+                // Show filter type in header
+                const filterText = {
+                    'all': 'All Notifications',
+                    'unread': 'Unread Notifications',
+                    'read': 'Read Notifications',
+                    'comments': 'Comment Notifications',
+                    'likes': 'Like Notifications',
+                    'system': 'System Notifications'
+                };
+                
+                // Update header with current filter
+                const headerTitle = document.querySelector('.card-header h5');
+                if (headerTitle && filterText[filterType]) {
+                    headerTitle.textContent = filterText[filterType];
+                }
+                
+                // Show no results message if needed
+                const visibleNotifications = document.querySelectorAll('.notification-item[style="display: block;"]');
+                if (visibleNotifications.length === 0) {
+                    if (!document.getElementById('no-results')) {
+                        container.innerHTML += `
+                            <div class="text-center py-4" id="no-results">
+                                <i class="bi bi-search text-muted" style="font-size: 2rem;"></i>
+                                <p class="text-muted mt-2">No notifications match your filter</p>
+                                <button class="btn btn-outline-primary btn-sm mt-2" onclick="filterNotifications('all')">
+                                    Show All Notifications
+                                </button>
+                            </div>
+                        `;
+                    }
+                } else {
+                    document.getElementById('no-results')?.remove();
+                }
+                
+                // Remove loading animation
+                container.classList.remove('opacity-50');
+                
+                // Show toast with filter info
+                showToast(`Showing ${filterText[filterType].toLowerCase()}`);
+            }, 200); // Short delay for animation
+        }
+        
+        // Helper function to show a toast notification
+        function showToast(message) {
+            // Create toast container if it doesn't exist
+            if (!document.querySelector('.toast-container')) {
+                const toastContainer = document.createElement('div');
+                toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // Create a unique ID for this toast
+            const toastId = 'toast-' + Date.now();
+            
+            // Create toast HTML
+            const toastHTML = `
+                <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <i class="bi bi-bell-fill text-primary me-2"></i>
+                        <strong class="me-auto">Notification</strong>
+                        <small>Just now</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            // Add the toast to the container
+            document.querySelector('.toast-container').insertAdjacentHTML('beforeend', toastHTML);
+            
+            // Initialize and show the toast
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, {
+                autohide: true,
+                delay: 3000
+            });
+            toast.show();
+            
+            // Remove toast after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', function () {
+                toastElement.remove();
+            });
+        }
+        
+        // Show delete confirmation modal
+        function showDeleteConfirmation() {
+            // Create modal HTML
+            const modalHTML = `
+                <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteConfirmationModalLabel">Delete Notifications</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>What would you like to delete?</p>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-danger" onclick="deleteAllRead(); document.getElementById('deleteConfirmationModal').querySelector('.btn-close').click();">
+                                        <i class="bi bi-check-circle me-2"></i>Delete All Read Notifications
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="confirmDeleteAll(); document.getElementById('deleteConfirmationModal').querySelector('.btn-close').click();">
+                                        <i class="bi bi-trash me-2"></i>Delete All Notifications
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add the modal to the page
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+            modal.show();
+            
+            // Clean up when the modal is hidden
+            document.getElementById('deleteConfirmationModal').addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
+        }
+        
+        // Confirm deletion of all notifications
+        function confirmDeleteAll() {
+            // Show confirmation dialog
+            const confirmed = confirm("Are you sure you want to delete ALL notifications? This cannot be undone.");
+            
+            if (confirmed) {
+                // Delete all notifications (you'd need to implement the API endpoint for this)
+                deleteAllNotifications();
+            }
+        }
+        
+        // Delete all notifications
+        async function deleteAllNotifications() {
+            try {
+                // Get user ID if available
+                let userId = '';
+                if (window.Clerk && Clerk.user) {
+                    userId = Clerk.user.id;
+                }
+                
+                // Include user ID in the request for better reliability
+                const endpoint = userId ? 
+                    `/api/notifications/delete-all?user_id=${userId}` : 
+                    '/api/notifications/delete-all';
+                
+                const response = await makeAuthenticatedRequest(endpoint, {
+                    method: 'DELETE',
+                    allowUnauthenticated: true,
+                    headers: userId ? { 'X-User-ID': userId } : {}
+                });
+                
+                // Check if response is successful
+                if (response && !response.error) {
+                    // Clear the notifications container
+                    document.getElementById('notifications-container').innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="bi bi-bell text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-3">No notifications yet</p>
+                            <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
+                        </div>
+                    `;
+                    
+                    // Update counts
+                    document.getElementById('unread-count').textContent = '0';
+                    document.getElementById('total-count').textContent = '0';
+                    document.getElementById('week-count').textContent = '0';
+                    
+                    showSuccess('All notifications deleted');
+                }
+            } catch (error) {
+                console.error('Error deleting all notifications:', error);
+                showError('Failed to delete notifications');
+            }
+        }
     </script>
+    
+    <!-- Add toast container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
 </body>
 </html>
