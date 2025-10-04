@@ -415,10 +415,79 @@ async function runAutomaticChecks() {
   console.groupEnd();
 }
 
+/**
+ * Advanced fix for authentication issues
+ */
+async function advancedFixAuth() {
+  console.group('🛠️ Advanced Auth Fix');
+  console.log('Starting advanced authentication fix...');
+  
+  // Step 1: Check Clerk script
+  if (typeof window.Clerk === 'undefined') {
+    console.error('Clerk script is missing. Cannot fix authentication.');
+    alert('Clerk authentication system is not loaded. Please reload the page and try again.');
+    console.groupEnd();
+    return false;
+  }
+  
+  // Step 2: Reinitialize Clerk
+  console.log('Reinitializing Clerk...');
+  try {
+    await Clerk.load();
+    console.log('Clerk reinitialized successfully.');
+  } catch (error) {
+    console.error('Failed to reinitialize Clerk:', error);
+  }
+  
+  // Step 3: Check if user is signed in
+  if (!window.Clerk.user) {
+    console.log('User is not signed in. Redirecting to sign in page...');
+    localStorage.setItem('authRedirectUrl', window.location.href);
+    window.location.href = '/login.html';
+    console.groupEnd();
+    return false;
+  }
+  
+  // Step 4: Try to get a fresh token
+  console.log('Getting fresh authentication token...');
+  try {
+    const token = await window.Clerk.session.getToken();
+    console.log('Token received:', token ? 'Yes (token hidden)' : 'No');
+    
+    // Step 5: Test the token
+    console.log('Testing token with API...');
+    const response = await fetch(`${window.API_CONFIG?.BASE_URL || 'https://railhubpictures.org'}/api/auth/test`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    const result = await response.json();
+    console.log('Auth test result:', result);
+    
+    if (result.authenticated) {
+      console.log('✅ Authentication fixed successfully!');
+      alert('Authentication fixed successfully! The page will now reload.');
+      window.location.reload();
+      console.groupEnd();
+      return true;
+    } else {
+      console.error('Authentication still failing after fix attempts.');
+      alert('Authentication issues persist. Please try signing out and signing in again.');
+    }
+  } catch (error) {
+    console.error('Error during authentication fix:', error);
+  }
+  
+  console.groupEnd();
+  return false;
+}
+
 // Export the functions for use in the console
 window.authTroubleshooter = {
   showDialog: showTroubleshooterDialog,
   runChecks: runAutomaticChecks,
   fixAuth: fixAuthentication,
+  advancedFixAuth: advancedFixAuth,
   testApi: testApi
 };

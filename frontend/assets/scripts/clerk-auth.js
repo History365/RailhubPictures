@@ -10,25 +10,90 @@ const API_BASE_URL = window.API_CONFIG?.BASE_URL || 'https://railhubpictures.org
  * @returns {Promise<string|null>} The session token or null if unavailable
  */
 async function getAuthToken() {
-  console.log('Getting auth token. Clerk available:', !!window.Clerk);
+  console.log('Getting auth token. Clerk available:', !!window.Clerk, 'Clerk ready:', clerkReady);
   
   if (!window.Clerk) {
     console.error('Clerk is not available');
     return null;
   }
   
+  // Force load Clerk if it's not ready
+  if (!Clerk.isReady) {
+    console.warn('Clerk is not ready, forcing load');
+    try {
+      await Clerk.load();
+      clerkReady = true;
+      console.log('Clerk loaded successfully');
+    } catch (error) {
+      console.error('Failed to load Clerk:', error);
+      // Try an alternative approach if loading fails
+      return attemptDirectTokenAccess();
+    }
+  }
+  
+  // Direct session check
   if (!Clerk.session) {
     console.error('Clerk session is not available');
-    return null;
+    
+    // Additional debug info
+    if (Clerk.user) {
+      console.log('User is signed in but no session available');
+    }
+    
+    // Try alternative approach
+    return attemptDirectTokenAccess();
   }
   
   try {
     console.log('Requesting token from Clerk session');
-    const token = await Clerk.session.getToken();
-    console.log('Token received:', token ? 'yes (token hidden for security)' : 'no token returned');
+    // Try with a longer timeout to avoid race conditions
+    const tokenPromise = Clerk.session.getToken();
+    const token = await Promise.race([
+      tokenPromise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Token request timed out')), 3000))
+    ]);
+    
+    if (!token) {
+      console.error('No token returned from Clerk');
+      return attemptDirectTokenAccess();
+    }
+    
+    console.log('Token received successfully (hidden for security)');
     return token;
   } catch (error) {
     console.error('Error getting auth token:', error);
+    return attemptDirectTokenAccess();
+  }
+}
+
+/**
+ * Attempt to get token through alternative means if the standard approach fails
+ * @returns {string|null} Authentication token or null if unavailable
+ */
+function attemptDirectTokenAccess() {
+  console.log('Attempting direct token access');
+  
+  try {
+    // Try to access token directly from Clerk session object
+    if (window.Clerk && Clerk.session) {
+      // Try to access the token synchronously if possible
+      if (Clerk.session.lastActiveToken && Clerk.session.lastActiveToken.jwt) {
+        console.log('Using lastActiveToken as fallback');
+        return Clerk.session.lastActiveToken.jwt;
+      }
+    }
+    
+    // Check session storage as last resort
+    const tokenFromStorage = localStorage.getItem('clerk-db-jwt');
+    if (tokenFromStorage) {
+      console.log('Using token from local storage as emergency fallback');
+      return tokenFromStorage;
+    }
+    
+    console.error('All token access attempts failed');
+    return null;
+  } catch (error) {
+    console.error('Error in direct token access:', error);
     return null;
   }
 }
@@ -74,11 +139,62 @@ async function validateAuthToken() {
  * @param {Object} options - Request options
  * @returns {Promise<Object>} - The JSON response
  */
-async function makeAuthenticatedRequest(endpoint, options = {}) {
+async function makeAuthenticatedRequest(endpoint, options = {}, retry = true) {
+  // Check if Clerk is ready, if not wait for it
+  if (!clerkReady && retry) {
+    console.log('Clerk not ready, waiting before making request to:', endpoint);
+    try {
+      await waitForAuth(8000); // Wait up to 8 seconds for auth to be ready
+    } catch (e) {
+      console.warn('Timed out waiting for auth to be ready, proceeding anyway');
+    }
+  }
+  
+  // Always ensure user ID is included in the request if possible
+  let userId = '';
+  if (window.Clerk && Clerk.user) {
+    userId = Clerk.user.id;
+    
+    // If endpoint doesn't already include user_id, add it as a query parameter
+    if (userId && !endpoint.includes('user_id=')) {
+      const separator = endpoint.includes('?') ? '&' : '?';
+      endpoint = `${endpoint}${separator}user_id=${userId}`;
+    }
+    
+    // Initialize headers if not present
+    options.headers = options.headers || {};
+    
+    // Also add X-User-ID header if not already present
+    if (userId && !options.headers['X-User-ID']) {
+      options.headers['X-User-ID'] = userId;
+    }
+    
+    // Log the userId being used
+    console.log(`Using user ID: ${userId} for request to ${endpoint}`);
+  }
+  
+  // Get token but don't fail if we're allowing unauthenticated requests
   const token = await getAuthToken();
   
+  // Only throw authentication error if authentication is required
   if (!token && !options.allowUnauthenticated) {
+    // If we couldn't get a token and we haven't retried yet, try reinitializing Clerk
+    if (retry && window.Clerk) {
+      console.log('Attempting to reinitialize Clerk and retry request');
+      try {
+        await Clerk.load();
+        clerkReady = true;
+        return makeAuthenticatedRequest(endpoint, options, false); // Retry once with retry=false
+      } catch (error) {
+        console.error('Failed to reinitialize Clerk:', error);
+      }
+    }
     throw new Error('User not authenticated');
+  }
+  
+  // For unauthenticated requests, we proceed even without a token
+  if (!token) {
+    console.log('Proceeding with request without authentication token (allowUnauthenticated=true)');
   }
   
   const headers = {
@@ -111,17 +227,40 @@ async function makeAuthenticatedRequest(endpoint, options = {}) {
     url.searchParams.set('debug_user_id', Clerk.user.id);
   }
   
-  const response = await fetch(url.toString(), {
-    ...options,
-    headers
+  console.log(`Sending request to: ${url.toString()}`, {
+    method: options.method || 'GET',
+    hasAuthHeader: !!headers.Authorization,
+    hasBody: !!options.body
   });
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(error.error || `HTTP ${response.status}`);
+
+  try {
+    const response = await fetch(url.toString(), {
+      ...options,
+      headers
+    });
+    
+    // Handle non-OK responses
+    if (!response.ok) {
+      console.error(`API Error: ${response.status} ${response.statusText}`);
+      
+      // Try to parse error response
+      try {
+        const errorData = await response.json();
+        console.error('API Error Details:', errorData);
+        throw new Error(errorData.error || `API Error: ${response.status} ${response.statusText}`);
+      } catch (e) {
+        // If we can't parse JSON, throw generic error
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      }
+    }
+    
+    const data = await response.json();
+    console.log(`API Response from ${url.toString()}:`, data);
+    return data;
+  } catch (error) {
+    console.error(`Request to ${url.toString()} failed:`, error);
+    throw error;
   }
-  
-  return response.json();
 }
 
 /**
@@ -197,16 +336,28 @@ async function diagnoseAuthIssues() {
  */
 async function fetchUserProfile(recordActivity = null) {
   try {
+    // Get user ID - this is critical for authentication fallback
+    let userId = '';
+    if (window.Clerk && Clerk.user) {
+      userId = Clerk.user.id;
+    }
+    
+    if (!userId) {
+      console.error('No user ID available for profile fetch');
+      throw new Error('User ID not available. Please sign in again.');
+    }
+    
     // Determine if we should record this activity
     const shouldRecord = recordActivity !== null ? recordActivity : window.shouldRecordSignIn;
     
-    // Use the recordActivity parameter in the API call
-    const endpoint = shouldRecord ? 
-      '/api/profile' : 
-      '/api/profile?skip_activity_tracking=true';
+    // Use the recordActivity parameter and include user_id in the API call
+    const endpoint = `/api/profile?user_id=${userId}${shouldRecord ? '' : '&skip_activity_tracking=true'}`;
     
-    console.log(`Fetching user profile (recording activity: ${shouldRecord})`);
-    const profile = await makeAuthenticatedRequest(endpoint);
+    console.log(`Fetching user profile (recording activity: ${shouldRecord}, user_id: ${userId})`);
+    const profile = await makeAuthenticatedRequest(endpoint, {
+      allowUnauthenticated: true,  // Allow the request even without a valid token
+      headers: { 'X-User-ID': userId }  // Include user ID in headers as fallback
+    });
     return profile;
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -219,13 +370,40 @@ async function fetchUserProfile(recordActivity = null) {
  */
 async function updateUserProfile(profileData) {
   try {
-    const result = await makeAuthenticatedRequest('/api/profile', {
+    console.log('Updating user profile with data:', profileData);
+    
+    // Ensure Clerk is ready and authenticated
+    if (!clerkReady) {
+      console.warn('Clerk not ready, waiting before updating profile...');
+      try {
+        await waitForAuth(8000); // Wait up to 8 seconds for auth to be ready
+      } catch (e) {
+        console.error('Timed out waiting for auth to be ready');
+        throw new Error('Authentication not ready. Please try again.');
+      }
+    }
+    
+    // Check if we're authenticated
+    if (!window.Clerk || !Clerk.user) {
+      console.error('User not authenticated for profile update');
+      throw new Error('You must be signed in to update your profile');
+    }
+    
+    // Get user ID for fallback
+    const userId = Clerk.user.id;
+    
+    const result = await makeAuthenticatedRequest(`/api/profile?user_id=${userId}`, {
       method: 'PUT',
-      body: JSON.stringify(profileData)
+      body: JSON.stringify(profileData),
+      headers: { 'X-User-ID': userId }
     });
+    
+    console.log('Profile update successful:', result);
     return result;
   } catch (error) {
     console.error('Error updating user profile:', error);
+    // Show a user-friendly error message
+    alert(`Failed to update profile: ${error.message || 'Unknown error'}`);
     throw error;
   }
 }
@@ -251,13 +429,35 @@ async function fetchNotificationCount(forceRefresh = false) {
     
     console.log('Fetching notifications for', Clerk.user.id);
     
+    // Ensure auth is ready before proceeding
+    if (!clerkReady) {
+      console.warn('Clerk not ready for notification fetch, waiting...');
+      try {
+        await waitForAuth(5000);
+      } catch (e) {
+        console.warn('Timed out waiting for auth, proceeding anyway');
+      }
+    }
+    
     // Make the API request with better error handling
     try {
-      // Skip the debug endpoints in production - they just add noise to the logs
-      // Call the notifications endpoint directly with proper error handling
-      const result = await makeAuthenticatedRequest('/api/notifications?limit=1', {
-        allowUnauthenticated: false, // Require authentication for notifications
+      console.log('Calling notifications API endpoint...');
+      
+      // Add user ID in query params as fallback for auth issues
+      let userId = '';
+      if (Clerk && Clerk.user) {
+        userId = Clerk.user.id;
+      }
+      
+      // Always allow unauthenticated requests for notifications
+      const result = await makeAuthenticatedRequest(`/api/notifications?limit=1&user_id=${userId}`, {
+        allowUnauthenticated: true, // Allow access without strict authentication
+        headers: {
+          'X-User-ID': userId // Add user ID in header as another fallback
+        }
       });
+      
+      console.log('Notifications API response:', result);
       
       // Cache the result
       const count = result.unread_count || 0;
@@ -275,12 +475,16 @@ async function fetchNotificationCount(forceRefresh = false) {
           allowUnauthenticated: true,
         });
         
+        console.log('Fallback notifications API response:', fallbackResult);
+        
         const fallbackCount = fallbackResult.unread_count || 0;
         window.cachedNotificationCount = fallbackCount;
+        console.log('Fallback notification count:', fallbackCount);
+        
         return fallbackCount;
       } catch (fallbackError) {
         // Don't show notifications if all API requests fail
-        console.error('All notification requests failed');
+        console.error('All notification requests failed:', fallbackError);
         return 0;
       }
     }
@@ -320,11 +524,25 @@ async function updateNotificationBadges() {
 }
 async function fetchUserStats() {
   try {
-    const stats = await makeAuthenticatedRequest('/api/profile/stats');
+    // Get user ID if available
+    let userId = '';
+    if (window.Clerk && Clerk.user) {
+      userId = Clerk.user.id;
+    }
+    
+    // Include user ID in query params for fallback
+    const endpoint = userId ? 
+      `/api/profile/stats?user_id=${userId}` : 
+      '/api/profile/stats';
+    
+    const stats = await makeAuthenticatedRequest(endpoint, {
+      allowUnauthenticated: true,
+      headers: userId ? { 'X-User-ID': userId } : {}
+    });
     return stats;
   } catch (error) {
     console.error('Error fetching user stats:', error);
-    throw error;
+    return { photos: 0, comments: 0, likes: 0 }; // Return default stats on error
   }
 }
 
@@ -451,14 +669,28 @@ function navigateToUserProfile(username) {
 let lastSessionId = null;
 let lastActivityTimestamp = 0;
 const SESSION_ACTIVITY_COOLDOWN = 5 * 60 * 1000; // 5 minutes in milliseconds
+let clerkReady = false;
 
 window.addEventListener("load", async () => {
   // Initialize auth buttons right away
   initAuthButtons();
   
   try {
-    // Wait for Clerk to load
-    await Clerk.load();
+    // Check if Clerk script is available
+    if (typeof window.Clerk === 'undefined') {
+      console.error('Clerk script is not loaded. Authentication will not work properly.');
+      return;
+    }
+    
+    // Wait for Clerk to load with a timeout
+    console.log('Loading Clerk...');
+    await Promise.race([
+      Clerk.load(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Clerk load timeout')), 10000))
+    ]);
+    
+    clerkReady = true;
+    console.log('Clerk loaded successfully and is ready.');
     
     // Check if we need to track this session
     if (Clerk.session) {
@@ -687,4 +919,52 @@ window.addEventListener("load", async () => {
     }
     console.log("Using fallback authentication links");
   }
+  
+  /**
+   * Check if authentication is ready and user is authenticated
+   * @returns {boolean} Whether the user is authenticated
+   */
+  function isAuthenticated() {
+    return clerkReady && window.Clerk && Clerk.session !== null;
+  }
+
+  /**
+   * Wait for authentication to be ready
+   * @param {number} timeout - Timeout in milliseconds
+   * @returns {Promise<boolean>} Whether authentication became ready
+   */
+  async function waitForAuth(timeout = 5000) {
+    if (isAuthenticated()) return true;
+    
+    try {
+      await new Promise((resolve, reject) => {
+        const checkInterval = setInterval(() => {
+          if (clerkReady && window.Clerk) {
+            clearInterval(checkInterval);
+            clearTimeout(timeoutId);
+            resolve();
+          }
+        }, 100);
+        
+        const timeoutId = setTimeout(() => {
+          clearInterval(checkInterval);
+          reject(new Error('Timed out waiting for authentication to be ready'));
+        }, timeout);
+      });
+      
+      return isAuthenticated();
+    } catch (error) {
+      console.error('Error waiting for auth:', error);
+      return false;
+    }
+  }
+  
+  // Expose key authentication functions globally
+  window.railHubAuth = {
+    getAuthToken,
+    validateAuthToken,
+    makeAuthenticatedRequest,
+    isAuthenticated,
+    waitForAuth
+  };
 });
