@@ -29,7 +29,7 @@
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
             color: #333;
-            background-color: #f8f9fa;
+            background-color: #ffffff;
             padding-top: 100px;
         }
         .notification-item {
@@ -38,6 +38,7 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            background-color: #ffffff;
         }
         .notification-item:hover {
             background-color: #f0f5ff;
@@ -52,6 +53,7 @@
         }
         .notification-item.read {
             border-left-color: #dee2e6;
+            background-color: #ffffff;
         }
         .notification-content {
             padding-right: 40px; /* Space for action buttons */
@@ -101,17 +103,31 @@
         .notification-icon {
             width: 40px;
             height: 40px;
-            background-color: #e9ecef;
+            background-color: #f0f8ff;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.25rem;
+            color: #0066cc;
+            border: 1px solid #e1edff;
         }
         .fade-out {
             opacity: 0;
             transform: translateX(10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .notification-highlight {
+            background-color: #e5eeff !important;
+            transition: background-color 0.5s ease;
+        }
+        .btn-action-pulse {
+            animation: button-pulse 0.6s ease;
+        }
+        @keyframes button-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
         .dropdown-item.active {
             background-color: #0066cc;
@@ -119,14 +135,15 @@
         }
         /* Custom styling for card shadows to match rest of the site */
         .card {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
-            border: none;
+            border: 1px solid #f0f0f0;
             border-radius: 8px;
             overflow: hidden;
+            background-color: #ffffff;
         }
         .card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.07);
         }
         /* Make badge style consistent with rest of site */
         .badge {
@@ -137,7 +154,7 @@
         .toast {
             background-color: white;
             border-left: 4px solid #0066cc;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.07);
             border-radius: 6px;
         }
         .toast-header {
@@ -147,18 +164,38 @@
         .btn-primary {
             background-color: #0066cc;
             border-color: #0066cc;
+            color: white;
         }
         .btn-primary:hover {
             background-color: #0055aa;
             border-color: #0055aa;
+            color: white;
         }
         .btn-outline-primary {
             color: #0066cc;
             border-color: #0066cc;
+            background-color: transparent;
         }
         .btn-outline-primary:hover {
             background-color: #0066cc;
             color: white;
+        }
+        /* Additional lightmode styling */
+        .dropdown-menu {
+            background-color: white;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .dropdown-item {
+            color: #333;
+        }
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        .text-muted {
+            color: #6c757d !important;
+        }
+        section {
+            background-color: white;
         }
     </style>
 </head>
@@ -212,8 +249,8 @@
     </header>
 
     <!-- Notifications Content -->
-    <section class="py-5">
-        <div class="container">
+    <section class="py-5" style="background-color: #ffffff;">
+        <div class="container" style="background-color: #ffffff;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Notifications</h1>
                 <div class="d-flex gap-2">
@@ -264,9 +301,12 @@
                                     <li><a class="dropdown-item" href="#" onclick="filterNotifications('unread')"><i class="bi bi-bell-fill me-2"></i>Unread</a></li>
                                     <li><a class="dropdown-item" href="#" onclick="filterNotifications('read')"><i class="bi bi-bell me-2"></i>Read</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('comments')"><i class="bi bi-chat-fill me-2"></i>Comments</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('likes')"><i class="bi bi-heart-fill me-2"></i>Likes</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('system')"><i class="bi bi-info-circle-fill me-2"></i>System</a></li>
+                                    <li><h6 class="dropdown-header">Notification Types</h6></li>
+                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('comments')"><i class="bi bi-chat-fill me-2 text-success"></i>Comments</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('likes')"><i class="bi bi-heart-fill me-2 text-danger"></i>Likes</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('system')"><i class="bi bi-info-circle-fill me-2 text-primary"></i>System</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('welcome')"><i class="bi bi-hand-wave-fill me-2 text-warning"></i>Welcome</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="filterNotifications('login')"><i class="bi bi-box-arrow-in-right me-2 text-success"></i>Login Activity</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -287,32 +327,19 @@
                 </div>
                 
                 <div class="col-lg-4 mt-4 mt-lg-0">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white py-3">
-                            <h5 class="mb-0">Notification Settings</h5>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted small">Manage how you receive notifications</p>
-                            <div class="d-grid">
-                                <a href="account-settings.html#notifications" class="btn btn-outline-primary">
-                                    <i class="bi bi-gear me-2"></i>Notification Preferences
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card border-0 shadow-sm mt-3">
-                        <div class="card-header bg-white py-3">
-                            <h5 class="mb-0">Summary</h5>
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white py-3 d-flex align-items-center">
+                            <i class="bi bi-graph-up text-primary me-2"></i>
+                            <h5 class="mb-0">Notification Stats</h5>
                         </div>
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2 p-2 bg-light rounded">
                                 <span><i class="bi bi-bell-fill text-primary me-2"></i>Unread:</span>
                                 <span class="badge bg-primary" id="unread-count">0</span>
                             </div>
-                            <div class="d-flex justify-content-between mb-2 p-2">
-                                <span><i class="bi bi-calendar-week me-2"></i>This week:</span>
-                                <span class="badge bg-secondary" id="week-count">0</span>
+                            <div class="d-flex justify-content-between mb-2 p-2" style="background-color: #f9f9f9; border-radius: 0.25rem;">
+                                <span><i class="bi bi-calendar-week text-info me-2"></i>This week:</span>
+                                <span class="badge bg-info" id="week-count">0</span>
                             </div>
                             <div class="d-flex justify-content-between p-2 bg-light rounded">
                                 <span><i class="bi bi-list-check me-2"></i>Total:</span>
@@ -321,13 +348,32 @@
                         </div>
                     </div>
                     
-                    <div class="card border-0 shadow-sm mt-3">
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white py-3 d-flex align-items-center">
+                            <i class="bi bi-gear-fill text-primary me-2"></i>
+                            <h5 class="mb-0">Settings</h5>
+                        </div>
                         <div class="card-body">
-                            <h6>Quick Tips</h6>
+                            <p class="text-muted small mb-3">Manage how you receive notifications across RailHub Pictures</p>
+                            <div class="d-grid">
+                                <a href="account-settings.html#notifications" class="btn btn-outline-primary">
+                                    <i class="bi bi-sliders me-2"></i>Notification Preferences
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3 d-flex align-items-center">
+                            <i class="bi bi-lightbulb-fill text-primary me-2"></i>
+                            <h5 class="mb-0">Quick Tips</h5>
+                        </div>
+                        <div class="card-body">
                             <ul class="ps-3 mb-0 small text-muted">
-                                <li>Click on a notification to view details</li>
-                                <li>Use the filter menu to show specific types</li>
-                                <li>Delete notifications you no longer need</li>
+                                <li class="mb-2"><strong>Click</strong> on a notification to view more details</li>
+                                <li class="mb-2">Use the <strong>filter buttons</strong> to sort by notification status</li>
+                                <li class="mb-2">Use <strong>Advanced Filter</strong> to filter by notification type</li>
+                                <li><strong>Delete</strong> notifications you no longer need</li>
                             </ul>
                         </div>
                     </div>
@@ -339,10 +385,25 @@
     <!-- Bootstrap JS -->
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Variables to track pagination
+        let currentPage = 1;
+        let hasMoreNotifications = false;
+        const itemsPerPage = 10;
+        
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof initAuthButtons === 'function') {
                 initAuthButtons();
             }
+            
+            // Set up button active states for filter buttons
+            document.querySelectorAll('.btn-group .btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
             
             // Load notifications when page loads
             loadNotifications();
@@ -350,6 +411,9 @@
         
         async function loadNotifications() {
             try {
+                // Reset pagination
+                currentPage = 1;
+                
                 // Wait for Clerk to load
                 if (!window.Clerk) {
                     await new Promise(resolve => {
@@ -369,20 +433,45 @@
                     return;
                 }
                 
-                // Fetch notifications from API
-                const result = await fetchNotifications();
+                // Show initial loading indicator
+                document.getElementById('notifications-container').innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted mt-2">Loading notifications...</p>
+                    </div>
+                `;
+                
+                // Fetch notifications from API with pagination
+                const result = await fetchNotifications(currentPage, itemsPerPage);
                 
                 // Ensure result has the expected structure
                 const notificationsList = result.notifications || [];
                 const unreadCount = result.unread_count || 0;
+                const totalCount = result.total_count || notificationsList.length;
                 
                 console.log('Notification data:', { 
                     list: notificationsList, 
-                    unread: unreadCount 
+                    unread: unreadCount,
+                    total: totalCount,
+                    page: currentPage,
+                    hasMore: result.has_more
                 });
                 
+                // Update UI
                 displayNotifications(notificationsList, unreadCount);
-                updateSummary(unreadCount, notificationsList);
+                updateSummary(unreadCount, notificationsList, totalCount);
+                
+                // Show/hide load more button
+                const loadMoreButton = document.getElementById('notification-load-more');
+                if (result.has_more) {
+                    loadMoreButton.classList.remove('d-none');
+                    hasMoreNotifications = true;
+                } else {
+                    loadMoreButton.classList.add('d-none');
+                    hasMoreNotifications = false;
+                }
                 
             } catch (error) {
                 console.error('Error loading notifications:', error);
@@ -390,7 +479,80 @@
             }
         }
         
-        async function fetchNotifications() {
+        // Function to show/hide loading indicator
+        function showLoadingIndicator(show = true) {
+            const container = document.getElementById('notifications-container');
+            
+            if (show) {
+                if (!document.getElementById('loading-indicator')) {
+                    const loadingHTML = `
+                        <div id="loading-indicator" class="text-center py-3 my-2" style="background-color: #ffffff;">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <span class="ms-2 text-primary">Loading more notifications...</span>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', loadingHTML);
+                }
+            } else {
+                const indicator = document.getElementById('loading-indicator');
+                if (indicator) {
+                    indicator.classList.add('fade-out');
+                    setTimeout(() => indicator.remove(), 300);
+                }
+            }
+        }
+
+        async function loadMoreNotifications() {
+            try {
+                if (!hasMoreNotifications) return;
+                
+                // Show loading indicator in load more button
+                const loadMoreButton = document.getElementById('notification-load-more').querySelector('button');
+                loadMoreButton.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Loading...
+                `;
+                loadMoreButton.disabled = true;
+                
+                // Show loading indicator at bottom of list
+                showLoadingIndicator(true);
+                
+                // Increment page
+                currentPage++;
+                
+                // Fetch next page of notifications
+                const result = await fetchNotifications(currentPage, itemsPerPage);
+                const notificationsList = result.notifications || [];
+                
+                // Hide loading indicator
+                showLoadingIndicator(false);
+                
+                // Append new notifications
+                appendNotifications(notificationsList);
+                
+                // Update load more button
+                loadMoreButton.innerHTML = `Load More Notifications`;
+                loadMoreButton.disabled = false;
+                
+                // Update visibility of load more button
+                if (!result.has_more) {
+                    document.getElementById('notification-load-more').classList.add('d-none');
+                    hasMoreNotifications = false;
+                }
+                
+            } catch (error) {
+                console.error('Error loading more notifications:', error);
+                showLoadingIndicator(false);
+                const loadMoreButton = document.getElementById('notification-load-more').querySelector('button');
+                loadMoreButton.innerHTML = `Load More Notifications`;
+                loadMoreButton.disabled = false;
+                showError('Failed to load more notifications.');
+            }
+        }
+        
+        async function fetchNotifications(page = 1, limit = 10) {
             try {
                 // Try to get userId, even if we don't have a token
                 let userId = '';
@@ -398,11 +560,17 @@
                     userId = Clerk.user.id;
                 }
                 
-                console.log('Fetching notifications for user:', userId);
+                console.log(`Fetching notifications for user: ${userId}, page: ${page}, limit: ${limit}`);
                 
                 try {
+                    // Build the query string with pagination
+                    const queryParams = new URLSearchParams();
+                    if (userId) queryParams.append('user_id', userId);
+                    queryParams.append('page', page.toString());
+                    queryParams.append('limit', limit.toString());
+                    
                     // Always allow unauthenticated for better error handling
-                    const response = await makeAuthenticatedRequest(`/api/notifications${userId ? `?user_id=${userId}` : ''}`, {
+                    const response = await makeAuthenticatedRequest(`/api/notifications?${queryParams.toString()}`, {
                         method: 'GET',
                         allowUnauthenticated: true,
                         headers: userId ? { 'X-User-ID': userId } : {}
@@ -414,23 +582,41 @@
                     if (response && response.notifications) {
                         return {
                             notifications: response.notifications,
-                            unread_count: response.unread_count || 0
+                            unread_count: response.unread_count || 0,
+                            has_more: response.has_more || false,
+                            total_count: response.total_count || response.notifications.length,
+                            page: page
                         };
                     } else {
                         // If structure is not as expected, try to normalize it
                         return {
                             notifications: Array.isArray(response) ? response : [],
-                            unread_count: response.unread_count || 0
+                            unread_count: response.unread_count || 0,
+                            has_more: false,
+                            total_count: Array.isArray(response) ? response.length : 0,
+                            page: page
                         };
                     }
                 } catch (error) {
                     console.log('Error with notifications API:', error);
-                    return { notifications: [], unread_count: 0 };
+                    return { 
+                        notifications: [], 
+                        unread_count: 0, 
+                        has_more: false,
+                        total_count: 0,
+                        page: page
+                    };
                 }
             } catch (error) {
                 console.error('Error in notification handling:', error);
                 // Return empty data instead of throwing
-                return { notifications: [], unread_count: 0 };
+                return { 
+                    notifications: [], 
+                    unread_count: 0,
+                    has_more: false,
+                    total_count: 0,
+                    page: page
+                };
             }
         }
         
@@ -443,16 +629,25 @@
             // Check if we have valid notifications to display
             if (!notifications || !Array.isArray(notifications) || notifications.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-5">
-                        <i class="bi bi-bell text-muted" style="font-size: 3rem;"></i>
-                        <p class="text-muted mt-3">No notifications yet</p>
+                    <div class="text-center py-5" style="background-color: #ffffff;">
+                        <i class="bi bi-bell text-primary" style="font-size: 3rem;"></i>
+                        <p class="text-dark mt-3">No notifications yet</p>
                         <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
                     </div>
                 `;
                 return;
             }
             
-            let notificationsHTML = '';
+            container.innerHTML = ''; // Clear existing content
+            appendNotifications(notifications);
+        }
+        
+        function appendNotifications(notifications) {
+            if (!notifications || !Array.isArray(notifications) || notifications.length === 0) {
+                return;
+            }
+            
+            const container = document.getElementById('notifications-container');
             
             notifications.forEach(notification => {
                 const isUnread = !notification.is_read;
@@ -460,36 +655,47 @@
                 const timeAgo = getTimeAgo(notification.created_at);
                 const notifType = notification.type || 'system';
                 
-                notificationsHTML += `
-                    <div class="notification-item ${isUnread ? 'unread' : 'read'} p-3 border-bottom" 
-                         data-id="${notification.id}" 
-                         data-type="${notifType}"
-                         onclick="viewNotificationDetails(${notification.id}, event)">
-                        <div class="d-flex">
-                            <div class="notification-icon me-3 d-flex align-items-center justify-content-center">
-                                ${icon}
-                            </div>
-                            <div class="notification-content flex-grow-1">
-                                <p class="mb-1">${notification.message}</p>
-                                <small class="text-muted d-flex align-items-center">
-                                    <i class="bi bi-clock me-1"></i>${timeAgo}
-                                    ${isUnread ? '<span class="notification-badge ms-2">New</span>' : ''}
-                                </small>
-                            </div>
-                            <div class="notification-actions">
-                                <button class="btn btn-action" onclick="markAsRead(${notification.id}, event)" title="Mark as read">
-                                    <i class="bi bi-check"></i>
-                                </button>
-                                <button class="btn btn-action btn-delete" onclick="deleteNotification(${notification.id}, event)" title="Delete">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
+                // Create notification element
+                const notifEl = document.createElement('div');
+                notifEl.className = `notification-item ${isUnread ? 'unread' : 'read'} p-3 border-bottom`;
+                notifEl.setAttribute('data-id', notification.id);
+                notifEl.setAttribute('data-type', notifType);
+                notifEl.onclick = function(event) { viewNotificationDetails(notification.id, event); };
+                
+                // Set inner HTML
+                notifEl.innerHTML = `
+                    <div class="d-flex">
+                        <div class="notification-icon me-3 d-flex align-items-center justify-content-center">
+                            ${icon}
+                        </div>
+                        <div class="notification-content flex-grow-1">
+                            <p class="mb-1">${notification.message}</p>
+                            <small class="text-muted d-flex align-items-center">
+                                <i class="bi bi-clock me-1"></i>${timeAgo}
+                                ${isUnread ? '<span class="notification-badge ms-2">New</span>' : ''}
+                            </small>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="btn btn-action" onclick="markAsRead(${notification.id}, event)" title="Mark as read">
+                                <i class="bi bi-check"></i>
+                            </button>
+                            <button class="btn btn-action btn-delete" onclick="deleteNotification(${notification.id}, event)" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
                     </div>
                 `;
+                
+                // Add with fade-in animation
+                notifEl.style.opacity = '0';
+                container.appendChild(notifEl);
+                
+                // Trigger fade-in animation
+                setTimeout(() => {
+                    notifEl.style.transition = 'opacity 0.3s ease';
+                    notifEl.style.opacity = '1';
+                }, 10);
             });
-            
-            container.innerHTML = notificationsHTML;
         }
         
         function getNotificationIcon(type) {
@@ -526,9 +732,11 @@
             return date.toLocaleDateString();
         }
         
-        function updateSummary(unreadCount, notifications) {
+        function updateSummary(unreadCount, notifications, totalCount = null) {
             document.getElementById('unread-count').textContent = unreadCount;
-            document.getElementById('total-count').textContent = notifications.length;
+            
+            // Use provided totalCount if available, otherwise use notifications.length
+            document.getElementById('total-count').textContent = totalCount !== null ? totalCount : notifications.length;
             
             // Calculate notifications from this week
             const weekAgo = new Date();
@@ -541,7 +749,20 @@
             document.getElementById('week-count').textContent = weekCount;
         }
         
-        async function markAsRead(notificationId) {
+        async function markAsRead(notificationId, event) {
+            if (event) {
+                event.stopPropagation();
+                
+                // Visual feedback on the button
+                const button = event.target.closest('button');
+                if (button) {
+                    button.classList.add('btn-action-pulse');
+                    setTimeout(() => {
+                        button.classList.remove('btn-action-pulse');
+                    }, 600);
+                }
+            }
+            
             try {
                 // Get user ID if available
                 let userId = '';
@@ -565,21 +786,36 @@
                     // Update UI - remove unread styling
                     const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
                     if (notificationElement) {
+                        // Apply transition effect
+                        notificationElement.style.transition = 'background-color 0.3s ease';
+                        
+                        // Remove unread styling
                         notificationElement.classList.remove('unread');
                         notificationElement.classList.add('read');
                         
                         // Remove "New" badge
-                        const badge = notificationElement.querySelector('.badge');
-                        if (badge) badge.remove();
+                        const badgeEl = notificationElement.querySelector('.notification-badge');
+                        if (badgeEl) {
+                            // Fade out badge before removing
+                            badgeEl.style.transition = 'opacity 0.3s ease';
+                            badgeEl.style.opacity = '0';
+                            setTimeout(() => {
+                                badgeEl.remove();
+                            }, 300);
+                        }
                         
                         // Update unread count
                         const unreadCountElement = document.getElementById('unread-count');
                         const currentCount = parseInt(unreadCountElement.textContent);
                         unreadCountElement.textContent = Math.max(0, currentCount - 1);
+                        
+                        // Show subtle feedback message
+                        showToast('Notification marked as read');
                     }
                 }
             } catch (error) {
                 console.error('Error marking notification as read:', error);
+                showError('Failed to mark notification as read');
             }
         }
         
@@ -627,7 +863,7 @@
         function displayError(message) {
             const container = document.getElementById('notifications-container');
             container.innerHTML = `
-                <div class="text-center py-5">
+                <div class="text-center py-5" style="background-color: #ffffff;">
                     <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
                     <p class="text-danger mt-3">${message}</p>
                     <button class="btn btn-primary" onclick="loadNotifications()">Try Again</button>
@@ -668,20 +904,25 @@
         
         // Function to handle clicking on a notification
         function viewNotificationDetails(notificationId, event) {
-            // Prevent propagation if clicked on buttons
-            if (event.target.closest('.notification-actions') || 
-                event.target.closest('button')) {
-                return;
+            // Prevent triggering other click events
+            if (event) {
+                event.stopPropagation();
+                
+                // If the click was on a button inside the notification, don't process the notification click
+                if (event.target.closest('.btn-action') || event.target.closest('button')) {
+                    return;
+                }
             }
             
-            // Apply visual feedback
+            // Get notification element
             const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
-            if (notificationElement) {
-                notificationElement.style.backgroundColor = '#e5eeff';
-                setTimeout(() => {
-                    notificationElement.style.backgroundColor = '';
-                }, 300);
-            }
+            if (!notificationElement) return;
+            
+            // Visual feedback - highlight briefly
+            notificationElement.classList.add('notification-highlight');
+            setTimeout(() => {
+                notificationElement.classList.remove('notification-highlight');
+            }, 500);
             
             // Mark as read when clicked
             markAsRead(notificationId);
@@ -718,6 +959,14 @@
         async function deleteNotification(notificationId, event) {
             if (event) {
                 event.stopPropagation();
+                
+                // Visual feedback on the button
+                const button = event.target.closest('button');
+                if (button) {
+                    button.classList.add('btn-action-pulse');
+                    button.disabled = true;
+                    button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+                }
             }
             
             try {
@@ -743,39 +992,81 @@
                     // Remove notification from UI
                     const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
                     if (notificationElement) {
-                        notificationElement.classList.add('fade-out');
+                        // First show a quick success visual
+                        notificationElement.style.borderLeftColor = '#28a745';
+                        notificationElement.style.backgroundColor = 'rgba(40, 167, 69, 0.05)';
+                        
+                        // Then fade out
                         setTimeout(() => {
-                            notificationElement.remove();
-                            
-                            // Update counts
-                            const totalCountElement = document.getElementById('total-count');
-                            const currentTotalCount = parseInt(totalCountElement.textContent);
-                            totalCountElement.textContent = Math.max(0, currentTotalCount - 1);
-                            
-                            // Check if it was unread
-                            if (notificationElement.classList.contains('unread')) {
-                                const unreadCountElement = document.getElementById('unread-count');
-                                const currentUnreadCount = parseInt(unreadCountElement.textContent);
-                                unreadCountElement.textContent = Math.max(0, currentUnreadCount - 1);
-                            }
-                            
-                            // Check if notifications list is now empty
-                            if (document.querySelectorAll('.notification-item').length === 0) {
-                                document.getElementById('notifications-container').innerHTML = `
-                                    <div class="text-center py-5">
-                                        <i class="bi bi-bell text-muted" style="font-size: 3rem;"></i>
-                                        <p class="text-muted mt-3">No notifications yet</p>
-                                        <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
-                                    </div>
-                                `;
-                            }
+                            notificationElement.classList.add('fade-out');
+                            setTimeout(() => {
+                                notificationElement.remove();
+                                
+                                // Update counts
+                                const totalCountElement = document.getElementById('total-count');
+                                const currentTotalCount = parseInt(totalCountElement.textContent);
+                                totalCountElement.textContent = Math.max(0, currentTotalCount - 1);
+                                
+                                // Check if it was unread
+                                if (notificationElement.classList.contains('unread')) {
+                                    const unreadCountElement = document.getElementById('unread-count');
+                                    const currentUnreadCount = parseInt(unreadCountElement.textContent);
+                                    unreadCountElement.textContent = Math.max(0, currentUnreadCount - 1);
+                                }
+                                
+                                // Check if week count needs to be updated
+                                const createdAtStr = notificationElement.querySelector('.notification-content small')?.textContent;
+                                if (createdAtStr && (createdAtStr.includes('Just now') || 
+                                                    createdAtStr.includes('minute') || 
+                                                    createdAtStr.includes('hour') ||
+                                                    (createdAtStr.includes('day') && parseInt(createdAtStr) < 7))) {
+                                    const weekCountElement = document.getElementById('week-count');
+                                    const currentWeekCount = parseInt(weekCountElement.textContent);
+                                    weekCountElement.textContent = Math.max(0, currentWeekCount - 1);
+                                }
+                                
+                                // Check if notifications list is now empty
+                                if (document.querySelectorAll('.notification-item').length === 0) {
+                                    document.getElementById('notifications-container').innerHTML = `
+                                        <div class="text-center py-5">
+                                            <i class="bi bi-bell text-muted" style="font-size: 3rem;"></i>
+                                            <p class="text-muted mt-3">No notifications yet</p>
+                                            <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
+                                        </div>
+                                    `;
+                                }
+                            }, 300);
                         }, 300);
                     }
                     
-                    showToast('Notification deleted');
+                    showToast('Notification deleted successfully');
+                } else {
+                    // Restore button if error
+                    const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
+                    if (notificationElement) {
+                        const deleteButton = notificationElement.querySelector('.btn-delete');
+                        if (deleteButton) {
+                            deleteButton.classList.remove('btn-action-pulse');
+                            deleteButton.disabled = false;
+                            deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+                        }
+                    }
+                    showError('Failed to delete notification');
                 }
             } catch (error) {
                 console.error('Error deleting notification:', error);
+                
+                // Restore button if error
+                const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
+                if (notificationElement) {
+                    const deleteButton = notificationElement.querySelector('.btn-delete');
+                    if (deleteButton) {
+                        deleteButton.classList.remove('btn-action-pulse');
+                        deleteButton.disabled = false;
+                        deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+                    }
+                }
+                
                 showError('Failed to delete notification');
             }
         }
@@ -845,31 +1136,62 @@
             container.classList.add('opacity-50');
             
             setTimeout(() => {
+                // Track counts for summary update
+                let visibleCount = 0;
+                let visibleUnreadCount = 0;
+                let visibleWeekCount = 0;
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                
                 allNotifications.forEach(notification => {
                     const isUnread = notification.classList.contains('unread');
                     const notificationType = notification.getAttribute('data-type');
+                    const createdAtStr = notification.querySelector('.notification-content small')?.textContent;
+                    let isThisWeek = false;
+                    
+                    // Try to determine if notification is from this week
+                    if (createdAtStr) {
+                        // Simple heuristic - if it contains "minutes", "hours", "Just now", or "days ago" with number < 7
+                        isThisWeek = createdAtStr.includes('Just now') || 
+                                    createdAtStr.includes('minute') || 
+                                    createdAtStr.includes('hour') ||
+                                    (createdAtStr.includes('day') && 
+                                     parseInt(createdAtStr) < 7);
+                    }
+                    
+                    let shouldDisplay = false;
                     
                     switch(filterType) {
                         case 'all':
-                            notification.style.display = 'block';
+                            shouldDisplay = true;
                             break;
                         case 'unread':
-                            notification.style.display = isUnread ? 'block' : 'none';
+                            shouldDisplay = isUnread;
                             break;
                         case 'read':
-                            notification.style.display = isUnread ? 'none' : 'block';
+                            shouldDisplay = !isUnread;
                             break;
                         case 'comments':
-                            notification.style.display = notificationType === 'comment' ? 'block' : 'none';
+                            shouldDisplay = notificationType === 'comment';
                             break;
                         case 'likes':
-                            notification.style.display = notificationType === 'like' ? 'block' : 'none';
+                            shouldDisplay = notificationType === 'like';
                             break;
                         case 'system':
-                            notification.style.display = notificationType === 'system' ? 'block' : 'none';
+                            shouldDisplay = notificationType === 'system';
                             break;
                         default:
-                            notification.style.display = 'block';
+                            shouldDisplay = true;
+                    }
+                    
+                    // Update display style
+                    notification.style.display = shouldDisplay ? 'block' : 'none';
+                    
+                    // Update counts if notification is visible
+                    if (shouldDisplay) {
+                        visibleCount++;
+                        if (isUnread) visibleUnreadCount++;
+                        if (isThisWeek) visibleWeekCount++;
                     }
                 });
                 
@@ -897,14 +1219,18 @@
                     headerTitle.textContent = filterText[filterType];
                 }
                 
+                // Update stats to show visible counts
+                document.getElementById('total-count').textContent = visibleCount;
+                document.getElementById('unread-count').textContent = visibleUnreadCount;
+                document.getElementById('week-count').textContent = visibleWeekCount;
+                
                 // Show no results message if needed
-                const visibleNotifications = document.querySelectorAll('.notification-item[style="display: block;"]');
-                if (visibleNotifications.length === 0) {
+                if (visibleCount === 0) {
                     if (!document.getElementById('no-results')) {
                         container.innerHTML += `
-                            <div class="text-center py-4" id="no-results">
-                                <i class="bi bi-search text-muted" style="font-size: 2rem;"></i>
-                                <p class="text-muted mt-2">No notifications match your filter</p>
+                            <div class="text-center py-4" id="no-results" style="background-color: #ffffff;">
+                                <i class="bi bi-search text-primary" style="font-size: 2rem;"></i>
+                                <p class="text-dark mt-2">No notifications match your filter</p>
                                 <button class="btn btn-outline-primary btn-sm mt-2" onclick="filterNotifications('all')">
                                     Show All Notifications
                                 </button>
@@ -914,6 +1240,10 @@
                 } else {
                     document.getElementById('no-results')?.remove();
                 }
+                
+                // Update load more button visibility
+                // Hide "Load More" when filtering - we're only showing filtered notifications from current set
+                document.getElementById('notification-load-more')?.classList.add('d-none');
                 
                 // Remove loading animation
                 container.classList.remove('opacity-50');
@@ -1044,15 +1374,13 @@
                 // Check if response is successful
                 if (response && !response.error) {
                     // Clear the notifications container
-                    document.getElementById('notifications-container').innerHTML = `
-                        <div class="text-center py-5">
-                            <i class="bi bi-bell text-muted" style="font-size: 3rem;"></i>
-                            <p class="text-muted mt-3">No notifications yet</p>
-                            <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
-                        </div>
-                    `;
-                    
-                    // Update counts
+                                document.getElementById('notifications-container').innerHTML = `
+                                    <div class="text-center py-5" style="background-color: #ffffff;">
+                                        <i class="bi bi-bell text-primary" style="font-size: 3rem;"></i>
+                                        <p class="text-dark mt-3">No notifications yet</p>
+                                        <p class="text-muted small">You'll see notifications here when people interact with your photos or when you receive system updates.</p>
+                                    </div>
+                                `;                    // Update counts
                     document.getElementById('unread-count').textContent = '0';
                     document.getElementById('total-count').textContent = '0';
                     document.getElementById('week-count').textContent = '0';
@@ -1068,5 +1396,31 @@
     
     <!-- Add toast container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+    
+    <!-- Scroll to top button -->
+    <button id="scrollToTopBtn" class="btn btn-primary rounded-circle position-fixed" 
+            style="bottom: 20px; right: 20px; width: 45px; height: 45px; display: none; z-index: 1000; opacity: 0.8;" 
+            onclick="scrollToTop()">
+        <i class="bi bi-arrow-up"></i>
+    </button>
+    
+    <script>
+        // Show/hide scroll to top button based on scroll position
+        window.onscroll = function() {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                document.getElementById("scrollToTopBtn").style.display = "block";
+            } else {
+                document.getElementById("scrollToTopBtn").style.display = "none";
+            }
+        };
+        
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
 </body>
 </html>
