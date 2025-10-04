@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Authentication Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .card {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .secondary {
+            background-color: #2196F3;
+            color: white;
+        }
+        .warning {
+            background-color: #FF9800;
+            color: white;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Authentication Test</h1>
+        <p>This page tests the API authentication and profile retrieval.</p>
+        
+        <div class="card">
+            <h2>1. Test Direct API Access</h2>
+            <p>Test the API directly with the emergency fix parameters.</p>
+            <button class="primary" onclick="testDirectAPI()">Test Direct API Access</button>
+            <div id="direct-result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>2. Test with Authentication</h2>
+            <p>Test the API with proper authentication (if available).</p>
+            <button class="secondary" onclick="testWithAuth()">Test With Auth</button>
+            <div id="auth-result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>3. Create Test Profile</h2>
+            <p>Create a test profile to ensure the API is working.</p>
+            <button class="warning" onclick="createTestProfile()">Create Test Profile</button>
+            <div id="create-result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>API Response</h2>
+            <pre id="response">No response yet</pre>
+        </div>
+    </div>
+
+    <script>
+        // Test the API directly with emergency bypass
+        async function testDirectAPI() {
+            const resultDiv = document.getElementById('direct-result');
+            const responseDiv = document.getElementById('response');
+            
+            resultDiv.innerHTML = '<p>Testing API without authentication...</p>';
+            
+            try {
+                // Test with emergency bypass parameter
+                const response = await fetch('https://railhubpictures.org/api/profile?user_id=test_user_emergency_bypass');
+                const data = await response.json();
+                
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<p style="color: green">✓ API request successful!</p>';
+                } else {
+                    resultDiv.innerHTML = '<p style="color: red">✗ API request failed with status: ' + response.status + '</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<p style="color: red">✗ Error: ' + error.message + '</p>';
+                console.error('API test error:', error);
+            }
+        }
+        
+        // Test with proper authentication if available
+        async function testWithAuth() {
+            const resultDiv = document.getElementById('auth-result');
+            const responseDiv = document.getElementById('response');
+            
+            resultDiv.innerHTML = '<p>Testing API with authentication...</p>';
+            
+            try {
+                // Simple check for Clerk
+                if (typeof window.Clerk === 'undefined') {
+                    resultDiv.innerHTML = '<p style="color: orange">⚠ Clerk is not available on this page</p>';
+                    return;
+                }
+                
+                // Get token if available
+                let token = null;
+                try {
+                    token = await window.Clerk.session.getToken();
+                } catch (e) {
+                    console.error('Error getting token:', e);
+                }
+                
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                if (token) {
+                    headers.Authorization = `Bearer ${token}`;
+                    resultDiv.innerHTML += '<p>Auth token obtained successfully</p>';
+                } else {
+                    resultDiv.innerHTML += '<p style="color: orange">⚠ No auth token available</p>';
+                }
+                
+                const clerkUserId = window.Clerk?.user?.id;
+                let url = 'https://railhubpictures.org/api/profile';
+                
+                // Add user ID if available
+                if (clerkUserId) {
+                    url += `?user_id=${clerkUserId}`;
+                    resultDiv.innerHTML += '<p>Using Clerk user ID: ' + clerkUserId + '</p>';
+                }
+                
+                const response = await fetch(url, { 
+                    headers,
+                    method: 'GET'
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML += '<p style="color: green">✓ API request successful!</p>';
+                } else {
+                    resultDiv.innerHTML += '<p style="color: red">✗ API request failed with status: ' + response.status + '</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML += '<p style="color: red">✗ Error: ' + error.message + '</p>';
+                console.error('API auth test error:', error);
+            }
+        }
+        
+        // Create a test profile
+        async function createTestProfile() {
+            const resultDiv = document.getElementById('create-result');
+            const responseDiv = document.getElementById('response');
+            
+            resultDiv.innerHTML = '<p>Creating test profile...</p>';
+            
+            try {
+                // Create a test profile with PUT request
+                const response = await fetch('https://railhubpictures.org/api/profile?user_id=test_user_emergency_bypass', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'Emergency Test User',
+                        about_me: 'This is a test profile created with the emergency authentication bypass.',
+                        settings: {
+                            privacy: {
+                                showProfile: true
+                            },
+                            notifications: {
+                                email: true,
+                                push: false
+                            }
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<p style="color: green">✓ Test profile created successfully!</p>';
+                } else {
+                    resultDiv.innerHTML = '<p style="color: red">✗ Failed to create test profile. Status: ' + response.status + '</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<p style="color: red">✗ Error: ' + error.message + '</p>';
+                console.error('Test profile creation error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
