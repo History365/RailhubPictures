@@ -593,33 +593,54 @@ a:hover {
 
 		/* ==================== NOTIFICATION STYLES ==================== */
         
+/* Notification Container - Main container for the entire notifications page */
+.notifications-page {
+    background-color: #f8f8f8 !important;
+    color: #333 !important;
+    padding-top: 60px !important; /* Positions content below fixed header */
+}
+
+.notification-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    width: 100%;
+}
+
 /* Notification Layout */
 .notification-layout {
     display: flex;
-    gap: 1.5rem;
-    margin-top: 0.25rem; /* Minimal margin to position directly under header */
+    gap: 2rem;
+    margin-top: 1.5rem;
 }
 
+/* Main content area - holds all notifications */
 .notification-main {
-    flex: 3;  /* Increased from 2 to 3 for more content width */
+    flex: 3;
+    min-height: 500px; /* Ensures consistent height even when empty */
 }
 
+/* Sidebar for filters and stats */
 .notification-sidebar {
     flex: 1;
-    max-width: 280px;  /* Slightly reduced sidebar width */
+    max-width: 300px;
 }
 
-/* Notification Card */
+/* Notification Card - Container for all notifications */
 .notification-card {
-    background-color: var(--card-background);
-    border-radius: 8px;
-    box-shadow: 0 2px 10px var(--shadow-color);
-    margin-bottom: 1.5rem;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+    min-height: 400px; /* Minimum height ensures consistent sizing */
+    display: flex;
+    flex-direction: column;
 }
 
+/* Card header with title and action buttons */
 .notification-header {
-    padding: 1.25rem;
-    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #eee;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -628,43 +649,67 @@ a:hover {
 .notification-title {
     font-weight: 600;
     margin-bottom: 0;
-    color: var(--text-color);
+    color: #333;
     font-size: 1.25rem;
+}
+
+/* Empty state styling when no notifications */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+.empty-state-text {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 0.5rem;
 }
 
 /* Individual notification items */
 .notification-item {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #eee;
     transition: background-color 0.2s ease;
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 1.25rem;
 }
 
 .notification-item.unread {
     background-color: rgba(74, 125, 255, 0.05);
-    border-left: 3px solid var(--accent-color);
+    border-left: 4px solid #4a7dff;
 }
 
 .notification-item.read {
-    border-left: 3px solid transparent;
+    border-left: 4px solid transparent;
 }
 
 .notification-item:hover {
-    background-color: var(--item-hover-bg, rgba(0, 0, 0, 0.02));
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
 /* Notification item components */
 .notification-icon {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--section-alt-background);
-    color: var(--accent-color);
+    background-color: #f5f5f5;
+    color: #4a7dff;
+    flex-shrink: 0;
 }
 
 .like-icon {
@@ -694,30 +739,213 @@ a:hover {
 
 .notification-content {
     flex-grow: 1;
-    line-height: 1.5;  /* Improved line height for better readability */
+    line-height: 1.6;
+}
+
+.notification-message {
+    margin-bottom: 0.25rem;
+    color: #333;
 }
 
 .notification-meta {
     font-size: 0.85rem;
-    color: var(--secondary-text);
-    margin-top: 0.25rem;  /* Added space between content and meta text */
+    color: #888;
+    margin-top: 0.35rem;
 }
 
 .notification-actions {
     display: flex;
     gap: 0.5rem;
+    margin-top: 0.75rem;
 }
 
 /* Badge for unread notifications */
 .notification-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background-color: var(--accent-color);
+    background-color: #4a7dff;
     color: white;
     border-radius: 12px;
     font-size: 0.75rem;
     margin-left: 0.5rem;
     font-weight: 500;
+}
+
+/* Filter and actions styling */
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Quick filters in sidebar */
+.quick-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid #ddd;
+    color: #555;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+    background-color: #f5f5f5;
+}
+
+.btn-outline.active {
+    background-color: #4a7dff;
+    border-color: #4a7dff;
+    color: #fff;
+}
+
+/* Pagination styles */
+.pagination-footer {
+    padding: 1.25rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: center;
+    margin-top: auto; /* Push to bottom of card */
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pagination-item {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.pagination-item:hover {
+    background-color: #f5f5f5;
+}
+
+.pagination-info {
+    color: #666;
+}
+
+/* Stats list styles */
+.stats-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.stats-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.stats-list li:last-child {
+    border-bottom: none;
+}
+
+.stats-label {
+    color: #666;
+}
+
+.stats-value {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Sidebar card styling */
+.sidebar-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.sidebar-card-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+    color: #333;
+}
+
+.sidebar-card-body {
+    padding: 1rem 1.25rem;
+}
+
+/* Dropdown menus */
+.dropdown-menu {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+    min-width: 180px;
+    z-index: 1000;
+    display: none;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+    text-decoration: none;
+}
+
+.dropdown-item.active {
+    background-color: rgba(74, 125, 255, 0.1);
+    color: #4a7dff;
+    font-weight: 500;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #eee;
+    margin: 0.5rem 0;
+}
+
+/* Fix for the filter dropdowns */
+.filter-dropdown {
+    position: relative;
+    margin-left: 0.5rem;
+}
+
+.icon-margin-right {
+    margin-right: 4px;
 }
 
 /* Sidebar cards */
@@ -1074,6 +1302,20 @@ footer, .site-footer {
 
 .icon-margin-right {
     margin-right: 4px;
+}
+
+.site-header {
+    padding: 1rem 0;
+    background: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    font-family: 'Inter', Helvetica, Arial, sans-serif;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-bottom: 1px solid #eee;
+    box-sizing: border-box;
 }
 
 .notifications-page .notification-card {
