@@ -23,11 +23,8 @@ function loadClerkScript() {
 
     console.error('Clerk should be loaded via HTML script tag with proper publishable key');
     reject(new Error('Clerk loading method deprecated'));
-  });
-    
   // NO LONGER USED - Clerk is now loaded via HTML script tag
   // with the correct publishable key: pk_test_Y29tbXVuYWwtY2F0LTI1LmNsZXJrLmFjY291bnRzLmRldiQ
-  });
 }
 
 // Initialize Clerk and listen for auth changes
