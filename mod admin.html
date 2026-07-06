@@ -226,6 +226,18 @@
     background: var(--panel-2);
   }
   .image-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .image-thumb.broken {
+    border-color: #d97706;
+    background: rgba(217,119,6,0.08);
+  }
+  .image-thumb.broken img { display: none; }
+  .image-thumb .broken-msg {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; padding: 6px; text-align: center;
+    color: #d97706; font-size: 0.65rem; line-height: 1.2;
+  }
+  .image-thumb .broken-msg i { font-size: 1.1rem; }
   .image-thumb .primary-badge {
     position: absolute; top: 4px; left: 4px;
     background: rgba(79,140,255,0.9); color: #fff;
@@ -760,10 +772,20 @@ function renderImagesGrid() {
     div.className = 'image-thumb';
     div.innerHTML = `
       ${index === 0 ? '<span class="primary-badge">Cover</span>' : ''}
-      <img src="${escapeHtml(url)}" alt="">
+      <img src="${escapeHtml(url)}" alt="" loading="lazy">
+      <div class="broken-msg" style="display:none;"><i>&#9888;</i><span>Failed to load</span></div>
       <button type="button" class="thumb-remove" data-index="${index}" title="Remove">&times;</button>
       ${index !== 0 ? `<button type="button" class="make-primary" data-index="${index}">Make cover</button>` : ''}
     `;
+    // A 404/renamed/moved file shouldn't just render as an invisible box on
+    // this dark theme (the native broken-image icon is tiny and easy to
+    // miss) - flag it clearly instead so it doesn't look like the photo
+    // silently disappeared when reopening the mod for editing.
+    const img = div.querySelector('img');
+    img.addEventListener('error', () => {
+      div.classList.add('broken');
+      div.querySelector('.broken-msg').style.display = '';
+    });
     grid.appendChild(div);
   });
 }
@@ -783,7 +805,9 @@ document.getElementById('imagesGrid').addEventListener('click', (e) => {
 });
 
 function addImageUrl(url) {
-  if (!url || currentImages.includes(url)) return;
+  if (!url) return;
+  const key = normalizeUrlForCompare(url);
+  if (currentImages.some(existing => normalizeUrlForCompare(existing) === key)) return;
   currentImages.push(url);
   renderImagesGrid();
 }
@@ -1409,7 +1433,18 @@ function openModal(mod) {
     currentRequirements = parseRequirements(mod.requirements);
 
     // Build the ordered image list: cover image first, then the gallery.
-    const gallery = parseImageList(mod.images).filter(url => url && url !== mod.image_url);
+    // Comparisons are normalized so a photo stored as the cover under a
+    // slightly different URL form (protocol, trailing slash, encoding)
+    // still gets recognized and isn't duplicated - or worse, isn't
+    // filtered and ends up looking like a missing photo elsewhere.
+    const coverKey = normalizeUrlForCompare(mod.image_url);
+    const seen = new Set([coverKey].filter(Boolean));
+    const gallery = parseImageList(mod.images).filter(url => {
+      const key = normalizeUrlForCompare(url);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
     currentImages = [mod.image_url, ...gallery].filter(Boolean);
 
     currentDownload = { url: mod.download_url || '', name: mod.download_name || '' };
@@ -1435,20 +1470,44 @@ function openModal(mod) {
   document.getElementById('modalOverlay').classList.add('show');
 }
 
+// Normalizes a URL for comparison purposes only (never used for display/
+// storage) so that trivial differences - http vs https, a trailing slash,
+// or %20 vs a literal space - don't cause the same photo to be treated as
+// a different one when checking whether it's already the cover.
+function normalizeUrlForCompare(url) {
+  if (!url) return '';
+  try {
+    let decoded = decodeURI(url.trim());
+    return decoded.replace(/^https?:\/\//i, '').replace(/\/+$/, '').toLowerCase();
+  } catch {
+    return url.trim().toLowerCase();
+  }
+}
+
 // Parses whatever was stored for the gallery images (array, or JSON-string
-// array) into a plain array of URL strings.
+// array) into a plain array of URL strings. Some entries may have come
+// through as {url: ...} objects rather than plain strings (e.g. from the
+// bulk import scraper), so both shapes are normalized here - otherwise
+// those photos would silently fail to render instead of showing up.
 function parseImageList(value) {
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  if (typeof value === 'string') {
+  let list;
+  if (!value) {
+    list = [];
+  } else if (Array.isArray(value)) {
+    list = value;
+  } else if (typeof value === 'string') {
     try {
       const parsed = JSON.parse(value);
-      return Array.isArray(parsed) ? parsed : [];
+      list = Array.isArray(parsed) ? parsed : [];
     } catch {
-      return [];
+      list = [];
     }
+  } else {
+    list = [];
   }
-  return [];
+  return list
+    .map(entry => (typeof entry === 'string' ? entry : (entry && (entry.url || entry.src || entry.image_url)) || ''))
+    .filter(Boolean);
 }
 
 function getMetadataField(mod, field) {
