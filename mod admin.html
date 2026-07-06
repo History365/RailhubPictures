@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TSMA Mod Admin</title>
 <style>
   :root {
@@ -125,6 +126,8 @@
     width: 100%;
     max-width: 720px;
     padding: 24px;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
   }
   .modal h2 { margin: 0 0 16px; font-size: 1.05rem; }
   .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
@@ -291,6 +294,29 @@
   #keyGate p { color: var(--muted); font-size: 0.85rem; }
   #keyGate input { width: 100%; margin: 10px 0; }
   #app { display: none; }
+
+  /* Table scrolls horizontally instead of breaking the page layout */
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 6px; }
+  .table-scroll table { min-width: 720px; }
+
+  /* ---- Mobile ---- */
+  @media (max-width: 720px) {
+    header { padding: 14px 16px; }
+    header h1 { font-size: 1rem; }
+    main { padding: 16px 16px 60px; }
+    .toolbar { gap: 8px; }
+    #searchInput { min-width: 0; flex-basis: 100%; }
+    .toolbar select { flex: 1 1 140px; }
+    button { padding: 9px 14px; }
+    .overlay { padding: 16px 10px; }
+    .modal { padding: 16px; max-height: calc(100vh - 32px); }
+    .field-grid { grid-template-columns: 1fr; }
+    .modal-actions { flex-wrap: wrap; gap: 10px; }
+    .req-chip { flex-wrap: wrap; }
+    .req-chip .req-btns { flex-wrap: wrap; }
+    #keyGate { margin: 40px 16px; max-width: none; padding: 20px; }
+    #reqLabelInput, #reqUrlInput { flex-basis: 100% !important; }
+  }
 </style>
 </head>
 <body>
@@ -346,6 +372,7 @@
       <button class="secondary" id="bulkClearBtn">Clear selection</button>
     </div>
 
+    <div class="table-scroll">
     <table>
       <thead>
         <tr>
@@ -361,6 +388,7 @@
       </thead>
       <tbody id="modsTableBody"></tbody>
     </table>
+    </div>
     <div id="emptyState" class="empty" style="display:none;">No mods found.</div>
   </main>
 </div>
