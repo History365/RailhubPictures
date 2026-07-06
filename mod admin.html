@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TSMA Mod Admin</title>
+<style>
+  :root {
+    --bg: #14151a;
+    --panel: #1d1e25;
+    --panel-2: #24252e;
+    --border: #33343e;
+    --text: #e6e6ea;
+    --muted: #9a9aa5;
+    --accent: #4f8cff;
+    --accent-hover: #3d76e0;
+    --danger: #e0555a;
+    --danger-hover: #c94549;
+    --good: #4caf7d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  header h1 { font-size: 1.15rem; margin: 0; font-weight: 600; }
+  header .sub { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+  main { padding: 24px 28px 80px; max-width: 1200px; margin: 0 auto; }
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  input, select, textarea {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { outline: 1px solid var(--accent); }
+  #searchInput { flex: 1; min-width: 180px; }
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); }
+  button.secondary:hover { background: #2c2d38; }
+  button.danger { background: var(--danger); }
+  button.danger:hover { background: var(--danger-hover); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead th {
+    text-align: left;
+    color: var(--muted);
+    font-weight: 500;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .pill.published { background: rgba(76,175,125,0.15); color: var(--good); }
+  .pill.unpublished { background: rgba(224,85,90,0.15); color: var(--danger); }
+  .row-actions { display: flex; gap: 6px; flex-wrap: nowrap; }
+  .row-actions button { padding: 5px 10px; font-size: 0.8rem; }
+  #status {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    display: none;
+  }
+  #status.show { display: block; }
+  #status.ok { background: rgba(76,175,125,0.12); color: var(--good); }
+  #status.err { background: rgba(224,85,90,0.12); color: var(--danger); }
+
+  /* Modal */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    overflow-y: auto;
+    z-index: 50;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 720px;
+    padding: 24px;
+  }
+  .modal h2 { margin: 0 0 16px; font-size: 1.05rem; }
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+  .field-grid .full { grid-column: 1 / -1; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.8rem; color: var(--muted); }
+  .field textarea { min-height: 70px; resize: vertical; font-family: inherit; }
+  .field .hint { font-size: 0.72rem; color: var(--muted); }
+  .modal-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+  }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; }
+  .checkbox-row label { font-size: 0.85rem; color: var(--text); }
+  .empty { color: var(--muted); padding: 30px 0; text-align: center; }
+  .req-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+  .req-chip .req-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .req-chip .req-text a { color: var(--accent); }
+  .req-chip button { padding: 2px 8px; font-size: 0.75rem; flex-shrink: 0; }
+  .req-chip .req-btns { display: flex; gap: 4px; flex-shrink: 0; }
+  .req-group-title { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+  .req-group-title .hint { text-transform: none; font-weight: 400; letter-spacing: normal; }
+  .req-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+  .req-group-empty { color: var(--muted); font-size: 0.8rem; padding: 4px 2px; display: none; }
+  .req-group-empty.show { display: block; }
+
+  /* Author / Category combobox */
+  .combo-field { position: relative; }
+  .combo-list {
+    display: none;
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 4px 0 0;
+    padding: 4px;
+    list-style: none;
+    max-height: 180px;
+    overflow-y: auto;
+    z-index: 10;
+  }
+  .combo-list.show { display: block; }
+  .combo-list li {
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .combo-list li:hover, .combo-list li.active { background: var(--accent); color: #fff; }
+  .combo-list li.combo-empty { color: var(--muted); cursor: default; }
+  .combo-list li.combo-empty:hover { background: none; color: var(--muted); }
+
+  /* Asset picker (images + mod file) */
+  .dropzone {
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .dropzone:hover, .dropzone.dragover {
+    border-color: var(--accent);
+    background: rgba(79,140,255,0.06);
+  }
+  .dropzone .dz-actions { margin-top: 8px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .dropzone .dz-actions button { padding: 5px 10px; font-size: 0.8rem; }
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .image-thumb {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+  }
+  .image-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .image-thumb .primary-badge {
+    position: absolute; top: 4px; left: 4px;
+    background: rgba(79,140,255,0.9); color: #fff;
+    font-size: 0.65rem; padding: 1px 6px; border-radius: 999px; font-weight: 600;
+  }
+  .image-thumb .thumb-remove {
+    position: absolute; top: 4px; right: 4px;
+    background: rgba(0,0,0,0.6); color: #fff; border: none;
+    width: 20px; height: 20px; border-radius: 50%; font-size: 0.75rem; line-height: 1;
+    cursor: pointer; padding: 0;
+  }
+  .image-thumb .make-primary {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.55); color: #fff; border: none;
+    font-size: 0.65rem; padding: 3px 0; cursor: pointer;
+  }
+  .file-display {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; font-size: 0.85rem;
+  }
+  .file-display .file-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-display button { padding: 3px 9px; font-size: 0.75rem; }
+
+  /* Browse database modal (nested over the mod modal) */
+  .overlay.nested { z-index: 60; }
+  .browse-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
+  .browse-toolbar input { flex: 1; }
+  .browse-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+  .browse-item {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--panel-2);
+    cursor: pointer;
+    overflow: hidden;
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .browse-item:hover { border-color: var(--accent); }
+  .browse-item .browse-thumb {
+    width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
+    background: #14151a; overflow: hidden;
+  }
+  .browse-item .browse-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .browse-item .browse-thumb i { font-size: 1.4rem; color: var(--muted); }
+  .browse-item .browse-name { padding: 5px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .browse-empty { color: var(--muted); text-align: center; padding: 20px; grid-column: 1 / -1; }
+
+  /* API key gate */
+  #keyGate {
+    max-width: 420px;
+    margin: 80px auto;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px;
+  }
+  #keyGate h2 { margin-top: 0; font-size: 1.05rem; }
+  #keyGate p { color: var(--muted); font-size: 0.85rem; }
+  #keyGate input { width: 100%; margin: 10px 0; }
+  #app { display: none; }
+</style>
+</head>
+<body>
+
+<div id="keyGate">
+  <h2>TSMA Mod Admin</h2>
+  <p>Enter your Admin API key (the same one set as <code>ADMIN_API_KEY</code> in <code>wrangler.toml</code>). It's stored only in this browser tab's session storage - never sent anywhere except to your own Worker.</p>
+  <input type="password" id="apiKeyInput" placeholder="Admin API key">
+  <button id="apiKeySubmit" style="width:100%;">Continue</button>
+  <p id="keyGateError" style="color:#e0555a;"></p>
+</div>
+
+<div id="app">
+  <header>
+    <div>
+      <h1>Train Simulator Mod Archive — Mod Admin</h1>
+      <div class="sub">Editing <code id="apiOrigin"></code></div>
+    </div>
+    <button class="secondary" id="logoutBtn">Clear API key</button>
+  </header>
+
+  <main>
+    <div id="status"></div>
+
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="Search by title, author, category, or slug...">
+      <button class="secondary" id="showUnpublishedToggle">Show unpublished only: Off</button>
+      <button class="secondary" id="refreshBtn">Refresh</button>
+      <button id="addBtn">+ Add Mod</button>
+    </div>
+
+    <div class="toolbar">
+      <select id="sortSelect">
+        <option value="updated_desc">Sort: Updated (newest)</option>
+        <option value="updated_asc">Sort: Updated (oldest)</option>
+        <option value="author_asc">Sort: Author (A-Z)</option>
+        <option value="category_asc">Sort: Category (A-Z)</option>
+        <option value="title_asc">Sort: Title (A-Z)</option>
+      </select>
+      <select id="authorFilterSelect">
+        <option value="">All authors</option>
+      </select>
+      <select id="categoryFilterSelect">
+        <option value="">All categories</option>
+      </select>
+    </div>
+
+    <div class="toolbar" id="bulkBar" style="display:none;">
+      <span id="bulkCount" style="color:var(--muted); font-size:0.85rem;"></span>
+      <button class="secondary" id="bulkHideBtn">Hide selected</button>
+      <button class="secondary" id="bulkShowBtn">Republish selected</button>
+      <button class="danger" id="bulkDeleteBtn">Delete selected</button>
+      <button class="secondary" id="bulkClearBtn">Clear selection</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:28px;"><input type="checkbox" id="selectAllCheckbox"></th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Category</th>
+          <th>Slug</th>
+          <th>Status</th>
+          <th>Updated</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="modsTableBody"></tbody>
+    </table>
+    <div id="emptyState" class="empty" style="display:none;">No mods found.</div>
+  </main>
+</div>
+
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">Add Mod</h2>
+    <form id="modForm">
+      <div class="field-grid">
+        <div class="field">
+          <label>Title * <span class="hint">(auto-filled from the download URL if left blank)</span></label>
+          <input type="text" name="title" id="titleInput" required>
+        </div>
+        <div class="field">
+          <label>Slug <span class="hint">(URL segment - auto-generated from title if left blank on create)</span></label>
+          <input type="text" name="slug">
+        </div>
+        <div class="field combo-field">
+          <label>Author / Creator *</label>
+          <input type="text" name="author" id="authorInput" required placeholder="e.g. TruRail Simulations" autocomplete="off">
+          <ul class="combo-list" id="authorComboList"></ul>
+          <div class="hint">Must match an existing creator page slug when normalized (e.g. "TruRail Simulations" → /trurail-simulations). Start typing to search existing creators, or type a new one.</div>
+          <div class="checkbox-row" style="margin-top:8px;">
+            <input type="checkbox" id="creatorStaticPageCheckbox">
+            <label for="creatorStaticPageCheckbox">Force this creator's page to the static site (skip the database-rendered page)</label>
+          </div>
+          <div class="hint" id="creatorStaticPageHint"></div>
+        </div>
+        <div class="field combo-field">
+          <label>Category</label>
+          <input type="text" name="category" id="categoryInput" placeholder="e.g. Rolling Stock" autocomplete="off">
+          <ul class="combo-list" id="categoryComboList"></ul>
+        </div>
+        <div class="field">
+          <label>File size <span class="hint">(auto-detected when a file is uploaded/selected - edit manually if it's not hosted on this site)</span></label>
+          <div style="display:flex; gap:6px;">
+            <input type="text" name="file_size" id="fileSizeInput" placeholder="e.g. 45 MB" style="flex:1;">
+            <button type="button" class="secondary" id="detectSizeBtn" style="flex:0 0 auto;">Detect</button>
+          </div>
+          <div class="hint" id="fileSizeStatus"></div>
+        </div>
+        <div class="field">
+          <label>Created <span class="hint">(editable - e.g. to backdate to the mod's real release date)</span></label>
+          <input type="date" name="created_at">
+        </div>
+        <div class="field">
+          <label>Page updated <span class="hint">(shown on the mod page as "Page Updated: ...")</span></label>
+          <input type="date" name="page_updated">
+        </div>
+        <div class="field">
+          <label>Last updated</label>
+          <input type="text" id="updatedAtDisplay" disabled value="—">
+          <div class="hint">Set automatically whenever this mod is saved - not editable.</div>
+        </div>
+        <div class="field full">
+          <label>Description</label>
+          <textarea name="description"></textarea>
+        </div>
+        <div class="field full">
+          <label>Images <span class="hint">(first image is the main/cover image - drag an image in, or browse images already in the database)</span></label>
+          <div class="dropzone" id="imagesDropzone">
+            Drag images here, or
+            <div class="dz-actions">
+              <button type="button" class="secondary" id="imagesUploadBtn">Upload from device</button>
+              <button type="button" class="secondary" id="imagesBrowseBtn">Browse database</button>
+            </div>
+          </div>
+          <input type="file" id="imagesFileInput" accept="image/*" multiple hidden>
+          <div class="image-grid" id="imagesGrid"></div>
+        </div>
+        <div class="field full">
+          <label>Mod file <span class="hint">(the file users download - drag it in, or pick one already uploaded)</span></label>
+          <div class="dropzone" id="downloadDropzone">
+            <div id="downloadFileDisplay"></div>
+            <div class="dz-actions">
+              <button type="button" class="secondary" id="downloadUploadBtn">Upload from device</button>
+              <button type="button" class="secondary" id="downloadBrowseBtn">Browse database</button>
+            </div>
+          </div>
+          <input type="file" id="downloadFileInput" hidden>
+          <input type="hidden" name="download_url" id="downloadUrlInput">
+        </div>
+        <div class="field full">
+          <label>Download filename <span class="hint">(shown to users, defaults to the download URL's filename)</span></label>
+          <input type="text" name="download_name">
+        </div>
+        <div class="field full">
+          <label>Features <span class="hint">(one per line)</span></label>
+          <textarea name="features"></textarea>
+        </div>
+        <div class="field full">
+          <label>Requirements <span class="hint">(each can be plain text, or a label linking to a URL - pick which group it belongs in)</span></label>
+          <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+            <input type="text" id="reqLabelInput" placeholder="Requirement text, e.g. 'TruRail Base Pack'" style="flex:2; min-width:160px;">
+            <input type="text" id="reqUrlInput" placeholder="URL (optional)" style="flex:2; min-width:160px;">
+            <select id="reqGroupSelect" style="flex:0 0 auto;">
+              <option value="allOf">In addition to (required)</option>
+              <option value="anyOf">At least one of the following</option>
+            </select>
+            <button type="button" id="reqAddBtn" class="secondary" style="flex:0 0 auto;">+ Add</button>
+            <button type="button" id="reqCancelEditBtn" class="secondary" style="flex:0 0 auto; display:none;">Cancel</button>
+          </div>
+          <div class="req-group">
+            <div class="req-group-title">At least one of the following <span class="hint">(only one is needed)</span></div>
+            <ul id="requirementsListAny" class="req-list" data-group="anyOf"></ul>
+            <div class="req-group-empty" id="requirementsAnyEmpty">None yet.</div>
+          </div>
+          <div class="req-group" style="margin-top:12px;">
+            <div class="req-group-title">In addition to <span class="hint">(all of these are required)</span></div>
+            <ul id="requirementsListAll" class="req-list" data-group="allOf"></ul>
+            <div class="req-group-empty" id="requirementsAllEmpty">None yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <div class="checkbox-row">
+          <input type="checkbox" name="published" id="publishedCheckbox" checked>
+          <label for="publishedCheckbox">Published (visible on the site)</label>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="secondary" id="cancelBtn">Cancel</button>
+          <button type="submit" id="saveBtn">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="overlay nested" id="browseOverlay">
+  <div class="modal">
+    <h2 id="browseModalTitle">Browse database</h2>
+    <div class="browse-toolbar">
+      <input type="text" id="browseSearchInput" placeholder="Filter by filename...">
+    </div>
+    <div class="browse-grid" id="browseGrid"></div>
+    <div class="modal-actions">
+      <div></div>
+      <button type="button" class="secondary" id="browseCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_ORIGIN = 'https://api.trainsimarchive.org';
+document.getElementById('apiOrigin').textContent = API_ORIGIN;
+
+let apiKey = sessionStorage.getItem('tsma_admin_key') || '';
+let allMods = [];
+let editingId = null; // null = creating a new mod
+let currentRequirements = { anyOf: [], allOf: [] }; // { anyOf: [{label,url}], allOf: [{label,url}] }
+let currentImages = []; // ordered list of image URLs - currentImages[0] is the cover image
+let currentDownload = { url: '', name: '' }; // the selected mod file
+
+let editingReq = null; // { group: 'anyOf'|'allOf', index } currently being edited, or null
+
+function renderOneRequirementGroup(group) {
+  const listEl = document.getElementById(group === 'anyOf' ? 'requirementsListAny' : 'requirementsListAll');
+  const emptyEl = document.getElementById(group === 'anyOf' ? 'requirementsAnyEmpty' : 'requirementsAllEmpty');
+  const items = currentRequirements[group];
+  listEl.innerHTML = '';
+  items.forEach((req, index) => {
+    const li = document.createElement('li');
+    li.className = 'req-chip';
+    const textHtml = req.url
+      ? `<a href="${escapeHtml(req.url)}" target="_blank">${escapeHtml(req.label || req.url)}</a>`
+      : escapeHtml(req.label);
+    li.innerHTML = `
+      <span class="req-text">${textHtml}</span>
+      <div class="req-btns">
+        <button type="button" class="secondary" data-action="up" data-index="${index}" ${index === 0 ? 'disabled' : ''} title="Move up">↑</button>
+        <button type="button" class="secondary" data-action="down" data-index="${index}" ${index === items.length - 1 ? 'disabled' : ''} title="Move down">↓</button>
+        <button type="button" class="secondary" data-action="edit" data-index="${index}">Edit</button>
+        <button type="button" class="secondary" data-action="remove" data-index="${index}">Remove</button>
+      </div>
+    `;
+    listEl.appendChild(li);
+  });
+  emptyEl.classList.toggle('show', items.length === 0);
+}
+
+function renderRequirementsList() {
+  renderOneRequirementGroup('anyOf');
+  renderOneRequirementGroup('allOf');
+}
+
+function handleRequirementsListClick(group, e) {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const index = Number(btn.dataset.index);
+  const action = btn.dataset.action;
+  const items = currentRequirements[group];
+
+  if (action === 'remove') {
+    items.splice(index, 1);
+    if (editingReq && editingReq.group === group && editingReq.index === index) exitReqEditMode();
+    renderRequirementsList();
+  } else if (action === 'up' && index > 0) {
+    [items[index - 1], items[index]] = [items[index], items[index - 1]];
+    renderRequirementsList();
+  } else if (action === 'down' && index < items.length - 1) {
+    [items[index + 1], items[index]] = [items[index], items[index + 1]];
+    renderRequirementsList();
+  } else if (action === 'edit') {
+    editingReq = { group, index };
+    document.getElementById('reqLabelInput').value = items[index].label || '';
+    document.getElementById('reqUrlInput').value = items[index].url || '';
+    document.getElementById('reqGroupSelect').value = group;
+    document.getElementById('reqAddBtn').textContent = 'Update';
+    document.getElementById('reqCancelEditBtn').style.display = '';
+    document.getElementById('reqLabelInput').focus();
+  }
+}
+
+document.getElementById('requirementsListAny').addEventListener('click', (e) => handleRequirementsListClick('anyOf', e));
+document.getElementById('requirementsListAll').addEventListener('click', (e) => handleRequirementsListClick('allOf', e));
+
+function exitReqEditMode() {
+  editingReq = null;
+  document.getElementById('reqLabelInput').value = '';
+  document.getElementById('reqUrlInput').value = '';
+  document.getElementById('reqGroupSelect').value = 'allOf';
+  document.getElementById('reqAddBtn').textContent = '+ Add';
+  document.getElementById('reqCancelEditBtn').style.display = 'none';
+}
+
+document.getElementById('reqCancelEditBtn').addEventListener('click', exitReqEditMode);
+
+document.getElementById('reqAddBtn').addEventListener('click', () => {
+  const labelInput = document.getElementById('reqLabelInput');
+  const urlInput = document.getElementById('reqUrlInput');
+  const groupSelect = document.getElementById('reqGroupSelect');
+  const label = labelInput.value.trim();
+  const url = urlInput.value.trim();
+  const group = groupSelect.value === 'anyOf' ? 'anyOf' : 'allOf';
+  if (!label && !url) return;
+
+  if (editingReq !== null) {
+    // If the group changed while editing, move the item to the new group
+    // instead of leaving a stale entry behind in the old one.
+    if (editingReq.group !== group) {
+      currentRequirements[editingReq.group].splice(editingReq.index, 1);
+      currentRequirements[group].push({ label: label || url, url: url || '' });
+    } else {
+      currentRequirements[group][editingReq.index] = { label: label || url, url: url || '' };
+    }
+    exitReqEditMode();
+  } else {
+    currentRequirements[group].push({ label: label || url, url: url || '' });
+    labelInput.value = '';
+    urlInput.value = '';
+    labelInput.focus();
+  }
+  renderRequirementsList();
+});
+
+// Auto-detects file size by reading it straight from R2 via the public
+// /api/file-info/:filename endpoint (no admin key needed for that one).
+// Only works for files actually hosted on this site's FILES bucket - falls
+// back to leaving the field editable for external download links.
+async function detectFileSize(silent) {
+  const urlValue = document.getElementById('downloadUrlInput').value.trim();
+  const statusEl = document.getElementById('fileSizeStatus');
+  if (!urlValue) {
+    if (!silent) statusEl.textContent = 'Enter a download URL first.';
+    return;
+  }
+
+  let filename;
+  try {
+    filename = decodeURIComponent(new URL(urlValue).pathname.split('/').pop());
+  } catch {
+    if (!silent) statusEl.textContent = "Couldn't parse that URL - enter the file size manually.";
+    return;
+  }
+  if (!filename) return;
+
+  statusEl.textContent = 'Detecting...';
+  try {
+    const res = await fetch(`${API_ORIGIN}/api/file-info/${encodeURIComponent(filename)}`);
+    if (!res.ok) throw new Error('not found');
+    const data = await res.json();
+    if (data.sizeFormatted) {
+      document.getElementById('fileSizeInput').value = data.sizeFormatted;
+      statusEl.textContent = 'Detected from ' + filename + '.';
+    } else {
+      throw new Error('no size in response');
+    }
+  } catch {
+    statusEl.textContent = silent
+      ? "Couldn't auto-detect (not hosted here?) - enter the size manually."
+      : "Couldn't find that file in the archive's storage - enter the size manually.";
+  }
+}
+
+document.getElementById('detectSizeBtn').addEventListener('click', () => detectFileSize(false));
+
+// Turns a filename like "csx-road_bundle_v2.zip" into "Csx Road Bundle V2" -
+// a reasonable starting title the user can freely edit afterward.
+function deriveTitleFromFilename(filename) {
+  const base = filename.replace(/\.[a-z0-9]{1,5}$/i, ''); // strip extension
+  const words = base.replace(/[-_]+/g, ' ').trim();
+  if (!words) return '';
+  return words
+    .split(' ')
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+// Applies a chosen/uploaded mod file: updates the hidden download_url field,
+// fills in File size (if empty) and Title (if empty) from the filename -
+// mirrors what the old "Download URL" text field did on blur.
+function setDownloadFile(url, name) {
+  currentDownload = { url, name: name || (url ? url.split('/').pop() : '') };
+  document.getElementById('downloadUrlInput').value = url;
+  renderDownloadDisplay();
+
+  if (!document.getElementById('fileSizeInput').value.trim()) {
+    detectFileSize(true);
+  }
+  const titleInput = document.getElementById('titleInput');
+  if (!titleInput.value.trim() && currentDownload.name) {
+    const derivedTitle = deriveTitleFromFilename(currentDownload.name);
+    if (derivedTitle) titleInput.value = derivedTitle;
+  }
+}
+
+function renderDownloadDisplay() {
+  const el = document.getElementById('downloadFileDisplay');
+  if (!currentDownload.url) {
+    el.innerHTML = '';
+    return;
+  }
+  el.innerHTML = `
+    <div class="file-display">
+      <i class="file-name">${escapeHtml(currentDownload.name || currentDownload.url)}</i>
+      <button type="button" class="secondary" id="downloadClearBtn">Remove</button>
+    </div>`;
+  document.getElementById('downloadClearBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    setDownloadFile('', '');
+  });
+}
+
+// ---- Generic upload helper: streams a File straight to R2 via the admin
+// upload endpoint and returns the resulting { url, name }. ----
+async function uploadFileToServer(file) {
+  const res = await fetch(`${API_ORIGIN}/api/admin/files/${encodeURIComponent(file.name)}`, {
+    method: 'PUT',
+    headers: {
+      'X-API-Key': apiKey,
+      'Content-Type': file.type || 'application/octet-stream'
+    },
+    body: file
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Upload failed (${res.status})`);
+  browseFilesCache = null; // so the browse-database list picks up the new file
+  return { url: data.url, name: data.name };
+}
+
+// ---- Images picker ----
+function renderImagesGrid() {
+  const grid = document.getElementById('imagesGrid');
+  grid.innerHTML = '';
+  currentImages.forEach((url, index) => {
+    const div = document.createElement('div');
+    div.className = 'image-thumb';
+    div.innerHTML = `
+      ${index === 0 ? '<span class="primary-badge">Cover</span>' : ''}
+      <img src="${escapeHtml(url)}" alt="">
+      <button type="button" class="thumb-remove" data-index="${index}" title="Remove">&times;</button>
+      ${index !== 0 ? `<button type="button" class="make-primary" data-index="${index}">Make cover</button>` : ''}
+    `;
+    grid.appendChild(div);
+  });
+}
+
+document.getElementById('imagesGrid').addEventListener('click', (e) => {
+  const removeBtn = e.target.closest('.thumb-remove');
+  const primaryBtn = e.target.closest('.make-primary');
+  if (removeBtn) {
+    currentImages.splice(Number(removeBtn.dataset.index), 1);
+    renderImagesGrid();
+  } else if (primaryBtn) {
+    const index = Number(primaryBtn.dataset.index);
+    const [chosen] = currentImages.splice(index, 1);
+    currentImages.unshift(chosen);
+    renderImagesGrid();
+  }
+});
+
+function addImageUrl(url) {
+  if (!url || currentImages.includes(url)) return;
+  currentImages.push(url);
+  renderImagesGrid();
+}
+
+async function handleImageFiles(fileList) {
+  const files = Array.from(fileList || []).filter(f => f.type.startsWith('image/'));
+  for (const file of files) {
+    try {
+      const { url } = await uploadFileToServer(file);
+      addImageUrl(url);
+    } catch (err) {
+      setStatus('Image upload failed: ' + err.message, true);
+    }
+  }
+}
+
+const imagesDropzone = document.getElementById('imagesDropzone');
+imagesDropzone.addEventListener('click', () => document.getElementById('imagesFileInput').click());
+document.getElementById('imagesUploadBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('imagesFileInput').click();
+});
+document.getElementById('imagesFileInput').addEventListener('change', (e) => {
+  handleImageFiles(e.target.files);
+  e.target.value = '';
+});
+imagesDropzone.addEventListener('dragover', (e) => { e.preventDefault(); imagesDropzone.classList.add('dragover'); });
+imagesDropzone.addEventListener('dragleave', () => imagesDropzone.classList.remove('dragover'));
+imagesDropzone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  imagesDropzone.classList.remove('dragover');
+  handleImageFiles(e.dataTransfer.files);
+});
+document.getElementById('imagesBrowseBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  openBrowseModal('images');
+});
+
+// ---- Mod file picker ----
+async function handleDownloadFile(file) {
+  if (!file) return;
+  try {
+    const { url, name } = await uploadFileToServer(file);
+    setDownloadFile(url, name);
+  } catch (err) {
+    setStatus('File upload failed: ' + err.message, true);
+  }
+}
+
+const downloadDropzone = document.getElementById('downloadDropzone');
+downloadDropzone.addEventListener('click', () => document.getElementById('downloadFileInput').click());
+document.getElementById('downloadUploadBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('downloadFileInput').click();
+});
+document.getElementById('downloadFileInput').addEventListener('change', (e) => {
+  handleDownloadFile(e.target.files[0]);
+  e.target.value = '';
+});
+downloadDropzone.addEventListener('dragover', (e) => { e.preventDefault(); downloadDropzone.classList.add('dragover'); });
+downloadDropzone.addEventListener('dragleave', () => downloadDropzone.classList.remove('dragover'));
+downloadDropzone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  downloadDropzone.classList.remove('dragover');
+  handleDownloadFile(e.dataTransfer.files[0]);
+});
+document.getElementById('downloadBrowseBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  openBrowseModal('download');
+});
+
+// ---- Browse database modal (shared by images and mod-file pickers) ----
+const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.avif'];
+let browseMode = null; // 'images' | 'download'
+let browseFilesCache = null;
+
+function isImageFile(name) {
+  const lower = name.toLowerCase();
+  return IMAGE_EXTENSIONS.some(ext => lower.endsWith(ext));
+}
+
+async function openBrowseModal(mode) {
+  browseMode = mode;
+  document.getElementById('browseModalTitle').textContent = mode === 'images' ? 'Browse images' : 'Browse files';
+  document.getElementById('browseSearchInput').value = '';
+  document.getElementById('browseOverlay').classList.add('show');
+  document.getElementById('browseGrid').innerHTML = '<div class="browse-empty">Loading...</div>';
+
+  try {
+    if (!browseFilesCache) {
+      const res = await fetch(`${API_ORIGIN}/api/files/list`);
+      const data = await res.json();
+      browseFilesCache = data.files || [];
+    }
+    renderBrowseGrid();
+  } catch (err) {
+    document.getElementById('browseGrid').innerHTML = `<div class="browse-empty">Failed to load files: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function renderBrowseGrid() {
+  const search = document.getElementById('browseSearchInput').value.trim().toLowerCase();
+  const grid = document.getElementById('browseGrid');
+  const relevant = (browseFilesCache || []).filter(f =>
+    browseMode === 'images' ? isImageFile(f.name) : true
+  ).filter(f => !search || f.name.toLowerCase().includes(search));
+
+  grid.innerHTML = '';
+  if (relevant.length === 0) {
+    grid.innerHTML = '<div class="browse-empty">No files found.</div>';
+    return;
+  }
+
+  for (const file of relevant) {
+    const item = document.createElement('div');
+    item.className = 'browse-item';
+    const thumbInner = isImageFile(file.name)
+      ? `<img src="${escapeHtml(file.url)}" alt="">`
+      : `<span style="font-size:1.6rem;">&#128196;</span>`;
+    item.innerHTML = `
+      <div class="browse-thumb">${thumbInner}</div>
+      <div class="browse-name">${escapeHtml(file.name)}</div>
+    `;
+    item.addEventListener('click', () => {
+      if (browseMode === 'images') {
+        addImageUrl(file.url);
+      } else {
+        setDownloadFile(file.url, file.name);
+      }
+      closeBrowseModal();
+    });
+    grid.appendChild(item);
+  }
+}
+
+document.getElementById('browseSearchInput').addEventListener('input', renderBrowseGrid);
+document.getElementById('browseCloseBtn').addEventListener('click', closeBrowseModal);
+document.getElementById('browseOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'browseOverlay') closeBrowseModal();
+});
+function closeBrowseModal() {
+  document.getElementById('browseOverlay').classList.remove('show');
+}
+
+// Parses whatever was stored for requirements into the { anyOf, allOf }
+// shape the builder uses. Accepts the new grouped object directly, or a
+// legacy flat array/JSON string (old mods saved before groups existed) -
+// a flat list is treated as allOf, since a plain list historically meant
+// "all of these are needed".
+function normalizeReqItems(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map(item => {
+    if (typeof item === 'string') return { label: item, url: '' };
+    return { label: item.label || item.title || item.url || '', url: item.url || '' };
+  });
+}
+function parseRequirements(value) {
+  let parsed = value;
+  if (typeof value === 'string') {
+    try { parsed = JSON.parse(value); } catch { parsed = null; }
+  }
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && (parsed.anyOf || parsed.allOf)) {
+    return {
+      anyOf: normalizeReqItems(parsed.anyOf),
+      allOf: normalizeReqItems(parsed.allOf)
+    };
+  }
+  return { anyOf: [], allOf: normalizeReqItems(Array.isArray(parsed) ? parsed : []) };
+}
+
+function showGate(errorMsg) {
+  document.getElementById('keyGate').style.display = 'block';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('keyGateError').textContent = errorMsg || '';
+}
+function showApp() {
+  document.getElementById('keyGate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadMods();
+}
+
+document.getElementById('apiKeySubmit').addEventListener('click', async () => {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) return;
+  apiKey = val;
+  const ok = await testKey();
+  if (ok) {
+    sessionStorage.setItem('tsma_admin_key', apiKey);
+    showApp();
+  } else {
+    showGate('That key was rejected by the API (401 Unauthorized). Double check it matches ADMIN_API_KEY.');
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('tsma_admin_key');
+  apiKey = '';
+  showGate();
+});
+
+async function testKey() {
+  try {
+    const res = await fetch(`${API_ORIGIN}/api/admin/mods`, {
+      headers: { 'X-API-Key': apiKey }
+    });
+    return res.status !== 401;
+  } catch {
+    return false;
+  }
+}
+
+function setStatus(message, isError) {
+  const el = document.getElementById('status');
+  el.textContent = message;
+  el.className = 'show ' + (isError ? 'err' : 'ok');
+  if (!isError) {
+    setTimeout(() => { el.className = ''; }, 3500);
+  }
+}
+
+async function apiRequest(path, options = {}) {
+  const res = await fetch(`${API_ORIGIN}${path}`, {
+    ...options,
+    headers: {
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `Request failed (${res.status})`);
+  }
+  return data;
+}
+
+async function loadMods() {
+  try {
+    const data = await apiRequest('/api/admin/mods');
+    allMods = data.mods || [];
+    selectedIds.clear();
+    populateFilterOptions();
+    refreshCombos();
+    renderTable();
+    updateBulkBar();
+  } catch (err) {
+    setStatus('Failed to load mods: ' + err.message, true);
+  }
+}
+
+// Fills the Author/Category filter dropdowns with the distinct values
+// currently in use, preserving whatever's selected if it's still valid.
+function populateFilterOptions() {
+  const authors = [...new Set(allMods.map(m => m.author).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const categories = [...new Set(allMods.map(m => m.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+  const fillSelect = (select, values) => {
+    const current = select.value;
+    select.innerHTML = `<option value="">${select.id === 'authorFilterSelect' ? 'All authors' : 'All categories'}</option>` +
+      values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+    if (values.includes(current)) select.value = current;
+  };
+
+  fillSelect(document.getElementById('authorFilterSelect'), authors);
+  fillSelect(document.getElementById('categoryFilterSelect'), categories);
+}
+
+let showUnpublishedOnly = false;
+const selectedIds = new Set();
+
+document.getElementById('showUnpublishedToggle').addEventListener('click', (e) => {
+  showUnpublishedOnly = !showUnpublishedOnly;
+  e.target.textContent = 'Show unpublished only: ' + (showUnpublishedOnly ? 'On' : 'Off');
+  renderTable();
+});
+document.getElementById('refreshBtn').addEventListener('click', loadMods);
+document.getElementById('searchInput').addEventListener('input', renderTable);
+document.getElementById('sortSelect').addEventListener('change', renderTable);
+document.getElementById('authorFilterSelect').addEventListener('change', renderTable);
+document.getElementById('categoryFilterSelect').addEventListener('change', renderTable);
+
+function sortRows(rows) {
+  const mode = document.getElementById('sortSelect').value;
+  const sorted = [...rows];
+  const cmp = (a, b) => (a || '').toString().toLowerCase().localeCompare((b || '').toString().toLowerCase());
+  switch (mode) {
+    case 'updated_asc':
+      return sorted.sort((a, b) => new Date(a.updated_at || 0) - new Date(b.updated_at || 0));
+    case 'author_asc':
+      return sorted.sort((a, b) => cmp(a.author, b.author));
+    case 'category_asc':
+      return sorted.sort((a, b) => cmp(a.category, b.category));
+    case 'title_asc':
+      return sorted.sort((a, b) => cmp(a.title, b.title));
+    case 'updated_desc':
+    default:
+      return sorted.sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+  }
+}
+
+function renderTable() {
+  const search = document.getElementById('searchInput').value.trim().toLowerCase();
+  const authorFilter = document.getElementById('authorFilterSelect').value;
+  const categoryFilter = document.getElementById('categoryFilterSelect').value;
+  const tbody = document.getElementById('modsTableBody');
+  tbody.innerHTML = '';
+
+  let rows = allMods.filter(m => {
+    if (showUnpublishedOnly && Number(m.published) !== 0) return false;
+    if (authorFilter && m.author !== authorFilter) return false;
+    if (categoryFilter && m.category !== categoryFilter) return false;
+    if (!search) return true;
+    return [m.title, m.author, m.category, m.slug]
+      .some(v => (v || '').toLowerCase().includes(search));
+  });
+
+  rows = sortRows(rows);
+
+  document.getElementById('emptyState').style.display = rows.length === 0 ? 'block' : 'none';
+
+  for (const mod of rows) {
+    const tr = document.createElement('tr');
+    const published = Number(mod.published) !== 0;
+    tr.innerHTML = `
+      <td><input type="checkbox" class="row-checkbox" data-id="${escapeHtml(mod.id)}" ${selectedIds.has(mod.id) ? 'checked' : ''}></td>
+      <td>${escapeHtml(mod.title)}</td>
+      <td>${escapeHtml(mod.author || '')}</td>
+      <td>${escapeHtml(mod.category || '')}</td>
+      <td><code>${escapeHtml(mod.slug)}</code></td>
+      <td><span class="pill ${published ? 'published' : 'unpublished'}">${published ? 'Published' : 'Unpublished'}</span></td>
+      <td>${formatDateOnly(mod.updated_at)}</td>
+      <td>
+        <div class="row-actions">
+          <button class="secondary" data-action="edit" data-id="${escapeHtml(mod.id)}">Edit</button>
+          <button class="secondary" data-action="unpublish" data-id="${escapeHtml(mod.id)}">${published ? 'Unpublish' : 'Republish'}</button>
+          <button class="danger" data-action="delete" data-id="${escapeHtml(mod.id)}">Delete</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  syncSelectAllCheckbox();
+}
+
+// ---- Bulk selection ----
+document.getElementById('modsTableBody').addEventListener('change', (e) => {
+  const checkbox = e.target.closest('.row-checkbox');
+  if (!checkbox) return;
+  if (checkbox.checked) selectedIds.add(checkbox.dataset.id);
+  else selectedIds.delete(checkbox.dataset.id);
+  syncSelectAllCheckbox();
+  updateBulkBar();
+});
+
+document.getElementById('selectAllCheckbox').addEventListener('change', (e) => {
+  const visibleIds = Array.from(document.querySelectorAll('.row-checkbox')).map(cb => cb.dataset.id);
+  if (e.target.checked) visibleIds.forEach(id => selectedIds.add(id));
+  else visibleIds.forEach(id => selectedIds.delete(id));
+  renderTable();
+  updateBulkBar();
+});
+
+function syncSelectAllCheckbox() {
+  const boxes = Array.from(document.querySelectorAll('.row-checkbox'));
+  const selectAll = document.getElementById('selectAllCheckbox');
+  selectAll.checked = boxes.length > 0 && boxes.every(cb => selectedIds.has(cb.dataset.id));
+  selectAll.indeterminate = boxes.some(cb => selectedIds.has(cb.dataset.id)) && !selectAll.checked;
+}
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulkBar');
+  const count = selectedIds.size;
+  bar.style.display = count > 0 ? 'flex' : 'none';
+  document.getElementById('bulkCount').textContent = `${count} selected`;
+}
+
+document.getElementById('bulkClearBtn').addEventListener('click', () => {
+  selectedIds.clear();
+  renderTable();
+  updateBulkBar();
+});
+
+async function bulkSetPublished(published) {
+  const ids = [...selectedIds];
+  let failed = 0;
+  for (const id of ids) {
+    try {
+      await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        body: JSON.stringify({ published })
+      });
+    } catch {
+      failed++;
+    }
+  }
+  setStatus(
+    failed === 0
+      ? `${ids.length} mod(s) ${published ? 'republished' : 'hidden'}.`
+      : `${ids.length - failed} succeeded, ${failed} failed.`,
+    failed > 0
+  );
+  selectedIds.clear();
+  loadMods();
+}
+
+document.getElementById('bulkHideBtn').addEventListener('click', () => {
+  if (confirm(`Hide ${selectedIds.size} mod(s)? They'll be unpublished (not deleted) and can be republished later.`)) {
+    bulkSetPublished(false);
+  }
+});
+document.getElementById('bulkShowBtn').addEventListener('click', () => bulkSetPublished(true));
+
+// Permanently deletes every currently-selected mod. To delete ALL mods in
+// the archive: clear the search box and author/category filters first (so
+// every row is visible), then use the header checkbox to select-all before
+// clicking this.
+async function bulkDeleteSelected() {
+  const ids = [...selectedIds];
+  let failed = 0;
+  for (const id of ids) {
+    try {
+      await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}?hard=true`, { method: 'DELETE' });
+    } catch {
+      failed++;
+    }
+  }
+  setStatus(
+    failed === 0
+      ? `${ids.length} mod(s) permanently deleted.`
+      : `${ids.length - failed} deleted, ${failed} failed.`,
+    failed > 0
+  );
+  selectedIds.clear();
+  loadMods();
+}
+
+document.getElementById('bulkDeleteBtn').addEventListener('click', () => {
+  const count = selectedIds.size;
+  const allSelected = count === allMods.length;
+  const warning = allSelected
+    ? `Permanently delete ALL ${count} mod(s) in the archive? This cannot be undone.`
+    : `Permanently delete ${count} selected mod(s)? This cannot be undone.\n\nUse "Hide selected" instead if you just want to unpublish them.`;
+  if (!confirm(warning)) return;
+
+  // Extra confirmation for a full wipe, since it's easy to fat-finger
+  // select-all and this is irreversible.
+  if (allSelected) {
+    const typed = prompt(`Type DELETE to confirm permanently deleting all ${count} mods.`);
+    if (typed !== 'DELETE') {
+      setStatus('Bulk delete cancelled.');
+      return;
+    }
+  }
+
+  bulkDeleteSelected();
+});
+
+document.getElementById('modsTableBody').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const mod = allMods.find(m => m.id === id);
+  if (!mod) return;
+
+  if (btn.dataset.action === 'edit') {
+    openModal(mod);
+  } else if (btn.dataset.action === 'unpublish') {
+    const nowPublished = Number(mod.published) === 0; // toggling to published
+    try {
+      await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        body: JSON.stringify({ published: nowPublished })
+      });
+      setStatus(nowPublished ? 'Mod republished.' : 'Mod unpublished.');
+      loadMods();
+    } catch (err) {
+      setStatus('Failed: ' + err.message, true);
+    }
+  } else if (btn.dataset.action === 'delete') {
+    const hard = confirm(
+      `Delete "${mod.title}"?\n\nOK = permanently delete this mod (cannot be undone).\nCancel = keep it (use Unpublish instead if you just want to hide it).`
+    );
+    if (!hard) return;
+    try {
+      await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}?hard=true`, { method: 'DELETE' });
+      setStatus('Mod permanently deleted.');
+      loadMods();
+    } catch (err) {
+      setStatus('Failed: ' + err.message, true);
+    }
+  }
+});
+
+document.getElementById('addBtn').addEventListener('click', () => openModal(null));
+document.getElementById('cancelBtn').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'modalOverlay') closeModal();
+});
+
+// ---- Author / Category combobox ----
+// Plain text inputs with a filtered suggestion dropdown sourced from every
+// author/category already used across all mods. Picking a suggestion fills
+// the field; typing anything else (including something brand new) just
+// works too, since author/category are freeform strings, not a fixed list.
+function setupCombo(inputId, listId, getOptions) {
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+
+  function render() {
+    const query = input.value.trim().toLowerCase();
+    const options = getOptions().filter(v => !query || v.toLowerCase().includes(query));
+    if (options.length === 0) {
+      list.innerHTML = '<li class="combo-empty">No matches - keep typing to add a new one</li>';
+    } else {
+      list.innerHTML = options.map(v => `<li data-value="${escapeHtml(v)}">${escapeHtml(v)}</li>`).join('');
+    }
+    list.classList.add('show');
+  }
+
+  input.addEventListener('focus', render);
+  input.addEventListener('input', render);
+  input.addEventListener('blur', () => {
+    // Delay so a click on a suggestion registers before the list hides.
+    setTimeout(() => list.classList.remove('show'), 150);
+  });
+  list.addEventListener('mousedown', (e) => {
+    const li = e.target.closest('li[data-value]');
+    if (!li) return;
+    input.value = li.dataset.value;
+    list.classList.remove('show');
+  });
+}
+
+function refreshCombos() {
+  // No-op beyond initial setup - setupCombo reads live from allMods each
+  // time the list opens, via getDistinctAuthors/getDistinctCategories.
+}
+
+function getDistinctAuthors() {
+  return [...new Set(allMods.map(m => m.author).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+}
+function getDistinctCategories() {
+  return [...new Set(allMods.map(m => m.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+}
+setupCombo('authorInput', 'authorComboList', getDistinctAuthors);
+setupCombo('categoryInput', 'categoryComboList', getDistinctCategories);
+
+// Mirrors generateSlug() in admin-api.js so the preview slug shown here
+// matches what the server will actually key creator_settings rows by.
+function slugifyClient(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// Looks up whether the typed author's creator page is currently forced to
+// the static site, and reflects that in the checkbox/hint. A 404 (no saved
+// preference yet) just means "still using the default dynamic page."
+async function loadCreatorStaticSetting(authorName) {
+  const checkbox = document.getElementById('creatorStaticPageCheckbox');
+  const hint = document.getElementById('creatorStaticPageHint');
+  const slug = slugifyClient(authorName);
+  if (!slug) {
+    checkbox.checked = false;
+    hint.textContent = '';
+    return;
+  }
+  hint.textContent = `Checking current setting for /${slug}...`;
+  try {
+    const data = await apiRequest(`/api/admin/creator-settings/${encodeURIComponent(slug)}`);
+    checkbox.checked = Number(data.setting?.use_static_page) === 1;
+    hint.textContent = checkbox.checked
+      ? `/${slug} is currently forced to the static site.`
+      : `/${slug} currently uses the dynamic, database-rendered page.`;
+  } catch {
+    // No saved row yet (404) - default is the dynamic page.
+    checkbox.checked = false;
+    hint.textContent = `/${slug} will use the dynamic, database-rendered page unless you check this.`;
+  }
+}
+
+document.getElementById('authorInput').addEventListener('blur', () => {
+  loadCreatorStaticSetting(document.getElementById('authorInput').value.trim());
+});
+
+// Saves the creator page preference for whichever author a mod was just
+// saved under. Runs after the mod save itself succeeds - if this part fails,
+// it's logged but doesn't block the mod save that already went through.
+async function syncCreatorStaticSetting(authorName, useStatic) {
+  const slug = slugifyClient(authorName);
+  if (!slug) return;
+  try {
+    await apiRequest(`/api/admin/creator-settings/${encodeURIComponent(slug)}`, {
+      method: 'PUT',
+      body: JSON.stringify({ use_static_page: useStatic })
+    });
+  } catch (err) {
+    console.error('Failed to save creator page setting:', err);
+  }
+}
+
+function openModal(mod) {
+  editingId = mod ? mod.id : null;
+  document.getElementById('modalTitle').textContent = mod ? `Edit: ${mod.title}` : 'Add Mod';
+  document.getElementById('fileSizeStatus').textContent = '';
+  exitReqEditMode();
+  const form = document.getElementById('modForm');
+  form.reset();
+
+  if (mod) {
+    form.title.value = mod.title || '';
+    form.slug.value = mod.slug || '';
+    form.author.value = mod.author || '';
+    form.category.value = mod.category || '';
+    form.file_size.value = mod.file_size || '';
+    form.description.value = mod.description || '';
+    form.download_name.value = mod.download_name || '';
+    form.features.value = joinArrayField(mod.features, '\n');
+    form.created_at.value = toDateInputValue(mod.created_at);
+    form.page_updated.value = mmddyyyyToDateInputValue(getMetadataField(mod, 'page_updated'));
+    currentRequirements = parseRequirements(mod.requirements);
+
+    // Build the ordered image list: cover image first, then the gallery.
+    const gallery = parseImageList(mod.images).filter(url => url && url !== mod.image_url);
+    currentImages = [mod.image_url, ...gallery].filter(Boolean);
+
+    currentDownload = { url: mod.download_url || '', name: mod.download_name || '' };
+    document.getElementById('downloadUrlInput').value = currentDownload.url;
+
+    document.getElementById('updatedAtDisplay').value = formatDateOnly(mod.updated_at);
+    document.getElementById('publishedCheckbox').checked = Number(mod.published) !== 0;
+    loadCreatorStaticSetting(mod.author || '');
+  } else {
+    currentRequirements = { anyOf: [], allOf: [] };
+    currentImages = [];
+    currentDownload = { url: '', name: '' };
+    document.getElementById('downloadUrlInput').value = '';
+    document.getElementById('publishedCheckbox').checked = true;
+    document.getElementById('updatedAtDisplay').value = 'Will be set when saved';
+    document.getElementById('creatorStaticPageCheckbox').checked = false;
+    document.getElementById('creatorStaticPageHint').textContent = '';
+  }
+
+  renderRequirementsList();
+  renderImagesGrid();
+  renderDownloadDisplay();
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+// Parses whatever was stored for the gallery images (array, or JSON-string
+// array) into a plain array of URL strings.
+function parseImageList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function getMetadataField(mod, field) {
+  let metadata = mod.metadata;
+  if (typeof metadata === 'string') {
+    try { metadata = JSON.parse(metadata); } catch { metadata = {}; }
+  }
+  return (metadata && metadata[field]) || '';
+}
+
+// Converts a stored "MM/DD/YYYY" (or similar parseable) string into the
+// "YYYY-MM-DD" format an <input type="date"> needs.
+function mmddyyyyToDateInputValue(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return '';
+  return d.toISOString().split('T')[0];
+}
+
+// Converts a "YYYY-MM-DD" <input type="date"> value into "MM/DD/YYYY" for
+// display on the mod page (matching the site's existing format).
+function dateInputValueToMmddyyyy(value) {
+  if (!value) return undefined;
+  const [year, month, day] = value.split('-');
+  return `${month}/${day}/${year}`;
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  editingId = null;
+}
+
+function joinArrayField(value, sep) {
+  sep = sep || ', ';
+  if (Array.isArray(value)) return value.join(sep);
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.join(sep);
+    } catch {}
+    return value;
+  }
+  return '';
+}
+
+function escapeHtml(v) {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Displays only the date part (no time) regardless of whether the stored
+// value has a time component - e.g. "Jul 5, 2026".
+function formatDateOnly(value) {
+  if (!value) return '—';
+  const datePart = String(value).split('T')[0].split(' ')[0];
+  const d = new Date(`${datePart}T00:00:00Z`);
+  if (isNaN(d.getTime())) return datePart;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+}
+
+// Converts any stored timestamp to a YYYY-MM-DD string for a <input type="date">
+function toDateInputValue(value) {
+  if (!value) return '';
+  return String(value).split('T')[0].split(' ')[0];
+}
+
+document.getElementById('modForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const payload = {
+    title: form.title.value.trim(),
+    slug: form.slug.value.trim() || undefined,
+    author: form.author.value.trim(),
+    category: form.category.value.trim(),
+    file_size: form.file_size.value.trim(),
+    created_at: form.created_at.value || undefined,
+    description: form.description.value,
+    image_url: currentImages[0] || '',
+    download_url: currentDownload.url || '',
+    download_name: form.download_name.value.trim(),
+    features: form.features.value,
+    requirements: currentRequirements,
+    page_updated: dateInputValueToMmddyyyy(form.page_updated.value),
+    images: currentImages.slice(1),
+    published: document.getElementById('publishedCheckbox').checked
+  };
+
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving...';
+
+  try {
+    if (editingId) {
+      await apiRequest(`/api/admin/mods/${encodeURIComponent(editingId)}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+      setStatus('Mod updated.');
+    } else {
+      await apiRequest('/api/admin/mods', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      setStatus('Mod created.');
+    }
+    await syncCreatorStaticSetting(payload.author, document.getElementById('creatorStaticPageCheckbox').checked);
+    closeModal();
+    loadMods();
+  } catch (err) {
+    setStatus('Save failed: ' + err.message, true);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save';
+  }
+});
+
+// Init
+if (apiKey) {
+  testKey().then(ok => ok ? showApp() : showGate('Saved key was rejected - enter it again.'));
+} else {
+  showGate();
+}
+</script>
+</body>
+</html>
