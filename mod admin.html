@@ -1,1636 +1,2112 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TSMA Mod Admin</title>
-<style>
-  :root {
-    --bg: #14151a;
-    --panel: #1d1e25;
-    --panel-2: #24252e;
-    --border: #33343e;
-    --text: #e6e6ea;
-    --muted: #9a9aa5;
-    --accent: #4f8cff;
-    --accent-hover: #3d76e0;
-    --danger: #e0555a;
-    --danger-hover: #c94549;
-    --good: #4caf7d;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-  }
-  header {
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  header h1 { font-size: 1.15rem; margin: 0; font-weight: 600; }
-  header .sub { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
-  main { padding: 24px 28px 80px; max-width: 1200px; margin: 0 auto; }
-  .toolbar {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-  input, select, textarea {
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 6px;
-    padding: 8px 10px;
-    font-size: 0.9rem;
-    font-family: inherit;
-  }
-  input:focus, select:focus, textarea:focus { outline: 1px solid var(--accent); }
-  #searchInput { flex: 1; min-width: 180px; }
-  button {
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 14px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  button:hover { background: var(--accent-hover); }
-  button.secondary { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); }
-  button.secondary:hover { background: #2c2d38; }
-  button.danger { background: var(--danger); }
-  button.danger:hover { background: var(--danger-hover); }
-  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-  thead th {
-    text-align: left;
-    color: var(--muted);
-    font-weight: 500;
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-  }
-  tbody td {
-    padding: 10px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-  }
-  tbody tr:hover { background: rgba(255,255,255,0.02); }
-  .pill {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-  .pill.published { background: rgba(76,175,125,0.15); color: var(--good); }
-  .pill.unpublished { background: rgba(224,85,90,0.15); color: var(--danger); }
-  .row-actions { display: flex; gap: 6px; flex-wrap: nowrap; }
-  .row-actions button { padding: 5px 10px; font-size: 0.8rem; }
-  #status {
-    font-size: 0.85rem;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin-bottom: 14px;
-    display: none;
-  }
-  #status.show { display: block; }
-  #status.ok { background: rgba(76,175,125,0.12); color: var(--good); }
-  #status.err { background: rgba(224,85,90,0.12); color: var(--danger); }
+import { renderModPage, renderCreatorPage } from '../html-template.js';
 
-  /* Modal */
-  .overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.55);
-    align-items: flex-start;
-    justify-content: center;
-    padding: 40px 16px;
-    overflow-y: auto;
-    z-index: 50;
-  }
-  .overlay.show { display: flex; }
-  .modal {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    width: 100%;
-    max-width: 720px;
-    padding: 24px;
-    max-height: calc(100vh - 80px);
-    overflow-y: auto;
-  }
-  .modal h2 { margin: 0 0 16px; font-size: 1.05rem; }
-  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
-  .field-grid .full { grid-column: 1 / -1; }
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 0.8rem; color: var(--muted); }
-  .field textarea { min-height: 70px; resize: vertical; font-family: inherit; }
-  .field .hint { font-size: 0.72rem; color: var(--muted); }
-  .modal-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    gap: 10px;
-  }
-  .checkbox-row { display: flex; align-items: center; gap: 8px; }
-  .checkbox-row label { font-size: 0.85rem; color: var(--text); }
-  .empty { color: var(--muted); padding: 30px 0; text-align: center; }
-  .req-chip {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 0.85rem;
-  }
-  .req-chip .req-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .req-chip .req-text a { color: var(--accent); }
-  .req-chip button { padding: 2px 8px; font-size: 0.75rem; flex-shrink: 0; }
-  .req-chip .req-btns { display: flex; gap: 4px; flex-shrink: 0; }
-  .req-group-title { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
-  .req-group-title .hint { text-transform: none; font-weight: 400; letter-spacing: normal; }
-  .req-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
-  .req-group-empty { color: var(--muted); font-size: 0.8rem; padding: 4px 2px; display: none; }
-  .req-group-empty.show { display: block; }
-
-  /* Author / Category combobox */
-  .combo-field { position: relative; }
-  .combo-list {
-    display: none;
-    position: absolute;
-    top: 100%; left: 0; right: 0;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    margin: 4px 0 0;
-    padding: 4px;
-    list-style: none;
-    max-height: 180px;
-    overflow-y: auto;
-    z-index: 10;
-  }
-  .combo-list.show { display: block; }
-  .combo-list li {
-    padding: 6px 8px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    cursor: pointer;
-  }
-  .combo-list li:hover, .combo-list li.active { background: var(--accent); color: #fff; }
-  .combo-list li.combo-empty { color: var(--muted); cursor: default; }
-  .combo-list li.combo-empty:hover { background: none; color: var(--muted); }
-
-  /* Asset picker (images + mod file) */
-  .dropzone {
-    border: 1.5px dashed var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .dropzone:hover, .dropzone.dragover {
-    border-color: var(--accent);
-    background: rgba(79,140,255,0.06);
-  }
-  .dropzone .dz-actions { margin-top: 8px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-  .dropzone .dz-actions button { padding: 5px 10px; font-size: 0.8rem; }
-  .image-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-    gap: 8px;
-    margin-top: 10px;
-  }
-  .image-thumb {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    background: var(--panel-2);
-  }
-  .image-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .image-thumb.broken {
-    border-color: #d97706;
-    background: rgba(217,119,6,0.08);
-  }
-  .image-thumb.broken img { display: none; }
-  .image-thumb .broken-msg {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 4px; padding: 6px; text-align: center;
-    color: #d97706; font-size: 0.65rem; line-height: 1.2;
-  }
-  .image-thumb .broken-msg i { font-size: 1.1rem; }
-  .image-thumb .primary-badge {
-    position: absolute; top: 4px; left: 4px;
-    background: rgba(79,140,255,0.9); color: #fff;
-    font-size: 0.65rem; padding: 1px 6px; border-radius: 999px; font-weight: 600;
-  }
-  .image-thumb .thumb-remove {
-    position: absolute; top: 4px; right: 4px;
-    background: rgba(0,0,0,0.6); color: #fff; border: none;
-    width: 20px; height: 20px; border-radius: 50%; font-size: 0.75rem; line-height: 1;
-    cursor: pointer; padding: 0;
-  }
-  .image-thumb .make-primary {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: rgba(0,0,0,0.55); color: #fff; border: none;
-    font-size: 0.65rem; padding: 3px 0; cursor: pointer;
-  }
-  .file-display {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--panel-2); border: 1px solid var(--border);
-    border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; font-size: 0.85rem;
-  }
-  .file-display .file-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .file-display button { padding: 3px 9px; font-size: 0.75rem; }
-
-  /* Browse database modal (nested over the mod modal) */
-  .overlay.nested { z-index: 60; }
-  .browse-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
-  .browse-toolbar input { flex: 1; }
-  .browse-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
-    max-height: 50vh;
-    overflow-y: auto;
-  }
-  .browse-item {
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--panel-2);
-    cursor: pointer;
-    overflow: hidden;
-    text-align: center;
-    font-size: 0.72rem;
-    color: var(--muted);
-  }
-  .browse-item:hover { border-color: var(--accent); }
-  .browse-item .browse-thumb {
-    width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
-    background: #14151a; overflow: hidden;
-  }
-  .browse-item .browse-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .browse-item .browse-thumb i { font-size: 1.4rem; color: var(--muted); }
-  .browse-item .browse-name { padding: 5px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .browse-empty { color: var(--muted); text-align: center; padding: 20px; grid-column: 1 / -1; }
-
-  /* API key gate */
-  #keyGate {
-    max-width: 420px;
-    margin: 80px auto;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 28px;
-  }
-  #keyGate h2 { margin-top: 0; font-size: 1.05rem; }
-  #keyGate p { color: var(--muted); font-size: 0.85rem; }
-  #keyGate input { width: 100%; margin: 10px 0; }
-  #app { display: none; }
-
-  /* Table scrolls horizontally instead of breaking the page layout */
-  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 6px; }
-  .table-scroll table { min-width: 720px; }
-
-  /* ---- Mobile ---- */
-  @media (max-width: 720px) {
-    header { padding: 14px 16px; }
-    header h1 { font-size: 1rem; }
-    main { padding: 16px 16px 60px; }
-    .toolbar { gap: 8px; }
-    #searchInput { min-width: 0; flex-basis: 100%; }
-    .toolbar select { flex: 1 1 140px; }
-    button { padding: 9px 14px; }
-    .overlay { padding: 16px 10px; }
-    .modal { padding: 16px; max-height: calc(100vh - 32px); }
-    .field-grid { grid-template-columns: 1fr; }
-    .modal-actions { flex-wrap: wrap; gap: 10px; }
-    .req-chip { flex-wrap: wrap; }
-    .req-chip .req-btns { flex-wrap: wrap; }
-    #keyGate { margin: 40px 16px; max-width: none; padding: 20px; }
-    #reqLabelInput, #reqUrlInput { flex-basis: 100% !important; }
-  }
-</style>
-</head>
-<body>
-
-<div id="keyGate">
-  <h2>TSMA Mod Admin</h2>
-  <p>Enter your Admin API key (the same one set as <code>ADMIN_API_KEY</code> in <code>wrangler.toml</code>). It's stored only in this browser tab's session storage - never sent anywhere except to your own Worker.</p>
-  <input type="password" id="apiKeyInput" placeholder="Admin API key">
-  <button id="apiKeySubmit" style="width:100%;">Continue</button>
-  <p id="keyGateError" style="color:#e0555a;"></p>
-</div>
-
-<div id="app">
-  <header>
-    <div>
-      <h1>Train Simulator Mod Archive — Mod Admin</h1>
-      <div class="sub">Editing <code id="apiOrigin"></code></div>
-    </div>
-    <button class="secondary" id="logoutBtn">Clear API key</button>
-  </header>
-
-  <main>
-    <div id="status"></div>
-
-    <div class="toolbar">
-      <input type="text" id="searchInput" placeholder="Search by title, author, category, or slug...">
-      <button class="secondary" id="showUnpublishedToggle">Show unpublished only: Off</button>
-      <button class="secondary" id="refreshBtn">Refresh</button>
-      <button id="addBtn">+ Add Mod</button>
-    </div>
-
-    <div class="toolbar">
-      <select id="sortSelect">
-        <option value="updated_desc">Sort: Updated (newest)</option>
-        <option value="updated_asc">Sort: Updated (oldest)</option>
-        <option value="author_asc">Sort: Author (A-Z)</option>
-        <option value="category_asc">Sort: Category (A-Z)</option>
-        <option value="title_asc">Sort: Title (A-Z)</option>
-      </select>
-      <select id="authorFilterSelect">
-        <option value="">All authors</option>
-      </select>
-      <select id="categoryFilterSelect">
-        <option value="">All categories</option>
-      </select>
-    </div>
-
-    <div class="toolbar" id="bulkBar" style="display:none;">
-      <span id="bulkCount" style="color:var(--muted); font-size:0.85rem;"></span>
-      <button class="secondary" id="bulkHideBtn">Hide selected</button>
-      <button class="secondary" id="bulkShowBtn">Republish selected</button>
-      <button class="danger" id="bulkDeleteBtn">Delete selected</button>
-      <button class="secondary" id="bulkClearBtn">Clear selection</button>
-    </div>
-
-    <div class="table-scroll">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:28px;"><input type="checkbox" id="selectAllCheckbox"></th>
-          <th>Title</th>
-          <th>Author</th>
-          <th>Category</th>
-          <th>Slug</th>
-          <th>Status</th>
-          <th>Updated</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="modsTableBody"></tbody>
-    </table>
-    </div>
-    <div id="emptyState" class="empty" style="display:none;">No mods found.</div>
-  </main>
-</div>
-
-<div class="overlay" id="modalOverlay">
-  <div class="modal">
-    <h2 id="modalTitle">Add Mod</h2>
-    <form id="modForm">
-      <div class="field-grid">
-        <div class="field">
-          <label>Title * <span class="hint">(auto-filled from the download URL if left blank)</span></label>
-          <input type="text" name="title" id="titleInput" required>
-        </div>
-        <div class="field">
-          <label>Slug <span class="hint">(URL segment - auto-generated from title if left blank on create)</span></label>
-          <input type="text" name="slug">
-        </div>
-        <div class="field combo-field">
-          <label>Author / Creator *</label>
-          <input type="text" name="author" id="authorInput" required placeholder="e.g. TruRail Simulations" autocomplete="off">
-          <ul class="combo-list" id="authorComboList"></ul>
-          <div class="hint">Must match an existing creator page slug when normalized (e.g. "TruRail Simulations" → /trurail-simulations). Start typing to search existing creators, or type a new one.</div>
-          <div class="checkbox-row" style="margin-top:8px;">
-            <input type="checkbox" id="creatorStaticPageCheckbox">
-            <label for="creatorStaticPageCheckbox">Force this creator's page to the static site (skip the database-rendered page)</label>
-          </div>
-          <div class="hint" id="creatorStaticPageHint"></div>
-        </div>
-        <div class="field combo-field">
-          <label>Category</label>
-          <input type="text" name="category" id="categoryInput" placeholder="e.g. Rolling Stock" autocomplete="off">
-          <ul class="combo-list" id="categoryComboList"></ul>
-        </div>
-        <div class="field">
-          <label>File size <span class="hint">(auto-detected when a file is uploaded/selected - edit manually if it's not hosted on this site)</span></label>
-          <div style="display:flex; gap:6px;">
-            <input type="text" name="file_size" id="fileSizeInput" placeholder="e.g. 45 MB" style="flex:1;">
-            <button type="button" class="secondary" id="detectSizeBtn" style="flex:0 0 auto;">Detect</button>
-          </div>
-          <div class="hint" id="fileSizeStatus"></div>
-        </div>
-        <div class="field">
-          <label>Created <span class="hint">(editable - e.g. to backdate to the mod's real release date)</span></label>
-          <input type="date" name="created_at">
-        </div>
-        <div class="field">
-          <label>Page updated <span class="hint">(shown on the mod page as "Page Updated: ...")</span></label>
-          <input type="date" name="page_updated">
-        </div>
-        <div class="field">
-          <label>Last updated</label>
-          <input type="text" id="updatedAtDisplay" disabled value="—">
-          <div class="hint">Set automatically whenever this mod is saved - not editable.</div>
-        </div>
-        <div class="field full">
-          <label>Description</label>
-          <textarea name="description"></textarea>
-        </div>
-        <div class="field full">
-          <label>Images <span class="hint">(first image is the main/cover image - drag an image in, or browse images already in the database)</span></label>
-          <div class="dropzone" id="imagesDropzone">
-            Drag images here, or
-            <div class="dz-actions">
-              <button type="button" class="secondary" id="imagesUploadBtn">Upload from device</button>
-              <button type="button" class="secondary" id="imagesBrowseBtn">Browse database</button>
-            </div>
-          </div>
-          <input type="file" id="imagesFileInput" accept="image/*" multiple hidden>
-          <div class="image-grid" id="imagesGrid"></div>
-        </div>
-        <div class="field full">
-          <label>Mod file <span class="hint">(the file users download - drag it in, or pick one already uploaded)</span></label>
-          <div class="dropzone" id="downloadDropzone">
-            <div id="downloadFileDisplay"></div>
-            <div class="dz-actions">
-              <button type="button" class="secondary" id="downloadUploadBtn">Upload from device</button>
-              <button type="button" class="secondary" id="downloadBrowseBtn">Browse database</button>
-            </div>
-          </div>
-          <input type="file" id="downloadFileInput" hidden>
-          <input type="hidden" name="download_url" id="downloadUrlInput">
-        </div>
-        <div class="field full">
-          <label>Download filename <span class="hint">(shown to users, defaults to the download URL's filename)</span></label>
-          <input type="text" name="download_name">
-        </div>
-        <div class="field full">
-          <label>Features <span class="hint">(one per line)</span></label>
-          <textarea name="features"></textarea>
-        </div>
-        <div class="field full">
-          <label>Requirements <span class="hint">(each can be plain text, or a label linking to a URL - pick which group it belongs in)</span></label>
-          <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
-            <input type="text" id="reqLabelInput" placeholder="Requirement text, e.g. 'TruRail Base Pack'" style="flex:2; min-width:160px;">
-            <input type="text" id="reqUrlInput" placeholder="URL (optional)" style="flex:2; min-width:160px;">
-            <select id="reqGroupSelect" style="flex:0 0 auto;">
-              <option value="allOf">In addition to (required)</option>
-              <option value="anyOf">At least one of the following</option>
-            </select>
-            <button type="button" id="reqAddBtn" class="secondary" style="flex:0 0 auto;">+ Add</button>
-            <button type="button" id="reqCancelEditBtn" class="secondary" style="flex:0 0 auto; display:none;">Cancel</button>
-          </div>
-          <div class="req-group">
-            <div class="req-group-title">At least one of the following <span class="hint">(only one is needed)</span></div>
-            <ul id="requirementsListAny" class="req-list" data-group="anyOf"></ul>
-            <div class="req-group-empty" id="requirementsAnyEmpty">None yet.</div>
-          </div>
-          <div class="req-group" style="margin-top:12px;">
-            <div class="req-group-title">In addition to <span class="hint">(all of these are required)</span></div>
-            <ul id="requirementsListAll" class="req-list" data-group="allOf"></ul>
-            <div class="req-group-empty" id="requirementsAllEmpty">None yet.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <div class="checkbox-row">
-          <input type="checkbox" name="published" id="publishedCheckbox" checked>
-          <label for="publishedCheckbox">Published (visible on the site)</label>
-        </div>
-        <div style="display:flex; gap:8px;">
-          <button type="button" class="secondary" id="cancelBtn">Cancel</button>
-          <button type="submit" id="saveBtn">Save</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="overlay nested" id="browseOverlay">
-  <div class="modal">
-    <h2 id="browseModalTitle">Browse database</h2>
-    <div class="browse-toolbar">
-      <input type="text" id="browseSearchInput" placeholder="Filter by filename...">
-    </div>
-    <div class="browse-grid" id="browseGrid"></div>
-    <div class="modal-actions">
-      <div></div>
-      <button type="button" class="secondary" id="browseCloseBtn">Close</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const API_ORIGIN = 'https://api.trainsimarchive.org';
-document.getElementById('apiOrigin').textContent = API_ORIGIN;
-
-let apiKey = sessionStorage.getItem('tsma_admin_key') || '';
-let allMods = [];
-let editingId = null; // null = creating a new mod
-let currentRequirements = { anyOf: [], allOf: [] }; // { anyOf: [{label,url}], allOf: [{label,url}] }
-let currentImages = []; // ordered list of image URLs - currentImages[0] is the cover image
-let currentDownload = { url: '', name: '' }; // the selected mod file
-
-let editingReq = null; // { group: 'anyOf'|'allOf', index } currently being edited, or null
-
-function renderOneRequirementGroup(group) {
-  const listEl = document.getElementById(group === 'anyOf' ? 'requirementsListAny' : 'requirementsListAll');
-  const emptyEl = document.getElementById(group === 'anyOf' ? 'requirementsAnyEmpty' : 'requirementsAllEmpty');
-  const items = currentRequirements[group];
-  listEl.innerHTML = '';
-  items.forEach((req, index) => {
-    const li = document.createElement('li');
-    li.className = 'req-chip';
-    const textHtml = req.url
-      ? `<a href="${escapeHtml(req.url)}" target="_blank">${escapeHtml(req.label || req.url)}</a>`
-      : escapeHtml(req.label);
-    li.innerHTML = `
-      <span class="req-text">${textHtml}</span>
-      <div class="req-btns">
-        <button type="button" class="secondary" data-action="up" data-index="${index}" ${index === 0 ? 'disabled' : ''} title="Move up">↑</button>
-        <button type="button" class="secondary" data-action="down" data-index="${index}" ${index === items.length - 1 ? 'disabled' : ''} title="Move down">↓</button>
-        <button type="button" class="secondary" data-action="edit" data-index="${index}">Edit</button>
-        <button type="button" class="secondary" data-action="remove" data-index="${index}">Remove</button>
-      </div>
-    `;
-    listEl.appendChild(li);
-  });
-  emptyEl.classList.toggle('show', items.length === 0);
-}
-
-function renderRequirementsList() {
-  renderOneRequirementGroup('anyOf');
-  renderOneRequirementGroup('allOf');
-}
-
-function handleRequirementsListClick(group, e) {
-  const btn = e.target.closest('button[data-action]');
-  if (!btn) return;
-  const index = Number(btn.dataset.index);
-  const action = btn.dataset.action;
-  const items = currentRequirements[group];
-
-  if (action === 'remove') {
-    items.splice(index, 1);
-    if (editingReq && editingReq.group === group && editingReq.index === index) exitReqEditMode();
-    renderRequirementsList();
-  } else if (action === 'up' && index > 0) {
-    [items[index - 1], items[index]] = [items[index], items[index - 1]];
-    renderRequirementsList();
-  } else if (action === 'down' && index < items.length - 1) {
-    [items[index + 1], items[index]] = [items[index], items[index + 1]];
-    renderRequirementsList();
-  } else if (action === 'edit') {
-    editingReq = { group, index };
-    document.getElementById('reqLabelInput').value = items[index].label || '';
-    document.getElementById('reqUrlInput').value = items[index].url || '';
-    document.getElementById('reqGroupSelect').value = group;
-    document.getElementById('reqAddBtn').textContent = 'Update';
-    document.getElementById('reqCancelEditBtn').style.display = '';
-    document.getElementById('reqLabelInput').focus();
-  }
-}
-
-document.getElementById('requirementsListAny').addEventListener('click', (e) => handleRequirementsListClick('anyOf', e));
-document.getElementById('requirementsListAll').addEventListener('click', (e) => handleRequirementsListClick('allOf', e));
-
-function exitReqEditMode() {
-  editingReq = null;
-  document.getElementById('reqLabelInput').value = '';
-  document.getElementById('reqUrlInput').value = '';
-  document.getElementById('reqGroupSelect').value = 'allOf';
-  document.getElementById('reqAddBtn').textContent = '+ Add';
-  document.getElementById('reqCancelEditBtn').style.display = 'none';
-}
-
-document.getElementById('reqCancelEditBtn').addEventListener('click', exitReqEditMode);
-
-document.getElementById('reqAddBtn').addEventListener('click', () => {
-  const labelInput = document.getElementById('reqLabelInput');
-  const urlInput = document.getElementById('reqUrlInput');
-  const groupSelect = document.getElementById('reqGroupSelect');
-  const label = labelInput.value.trim();
-  const url = urlInput.value.trim();
-  const group = groupSelect.value === 'anyOf' ? 'anyOf' : 'allOf';
-  if (!label && !url) return;
-
-  if (editingReq !== null) {
-    // If the group changed while editing, move the item to the new group
-    // instead of leaving a stale entry behind in the old one.
-    if (editingReq.group !== group) {
-      currentRequirements[editingReq.group].splice(editingReq.index, 1);
-      currentRequirements[group].push({ label: label || url, url: url || '' });
-    } else {
-      currentRequirements[group][editingReq.index] = { label: label || url, url: url || '' };
-    }
-    exitReqEditMode();
-  } else {
-    currentRequirements[group].push({ label: label || url, url: url || '' });
-    labelInput.value = '';
-    urlInput.value = '';
-    labelInput.focus();
-  }
-  renderRequirementsList();
-});
-
-// Auto-detects file size by reading it straight from R2 via the public
-// /api/file-info/:filename endpoint (no admin key needed for that one).
-// Only works for files actually hosted on this site's FILES bucket - falls
-// back to leaving the field editable for external download links.
-async function detectFileSize(silent) {
-  const urlValue = document.getElementById('downloadUrlInput').value.trim();
-  const statusEl = document.getElementById('fileSizeStatus');
-  if (!urlValue) {
-    if (!silent) statusEl.textContent = 'Enter a download URL first.';
-    return;
-  }
-
-  let filename;
-  try {
-    filename = decodeURIComponent(new URL(urlValue).pathname.split('/').pop());
-  } catch {
-    if (!silent) statusEl.textContent = "Couldn't parse that URL - enter the file size manually.";
-    return;
-  }
-  if (!filename) return;
-
-  statusEl.textContent = 'Detecting...';
-  try {
-    const res = await fetch(`${API_ORIGIN}/api/file-info/${encodeURIComponent(filename)}`);
-    if (!res.ok) throw new Error('not found');
-    const data = await res.json();
-    if (data.sizeFormatted) {
-      document.getElementById('fileSizeInput').value = data.sizeFormatted;
-      statusEl.textContent = 'Detected from ' + filename + '.';
-    } else {
-      throw new Error('no size in response');
-    }
-  } catch {
-    statusEl.textContent = silent
-      ? "Couldn't auto-detect (not hosted here?) - enter the size manually."
-      : "Couldn't find that file in the archive's storage - enter the size manually.";
-  }
-}
-
-document.getElementById('detectSizeBtn').addEventListener('click', () => detectFileSize(false));
-
-// Turns a filename like "csx-road_bundle_v2.zip" into "Csx Road Bundle V2" -
-// a reasonable starting title the user can freely edit afterward.
-function deriveTitleFromFilename(filename) {
-  const base = filename.replace(/\.[a-z0-9]{1,5}$/i, ''); // strip extension
-  const words = base.replace(/[-_]+/g, ' ').trim();
-  if (!words) return '';
-  return words
-    .split(' ')
-    .filter(Boolean)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
-
-// Applies a chosen/uploaded mod file: updates the hidden download_url field,
-// fills in File size (if empty) and Title (if empty) from the filename -
-// mirrors what the old "Download URL" text field did on blur.
-function setDownloadFile(url, name) {
-  currentDownload = { url, name: name || (url ? url.split('/').pop() : '') };
-  document.getElementById('downloadUrlInput').value = url;
-  renderDownloadDisplay();
-
-  if (!document.getElementById('fileSizeInput').value.trim()) {
-    detectFileSize(true);
-  }
-  const titleInput = document.getElementById('titleInput');
-  if (!titleInput.value.trim() && currentDownload.name) {
-    const derivedTitle = deriveTitleFromFilename(currentDownload.name);
-    if (derivedTitle) titleInput.value = derivedTitle;
-  }
-}
-
-function renderDownloadDisplay() {
-  const el = document.getElementById('downloadFileDisplay');
-  if (!currentDownload.url) {
-    el.innerHTML = '';
-    return;
-  }
-  el.innerHTML = `
-    <div class="file-display">
-      <i class="file-name">${escapeHtml(currentDownload.name || currentDownload.url)}</i>
-      <button type="button" class="secondary" id="downloadClearBtn">Remove</button>
-    </div>`;
-  document.getElementById('downloadClearBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    setDownloadFile('', '');
-  });
-}
-
-// ---- Generic upload helper: streams a File straight to R2 via the admin
-// upload endpoint and returns the resulting { url, name }. ----
-async function uploadFileToServer(file) {
-  const res = await fetch(`${API_ORIGIN}/api/admin/files/${encodeURIComponent(file.name)}`, {
-    method: 'PUT',
-    headers: {
-      'X-API-Key': apiKey,
-      'Content-Type': file.type || 'application/octet-stream'
-    },
-    body: file
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `Upload failed (${res.status})`);
-  browseFilesCache = null; // so the browse-database list picks up the new file
-  return { url: data.url, name: data.name };
-}
-
-// ---- Images picker ----
-function renderImagesGrid() {
-  const grid = document.getElementById('imagesGrid');
-  grid.innerHTML = '';
-  currentImages.forEach((url, index) => {
-    const div = document.createElement('div');
-    div.className = 'image-thumb';
-    div.innerHTML = `
-      ${index === 0 ? '<span class="primary-badge">Cover</span>' : ''}
-      <img src="${escapeHtml(url)}" alt="" loading="lazy">
-      <div class="broken-msg" style="display:none;"><i>&#9888;</i><span>Failed to load</span></div>
-      <button type="button" class="thumb-remove" data-index="${index}" title="Remove">&times;</button>
-      ${index !== 0 ? `<button type="button" class="make-primary" data-index="${index}">Make cover</button>` : ''}
-    `;
-    // A 404/renamed/moved file shouldn't just render as an invisible box on
-    // this dark theme (the native broken-image icon is tiny and easy to
-    // miss) - flag it clearly instead so it doesn't look like the photo
-    // silently disappeared when reopening the mod for editing.
-    const img = div.querySelector('img');
-    img.addEventListener('error', () => {
-      div.classList.add('broken');
-      div.querySelector('.broken-msg').style.display = '';
-    });
-    grid.appendChild(div);
-  });
-}
-
-document.getElementById('imagesGrid').addEventListener('click', (e) => {
-  const removeBtn = e.target.closest('.thumb-remove');
-  const primaryBtn = e.target.closest('.make-primary');
-  if (removeBtn) {
-    currentImages.splice(Number(removeBtn.dataset.index), 1);
-    renderImagesGrid();
-  } else if (primaryBtn) {
-    const index = Number(primaryBtn.dataset.index);
-    const [chosen] = currentImages.splice(index, 1);
-    currentImages.unshift(chosen);
-    renderImagesGrid();
-  }
-});
-
-function addImageUrl(url) {
-  if (!url) return;
-  const key = normalizeUrlForCompare(url);
-  if (currentImages.some(existing => normalizeUrlForCompare(existing) === key)) return;
-  currentImages.push(url);
-  renderImagesGrid();
-}
-
-async function handleImageFiles(fileList) {
-  const files = Array.from(fileList || []).filter(f => f.type.startsWith('image/'));
-  for (const file of files) {
+export default {
+  async scheduled(event, env, ctx) {
+    console.log('Scheduled metadata refresh triggered');
     try {
-      const { url } = await uploadFileToServer(file);
-      addImageUrl(url);
-    } catch (err) {
-      setStatus('Image upload failed: ' + err.message, true);
+      const newMetadata = await scrapeModMetadata(env);
+      
+      // Overwrite with new metadata (no merge)
+      await env.DOWNLOAD_COUNTS.put('mod_metadata', JSON.stringify(newMetadata));
+      console.log(`Auto-refreshed metadata: ${Object.keys(newMetadata).length} total mods`);
+    } catch (error) {
+      console.error('Scheduled refresh failed:', error);
     }
-  }
-}
+  },
 
-const imagesDropzone = document.getElementById('imagesDropzone');
-imagesDropzone.addEventListener('click', () => document.getElementById('imagesFileInput').click());
-document.getElementById('imagesUploadBtn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  document.getElementById('imagesFileInput').click();
-});
-document.getElementById('imagesFileInput').addEventListener('change', (e) => {
-  handleImageFiles(e.target.files);
-  e.target.value = '';
-});
-imagesDropzone.addEventListener('dragover', (e) => { e.preventDefault(); imagesDropzone.classList.add('dragover'); });
-imagesDropzone.addEventListener('dragleave', () => imagesDropzone.classList.remove('dragover'));
-imagesDropzone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  imagesDropzone.classList.remove('dragover');
-  handleImageFiles(e.dataTransfer.files);
-});
-document.getElementById('imagesBrowseBtn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  openBrowseModal('images');
-});
-
-// ---- Mod file picker ----
-async function handleDownloadFile(file) {
-  if (!file) return;
-  try {
-    const { url, name } = await uploadFileToServer(file);
-    setDownloadFile(url, name);
-  } catch (err) {
-    setStatus('File upload failed: ' + err.message, true);
-  }
-}
-
-const downloadDropzone = document.getElementById('downloadDropzone');
-downloadDropzone.addEventListener('click', () => document.getElementById('downloadFileInput').click());
-document.getElementById('downloadUploadBtn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  document.getElementById('downloadFileInput').click();
-});
-document.getElementById('downloadFileInput').addEventListener('change', (e) => {
-  handleDownloadFile(e.target.files[0]);
-  e.target.value = '';
-});
-downloadDropzone.addEventListener('dragover', (e) => { e.preventDefault(); downloadDropzone.classList.add('dragover'); });
-downloadDropzone.addEventListener('dragleave', () => downloadDropzone.classList.remove('dragover'));
-downloadDropzone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  downloadDropzone.classList.remove('dragover');
-  handleDownloadFile(e.dataTransfer.files[0]);
-});
-document.getElementById('downloadBrowseBtn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  openBrowseModal('download');
-});
-
-// ---- Browse database modal (shared by images and mod-file pickers) ----
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.avif'];
-let browseMode = null; // 'images' | 'download'
-let browseFilesCache = null;
-
-function isImageFile(name) {
-  const lower = name.toLowerCase();
-  return IMAGE_EXTENSIONS.some(ext => lower.endsWith(ext));
-}
-
-async function openBrowseModal(mode) {
-  browseMode = mode;
-  document.getElementById('browseModalTitle').textContent = mode === 'images' ? 'Browse images' : 'Browse files';
-  document.getElementById('browseSearchInput').value = '';
-  document.getElementById('browseOverlay').classList.add('show');
-  document.getElementById('browseGrid').innerHTML = '<div class="browse-empty">Loading...</div>';
-
-  try {
-    if (!browseFilesCache) {
-      const res = await fetch(`${API_ORIGIN}/api/files/list`);
-      const data = await res.json();
-      browseFilesCache = data.files || [];
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    
+    // Determine allowed origin (support local file testing)
+    const origin = request.headers.get('Origin');
+    let allowedOrigin;
+    
+    if (!origin || origin === 'null') {
+      // Local file access or no origin - allow all
+      allowedOrigin = '*';
+    } else if (origin === env.ALLOWED_ORIGIN) {
+      // Match the allowed origin
+      allowedOrigin = env.ALLOWED_ORIGIN;
+    } else {
+      // Default to wildcard for development
+      allowedOrigin = '*';
     }
-    renderBrowseGrid();
-  } catch (err) {
-    document.getElementById('browseGrid').innerHTML = `<div class="browse-empty">Failed to load files: ${escapeHtml(err.message)}</div>`;
-  }
-}
-
-function renderBrowseGrid() {
-  const search = document.getElementById('browseSearchInput').value.trim().toLowerCase();
-  const grid = document.getElementById('browseGrid');
-  const relevant = (browseFilesCache || []).filter(f =>
-    browseMode === 'images' ? isImageFile(f.name) : true
-  ).filter(f => !search || f.name.toLowerCase().includes(search));
-
-  grid.innerHTML = '';
-  if (relevant.length === 0) {
-    grid.innerHTML = '<div class="browse-empty">No files found.</div>';
-    return;
-  }
-
-  for (const file of relevant) {
-    const item = document.createElement('div');
-    item.className = 'browse-item';
-    const thumbInner = isImageFile(file.name)
-      ? `<img src="${escapeHtml(file.url)}" alt="">`
-      : `<span style="font-size:1.6rem;">&#128196;</span>`;
-    item.innerHTML = `
-      <div class="browse-thumb">${thumbInner}</div>
-      <div class="browse-name">${escapeHtml(file.name)}</div>
-    `;
-    item.addEventListener('click', () => {
-      if (browseMode === 'images') {
-        addImageUrl(file.url);
-      } else {
-        setDownloadFile(file.url, file.name);
-      }
-      closeBrowseModal();
-    });
-    grid.appendChild(item);
-  }
-}
-
-document.getElementById('browseSearchInput').addEventListener('input', renderBrowseGrid);
-document.getElementById('browseCloseBtn').addEventListener('click', closeBrowseModal);
-document.getElementById('browseOverlay').addEventListener('click', (e) => {
-  if (e.target.id === 'browseOverlay') closeBrowseModal();
-});
-function closeBrowseModal() {
-  document.getElementById('browseOverlay').classList.remove('show');
-}
-
-// Parses whatever was stored for requirements into the { anyOf, allOf }
-// shape the builder uses. Accepts the new grouped object directly, or a
-// legacy flat array/JSON string (old mods saved before groups existed) -
-// a flat list is treated as allOf, since a plain list historically meant
-// "all of these are needed".
-function normalizeReqItems(list) {
-  if (!Array.isArray(list)) return [];
-  return list.map(item => {
-    if (typeof item === 'string') return { label: item, url: '' };
-    return { label: item.label || item.title || item.url || '', url: item.url || '' };
-  });
-}
-function parseRequirements(value) {
-  let parsed = value;
-  if (typeof value === 'string') {
-    try { parsed = JSON.parse(value); } catch { parsed = null; }
-  }
-  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && (parsed.anyOf || parsed.allOf)) {
-    return {
-      anyOf: normalizeReqItems(parsed.anyOf),
-      allOf: normalizeReqItems(parsed.allOf)
+    
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': allowedOrigin,
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, X-API-Key, Keep-Alive, Cache-Control, Pragma, Expires',
+      'Access-Control-Max-Age': '86400',
     };
-  }
-  return { anyOf: [], allOf: normalizeReqItems(Array.isArray(parsed) ? parsed : []) };
-}
 
-function showGate(errorMsg) {
-  document.getElementById('keyGate').style.display = 'block';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('keyGateError').textContent = errorMsg || '';
-}
-function showApp() {
-  document.getElementById('keyGate').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  loadMods();
-}
+    // Handle CORS preflight
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
+    }
 
-document.getElementById('apiKeySubmit').addEventListener('click', async () => {
-  const val = document.getElementById('apiKeyInput').value.trim();
-  if (!val) return;
-  apiKey = val;
-  const ok = await testKey();
-  if (ok) {
-    sessionStorage.setItem('tsma_admin_key', apiKey);
-    showApp();
-  } else {
-    showGate('That key was rejected by the API (401 Unauthorized). Double check it matches ADMIN_API_KEY.');
-  }
-});
+    // ---------------------------------------------------------------------
+    // WWW HOST HANDLING
+    // The wrangler.toml route for www.trainsimarchive.org now catches every
+    // path on that domain (not just /democreator/*), so this Worker is the
+    // first thing every request hits. On this host we ONLY want to render a
+    // page ourselves when it's a mod/creator page that actually exists in
+    // D1. Everything else - the homepage, CSS/JS/images, static mod pages
+    // that haven't been migrated to the DB yet, unrecognized paths - should
+    // fall straight through to the real static site (fetched directly from
+    // its *.pages.dev origin) untouched.
+    // The api.trainsimarchive.org custom domain is unaffected by this and
+    // keeps all of its /api/* behavior below.
+    // ---------------------------------------------------------------------
+    if (url.hostname !== 'api.trainsimarchive.org') {
+      // Cloudflare Pages projects can't be reached via a [[services]] binding,
+      // so we fetch the project's default *.pages.dev domain directly instead.
+      const STATIC_SITE_ORIGIN = 'https://trainsimulatormodarchive.pages.dev';
 
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  sessionStorage.removeItem('tsma_admin_key');
-  apiKey = '';
-  showGate();
-});
+      // Creator slugs whose LISTING PAGE (e.g. /trurail-simulations) should
+      // be served from the static HTML instead of the dynamic D1-backed
+      // page. This is controlled entirely per-creator from the mod admin UI
+      // (stored in the `creator_settings` table) - there's no hardcoded
+      // list anymore, so flipping the toggle for any creator (including
+      // TruRail Simulations and ClearTracks) actually takes effect. Mod
+      // pages underneath a creator (e.g. /trurail-simulations/some-mod)
+      // are unaffected and still check D1 normally.
+      const wwwPathParts = url.pathname.split('/').filter(Boolean);
+      let dynamicResponse = null;
+      const requestedCreatorSlug = wwwPathParts[0] ? wwwPathParts[0].replace(/\.html$/i, '') : null;
+      let isStaticOnlyListingPage = false;
 
-async function testKey() {
+      if (wwwPathParts.length === 1 && requestedCreatorSlug) {
+        try {
+          await ensureDatabaseSchema(env);
+          isStaticOnlyListingPage = await isCreatorForcedStatic(requestedCreatorSlug, env);
+        } catch (error) {
+          console.error('Error checking creator_settings in D1, defaulting to dynamic page:', error);
+        }
+      }
+
+      // /:creatorSlug or /:creatorSlug.html - only render if the creator has mods in D1
+      if (!isStaticOnlyListingPage && wwwPathParts.length === 1) {
+        const creatorPart = wwwPathParts[0];
+        if (!creatorPart.includes('.') || creatorPart.toLowerCase().endsWith('.html')) {
+          const creatorSlug = creatorPart.replace(/\.html$/i, '');
+          try {
+            await ensureDatabaseSchema(env);
+            const mods = await fetchModsForCreator(creatorSlug, env);
+            if (mods && mods.length > 0) {
+              dynamicResponse = await handleDynamicCreatorPage(creatorSlug, env, corsHeaders);
+            }
+          } catch (error) {
+            console.error('Error checking creator in D1, falling back to static site:', error);
+          }
+        }
+      }
+
+      // /:creatorSlug/:slug - only render if that exact mod exists in D1
+      if (!dynamicResponse && wwwPathParts.length === 2 && !wwwPathParts.some(part => part.includes('.'))) {
+        try {
+          await ensureDatabaseSchema(env);
+          const mod = await fetchModFromDatabase(wwwPathParts[0], wwwPathParts[1], env);
+          if (mod) {
+            dynamicResponse = await handleDynamicModPage(wwwPathParts[0], wwwPathParts[1], env, corsHeaders);
+          }
+        } catch (error) {
+          console.error('Error checking mod in D1, falling back to static site:', error);
+        }
+      }
+
+      if (dynamicResponse) {
+        return dynamicResponse;
+      }
+
+      // Not a DB-backed page (or DB lookup failed) - hand off to the static site.
+      // Rebuild the request against the pages.dev origin (preserving path, query,
+      // method, and body). The Host header must be overridden to match the
+      // pages.dev domain - otherwise it still says "www.trainsimarchive.org",
+      // which Cloudflare's edge won't recognize for that project, and Pages
+      // returns 404 instead of serving the site.
+      const staticUrl = new URL(url.pathname + url.search, STATIC_SITE_ORIGIN);
+      const staticHeaders = new Headers(request.headers);
+      staticHeaders.set('Host', new URL(STATIC_SITE_ORIGIN).hostname);
+      const staticRequest = new Request(staticUrl.toString(), {
+        method: request.method,
+        headers: staticHeaders,
+        body: (request.method === 'GET' || request.method === 'HEAD') ? undefined : request.body,
+        // IMPORTANT: don't auto-follow redirects here. Pages has canonicalizing
+        // redirects (e.g. /index -> /). If we follow them internally, the browser
+        // silently gets a 200 for the wrong URL and its address bar never updates.
+        // We need to pass the redirect through so the browser navigates itself.
+        redirect: 'manual',
+      });
+
+      const staticResponse = await fetch(staticRequest);
+
+      if (staticResponse.status >= 300 && staticResponse.status < 400) {
+        const location = staticResponse.headers.get('Location');
+        if (location) {
+          // Rewrite an absolute pages.dev Location back to the real domain,
+          // so the browser redirects within www.trainsimarchive.org instead
+          // of getting sent to the pages.dev URL.
+          const rewritten = new URL(location, staticUrl);
+          if (rewritten.hostname === new URL(STATIC_SITE_ORIGIN).hostname) {
+            rewritten.hostname = url.hostname;
+            rewritten.protocol = url.protocol;
+            rewritten.port = '';
+          }
+          const redirectHeaders = new Headers(staticResponse.headers);
+          redirectHeaders.set('Location', rewritten.toString());
+          return new Response(staticResponse.body, {
+            status: staticResponse.status,
+            statusText: staticResponse.statusText,
+            headers: redirectHeaders,
+          });
+        }
+      }
+
+      return staticResponse;
+    }
+
+    // Rate limiting (skip for OPTIONS and health check)
+    if (url.pathname !== '/' && url.pathname !== '') {
+      const rateLimitResult = await checkRateLimit(request, env);
+      if (!rateLimitResult.allowed) {
+        return new Response(JSON.stringify({
+          error: 'Rate limit exceeded',
+          message: 'Too many requests. Please try again later.',
+          retryAfter: rateLimitResult.retryAfter
+        }), {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Retry-After': rateLimitResult.retryAfter.toString()
+          }
+        });
+      }
+    }
+
+    // Route: Root / health check
+    if (url.pathname === '/' || url.pathname === '') {
+      return new Response(JSON.stringify({
+        status: 'ok',
+        message: 'Train Sim Archive API is running',
+        endpoints: [
+          'GET /api/file-info/:filename',
+          'POST /api/download/:filename',
+          'GET /api/download/:filename',
+          'GET /api/mods',
+          'GET /api/mods/recent?limit=6 (most recently updated mods)',
+          'GET /api/mods/:creatorSlug/:slug',
+          'GET /:creatorSlug/:slug (dynamic mod page)',
+          'GET /api/mods-with-downloads (SEPARATE - mod name, page URL, file URL, download count)',
+          'GET /api/stats/top-downloads',
+          'GET /api/stats/total-mods',
+          'POST /api/pageview/:pagePath',
+          'GET /api/stats/pageviews',
+          'GET /api/files/list',
+          'GET /api/search?q=query',
+          'GET /api/related/:modId',
+          'GET /api/random-mods?count=4',
+          'POST /api/refresh-metadata'
+        ]
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Route: Admin API - requires authentication
+    if (url.pathname.startsWith('/api/admin/')) {
+      const { handleAdminAPI } = await import('../admin-api.js');
+      return handleAdminAPI(request, env, corsHeaders);
+    }
+
+    // Route: GET /api/search?q=query
+    if (url.pathname === '/api/search') {
+      const query = url.searchParams.get('q');
+      return handleSearch(query, env, corsHeaders);
+    }
+
+    // Route: GET /api/mods - List published mods from D1
+    if (url.pathname === '/api/mods' || url.pathname === '/api/mods/') {
+      return handleListMods(env, corsHeaders);
+    }
+
+    // Route: GET /api/mods/recent - Most recently updated mods, for the
+    // homepage "recently updated" widget. Must be checked before the
+    // generic /api/mods/:creatorSlug/:slug matcher below since it also
+    // starts with /api/mods/.
+    if (url.pathname === '/api/mods/recent' || url.pathname === '/api/mods/recent/') {
+      return handleRecentMods(url, env, corsHeaders);
+    }
+
+    // Route: GET /api/mods/:creatorSlug/:slug - Get one mod from D1 as JSON
+    if (url.pathname.startsWith('/api/mods/')) {
+      const parts = url.pathname.split('/').filter(Boolean);
+      if (parts.length === 4 && parts[0] === 'api' && parts[1] === 'mods') {
+        const creatorSlug = parts[2];
+        const slug = parts[3];
+        return handleGetMod(creatorSlug, slug, env, corsHeaders);
+      }
+    }
+
+    // Note: dynamic creator-page (/:creatorSlug) and mod-page (/:creatorSlug/:slug)
+    // rendering for the www host is now handled earlier, in the WWW HOST HANDLING
+    // block above, which also falls back to the static site when a page isn't in D1.
+    // This point in the code only runs on api.trainsimarchive.org, where
+    // /api/mods/:creatorSlug/:slug (JSON, handled above) is the equivalent lookup.
+
+    // Route: GET /api/mods-with-downloads - Get all mods with download counts (separate endpoint)
+    if (url.pathname === '/api/mods-with-downloads') {
+      return handleModsWithDownloads(env, corsHeaders);
+    }
+
+    // Route: POST /api/refresh-metadata - Refresh mod metadata from GitHub
+    if (request.method === 'POST' && url.pathname === '/api/refresh-metadata') {
+      return handleRefreshMetadata(env, corsHeaders);
+    }
+
+    // Route: POST /api/webhook/github - GitHub webhook for auto-refresh
+    if (request.method === 'POST' && url.pathname === '/api/webhook/github') {
+      // GitHub webhook - auto-refresh on push
+      console.log('GitHub webhook received');
+      try {
+        // Get the commit SHA from webhook payload (read body first)
+        const payload = await request.json();
+        const commitSha = payload?.after;
+        console.log('Scraping after commit:', commitSha);
+        
+        // Wait 15 seconds for GitHub to finish processing the push
+        await new Promise(resolve => setTimeout(resolve, 15000));
+        
+        // Retry up to 3 times if data seems stale
+        let metadata;
+        let attempts = 0;
+        const maxAttempts = 3;
+        
+        while (attempts < maxAttempts) {
+          attempts++;
+          metadata = await scrapeModMetadata(env);
+          
+          // Check if we got fresh data by comparing mod count or checking for changes
+          const oldMetadata = await env.DOWNLOAD_COUNTS.get('mod_metadata');
+          const oldData = oldMetadata ? JSON.parse(oldMetadata) : {};
+          
+          // If metadata is different or this is first attempt, use it
+          if (JSON.stringify(metadata) !== JSON.stringify(oldData) || attempts === maxAttempts) {
+            console.log(`Metadata refreshed on attempt ${attempts}`);
+            break;
+          }
+          
+          // Wait 5 seconds before retry
+          console.log(`Data unchanged, retrying in 5 seconds (attempt ${attempts}/${maxAttempts})`);
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+        
+        // Overwrite with new metadata (no merge)
+        await env.DOWNLOAD_COUNTS.put('mod_metadata', JSON.stringify(metadata));
+        
+        return new Response(JSON.stringify({ 
+          success: true, 
+          message: 'Webhook received, metadata refreshed',
+          totalMods: Object.keys(metadata).length,
+          attempts: attempts,
+          commitSha: commitSha
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        console.error('Webhook refresh failed:', error);
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: error.message 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // Route: GET /api/the/the/the/refresh-history - View refresh log
+    if (url.pathname === '/api/the/the/the/refresh-history') {
+      return handleRefreshHistory(env, corsHeaders);
+    }
+
+    // Route: GET /api/related/:modId - Get related mods
+    if (url.pathname.startsWith('/api/related/')) {
+      const modId = decodeURIComponent(url.pathname.split('/api/related/')[1]);
+      return handleRelatedMods(modId, env, corsHeaders);
+    }
+
+    // Route: GET /api/random-mods?count=4 - Get random mods for homepage
+    if (url.pathname === '/api/random-mods') {
+      const count = parseInt(url.searchParams.get('count') || '4', 10);
+      return handleRandomMods(count, env, corsHeaders);
+    }
+
+    // Route: GET /api/stats/total-mods - Real archive size, counted from D1
+    // (plus any legacy mods not yet migrated), for homepage "X mods
+    // archived" style counters.
+    if (url.pathname === '/api/stats/total-mods') {
+      return handleTotalModsStat(env, corsHeaders);
+    }
+
+    // Route: GET /api/stats/top-downloads
+    if (url.pathname === '/api/stats/top-downloads') {
+      return handleTopDownloads(env, corsHeaders);
+    }
+
+    // Route: POST /api/pageview/:pagePath
+    if (request.method === 'POST' && url.pathname.startsWith('/api/pageview/')) {
+      const pagePath = decodeURIComponent(url.pathname.split('/api/pageview/')[1]);
+      return handlePageView(pagePath, env, corsHeaders);
+    }
+
+    // Route: GET /api/stats/pageviews
+    if (url.pathname === '/api/stats/pageviews') {
+      return handlePageViewStats(env, corsHeaders);
+    }
+
+    // Route: GET /api/files/list - List all R2 files
+    if (url.pathname === '/api/files/list') {
+      return handleListFiles(env, corsHeaders);
+    }
+
+    // Route: GET /api/file-info/:filename
+    if (url.pathname.startsWith('/api/file-info/')) {
+      const filename = decodeURIComponent(url.pathname.split('/api/file-info/')[1]);
+      return handleFileInfo(filename, env, corsHeaders);
+    }
+
+    // Route: POST /api/download/:filename (track download - also handle sendBeacon)
+    if ((request.method === 'POST' || request.method === 'GET') && url.pathname.startsWith('/api/download/')) {
+      const filename = decodeURIComponent(url.pathname.split('/api/download/')[1]);
+      
+      // Check if this is a tracking request (has 'track' param or is POST) or direct download
+      const isTracking = request.method === 'POST' || url.searchParams.has('track');
+      
+      if (isTracking) {
+        return handleDownloadCount(filename, env, corsHeaders);
+      } else {
+        // GET without track param = direct download
+        return handleDirectDownload(filename, env, corsHeaders);
+      }
+    }
+
+    return new Response('Not Found', { status: 404, headers: corsHeaders });
+  },
+};
+
+// Looks up the per-creator page preference saved from the mod admin UI.
+// Returns true only if that creator's listing page has been explicitly
+// forced to the static site; any DB error or missing row defaults to false
+// (i.e. falls through to the normal dynamic/database-rendered page).
+async function isCreatorForcedStatic(creatorSlug, env) {
   try {
-    const res = await fetch(`${API_ORIGIN}/api/admin/mods`, {
-      headers: { 'X-API-Key': apiKey }
-    });
-    return res.status !== 401;
-  } catch {
+    const { results } = await env.DB.prepare(
+      'SELECT use_static_page FROM creator_settings WHERE slug = ? LIMIT 1'
+    ).bind(creatorSlug).all();
+    return Boolean(results && results[0] && Number(results[0].use_static_page) === 1);
+  } catch (error) {
+    console.warn('isCreatorForcedStatic lookup warning:', error.message);
     return false;
   }
 }
 
-function setStatus(message, isError) {
-  const el = document.getElementById('status');
-  el.textContent = message;
-  el.className = 'show ' + (isError ? 'err' : 'ok');
-  if (!isError) {
-    setTimeout(() => { el.className = ''; }, 3500);
+async function ensureDatabaseSchema(env) {
+  if (!env?.DB) {
+    throw new Error('D1 database binding is not available');
   }
-}
 
-async function apiRequest(path, options = {}) {
-  const res = await fetch(`${API_ORIGIN}${path}`, {
-    ...options,
-    headers: {
-      'X-API-Key': apiKey,
-      'Content-Type': 'application/json',
-      ...(options.headers || {})
-    }
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(data.error || `Request failed (${res.status})`);
-  }
-  return data;
-}
-
-async function loadMods() {
   try {
-    const data = await apiRequest('/api/admin/mods');
-    allMods = data.mods || [];
-    selectedIds.clear();
-    populateFilterOptions();
-    refreshCombos();
-    renderTable();
-    updateBulkBar();
-  } catch (err) {
-    setStatus('Failed to load mods: ' + err.message, true);
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS mods (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        slug TEXT NOT NULL,
+        description TEXT,
+        content TEXT,
+        author TEXT,
+        category TEXT,
+        image_url TEXT,
+        download_url TEXT,
+        download_name TEXT,
+        file_size TEXT,
+        version TEXT,
+        tags TEXT,
+        features TEXT,
+        requirements TEXT,
+        images TEXT,
+        metadata TEXT,
+        published BOOLEAN DEFAULT 1,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+  } catch (error) {
+    console.warn('Legacy mods table bootstrap warning:', error.message);
+  }
+
+  try {
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS downloads (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        mod_id TEXT NOT NULL,
+        downloaded_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        ip_hash TEXT,
+        user_agent TEXT,
+        FOREIGN KEY (mod_id) REFERENCES mods(id)
+      )
+    `).run();
+  } catch (error) {
+    console.warn('Downloads table bootstrap warning:', error.message);
+  }
+
+  try {
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS pageviews (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        mod_id TEXT,
+        page_path TEXT NOT NULL,
+        viewed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        ip_hash TEXT,
+        user_agent TEXT,
+        FOREIGN KEY (mod_id) REFERENCES mods(id)
+      )
+    `).run();
+  } catch (error) {
+    console.warn('Pageviews table bootstrap warning:', error.message);
+  }
+
+  try {
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS creator_settings (
+        slug TEXT PRIMARY KEY,
+        use_static_page BOOLEAN DEFAULT 0,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+  } catch (error) {
+    console.warn('creator_settings table bootstrap warning:', error.message);
+  }
+
+  return true;
+}
+
+async function handleListMods(env, corsHeaders) {
+  try {
+    await ensureDatabaseSchema(env);
+    const mods = await fetchModsFromDatabase(env);
+
+    return new Response(JSON.stringify({ success: true, mods }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error listing mods:', error);
+    return new Response(JSON.stringify({ error: error.message, mods: [] }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 }
 
-// Fills the Author/Category filter dropdowns with the distinct values
-// currently in use, preserving whatever's selected if it's still valid.
-function populateFilterOptions() {
-  const authors = [...new Set(allMods.map(m => m.author).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-  const categories = [...new Set(allMods.map(m => m.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+// Returns published mods sorted by most-recently-updated first, for a
+// homepage "recently updated" widget. Falls back to created_at for any mod
+// that's never been edited since it was first saved (updated_at defaults
+// to created_at in normalizeModRecord already).
+// ?limit=N controls how many to return (default 6, capped at 50).
+async function handleRecentMods(url, env, corsHeaders) {
+  try {
+    await ensureDatabaseSchema(env);
+    const mods = await fetchModsFromDatabase(env);
 
-  const fillSelect = (select, values) => {
-    const current = select.value;
-    select.innerHTML = `<option value="">${select.id === 'authorFilterSelect' ? 'All authors' : 'All categories'}</option>` +
-      values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
-    if (values.includes(current)) select.value = current;
+    const published = mods.filter(mod => mod.published !== false && mod.published !== 0);
+
+    const sorted = [...published].sort((a, b) => {
+      const aTime = new Date(a.updated_at || a.created_at || 0).getTime();
+      const bTime = new Date(b.updated_at || b.created_at || 0).getTime();
+      return bTime - aTime;
+    });
+
+    const requestedLimit = parseInt(url.searchParams.get('limit'), 10);
+    const limit = Number.isFinite(requestedLimit) && requestedLimit > 0
+      ? Math.min(requestedLimit, 50)
+      : 6;
+
+    const recentMods = sorted.slice(0, limit).map(mod => ({
+      title: mod.title,
+      slug: mod.slug,
+      description: mod.description,
+      creator_name: mod.creator_name,
+      creator_slug: mod.creator_slug,
+      image_url: mod.image_url,
+      page_url: mod.page_url,
+      updated_at: mod.updated_at
+    }));
+
+    return new Response(JSON.stringify({ success: true, mods: recentMods }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error fetching recently updated mods:', error);
+    return new Response(JSON.stringify({ error: error.message, mods: [] }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+async function handleGetMod(creatorSlug, slug, env, corsHeaders) {
+  try {
+    await ensureDatabaseSchema(env);
+    const mod = await fetchModFromDatabase(creatorSlug, slug, env);
+
+    if (!mod) {
+      return new Response(JSON.stringify({ error: 'Mod not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      mod
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error fetching mod:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+async function handleDynamicCreatorPage(creatorSlug, env, corsHeaders) {
+  try {
+    await ensureDatabaseSchema(env);
+    const mods = await fetchModsForCreator(creatorSlug, env);
+    // Prefer the real creator_name stored on the mods themselves (whatever
+    // casing was entered in the admin panel, e.g. "UTS Creations" or
+    // "TruRail Simulations") - it's the source of truth. Only fall back to
+    // guessing from the slug when there are no mods to read a name from,
+    // since naive per-word capitalization can't recover mid-word capitals.
+    const creatorName = mods[0]?.creator_name
+      || (creatorSlug
+        ? creatorSlug.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')
+        : 'Creator');
+
+    const html = renderCreatorPage({
+      name: creatorName,
+      slug: creatorSlug
+    }, mods);
+
+    return new Response(html, {
+      headers: { 'Content-Type': 'text/html; charset=utf-8', ...corsHeaders },
+    });
+  } catch (error) {
+    console.error('Error rendering dynamic creator page:', error);
+    return new Response(JSON.stringify({
+      error: 'Dynamic creator page could not be rendered',
+      detail: error.message
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+async function handleDynamicModPage(creatorSlug, slug, env, corsHeaders) {
+  try {
+    await ensureDatabaseSchema(env);
+    const mod = await fetchModFromDatabase(creatorSlug, slug, env);
+
+    if (!mod) {
+      return new Response('Not Found', { status: 404, headers: corsHeaders });
+    }
+
+    const fileStats = await getFileStatsForDownloadUrl(mod.download_url, env);
+
+    const html = renderModPage(mod, {
+      name: mod.creator_name,
+      slug: mod.creator_slug
+    }, fileStats);
+
+    return new Response(html, {
+      headers: { 'Content-Type': 'text/html; charset=utf-8', ...corsHeaders },
+    });
+  } catch (error) {
+    console.error('Error rendering dynamic mod page:', error);
+    return new Response(JSON.stringify({
+      error: 'Dynamic mod page could not be rendered',
+      detail: error.message
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// Reads live file stats (size, "uploaded X ago", download count) straight
+// from R2 + the DOWNLOAD_COUNTS KV namespace at render time, so the mod
+// page's file-details box shows real numbers immediately in the server
+// HTML instead of "Loading..." until the client-side script (api-client.js)
+// fetches them. Only works for files actually hosted on this site's FILES
+// bucket - returns blanks for external download links, same as before.
+// api-client.js still runs its own client-side refresh afterward, so counts
+// stay live even if a download happens between page loads.
+async function getFileStatsForDownloadUrl(downloadUrl, env) {
+  const fallback = { sizeFormatted: '', uploadedAgo: '', downloads: null };
+  if (!downloadUrl || downloadUrl === '#' || !env.FILES) return fallback;
+
+  let filename;
+  try {
+    filename = decodeURIComponent(new URL(downloadUrl).pathname.split('/').pop());
+  } catch {
+    return fallback;
+  }
+  if (!filename) return fallback;
+
+  try {
+    const object = await env.FILES.head(filename);
+    if (!object) return fallback;
+
+    let downloads = 0;
+    if (env.DOWNLOAD_COUNTS) {
+      try {
+        const countKey = `downloads:${filename}`;
+        const downloadCount = await env.DOWNLOAD_COUNTS.get(countKey);
+        downloads = parseInt(downloadCount || '0');
+      } catch (kvError) {
+        console.warn('getFileStatsForDownloadUrl KV warning:', kvError.message);
+      }
+    }
+
+    return {
+      sizeFormatted: formatBytes(object.size),
+      uploadedAgo: formatUploadedDisplay(object.uploaded),
+      downloads
+    };
+  } catch (error) {
+    console.warn('getFileStatsForDownloadUrl warning:', error.message);
+    return fallback;
+  }
+}
+
+async function fetchModsFromDatabase(env) {
+  const { results } = await env.DB.prepare('SELECT * FROM mods').all();
+
+  return (results || []).map(row => normalizeModRecord({
+    ...row,
+    creator_name: row.creator_name || row.author || 'Unknown Creator',
+    creator_slug: row.creator_slug || '',
+    category_name: row.category_name || row.category || '',
+    published: row.published !== undefined ? row.published : 1,
+    metadata: row.metadata || {}
+  }, row.creator_slug || ''));
+}
+
+async function fetchModFromDatabase(creatorSlug, slug, env) {
+  const { results } = await env.DB.prepare('SELECT * FROM mods WHERE slug = ? LIMIT 1').bind(slug).all();
+
+  if (!results || !results[0]) {
+    return null;
+  }
+
+  return normalizeModRecord({
+    ...results[0],
+    creator_name: results[0].creator_name || results[0].author || 'Unknown Creator',
+    creator_slug: results[0].creator_slug || creatorSlug || '',
+    category_name: results[0].category_name || results[0].category || '',
+    published: results[0].published !== undefined ? results[0].published : 1,
+    metadata: results[0].metadata || {}
+  }, creatorSlug);
+}
+
+async function fetchModsForCreator(creatorSlug, env) {
+  const { results } = await env.DB.prepare('SELECT * FROM mods').all();
+
+  return (results || [])
+    .filter(row => isModForCreator(row, creatorSlug))
+    .map(row => normalizeModRecord({
+      ...row,
+      creator_name: row.creator_name || row.author || 'Unknown Creator',
+      creator_slug: row.creator_slug || creatorSlug || '',
+      category_name: row.category_name || row.category || '',
+      published: row.published !== undefined ? row.published : 1,
+      metadata: row.metadata || {}
+    }, creatorSlug));
+}
+
+// Builds the combined pool of mods that search (and the total-mods stat)
+// should look through: every published mod actually stored in D1, plus any
+// legacy scraped mod that only exists in the old KV metadata cache and
+// hasn't been migrated into D1 yet. A legacy entry is skipped once a D1 mod
+// with a matching id/slug exists, so a migrated mod doesn't show up twice.
+// Once everything is migrated, the legacy half of this naturally becomes
+// empty and can be removed.
+async function fetchSearchableMods(env) {
+  await ensureDatabaseSchema(env);
+  const dbMods = (await fetchModsFromDatabase(env))
+    .filter(mod => mod.published !== false && mod.published !== 0);
+
+  const dbKeys = new Set();
+  dbMods.forEach(mod => {
+    if (mod.id) dbKeys.add(String(mod.id));
+    if (mod.slug) dbKeys.add(String(mod.slug));
+  });
+
+  const legacyData = await getModMetadata(env);
+  const legacyMods = Array.isArray(legacyData) ? legacyData : Object.values(legacyData);
+  const legacyOnly = legacyMods.filter(mod => !dbKeys.has(String(mod.id)) && !dbKeys.has(String(mod.slug)));
+
+  const normalizedDb = dbMods.map(mod => ({
+    id: mod.slug,
+    title: mod.title,
+    description: mod.description,
+    category: mod.category_name,
+    creator: mod.creator_name,
+    tags: mod.tags,
+    image: mod.image_url,
+    url: mod.page_url,
+    downloadFilename: mod.metadata?.download_name || (mod.download_url ? mod.download_url.split('/').pop() : ''),
+    source: 'd1'
+  }));
+
+  const normalizedLegacy = legacyOnly.map(mod => ({ ...mod, source: 'legacy' }));
+
+  return [...normalizedDb, ...normalizedLegacy];
+}
+
+function isModForCreator(row, creatorSlug) {
+  const targetKey = normalizeCreatorKey(creatorSlug);
+  const candidates = [
+    row.creator_slug,
+    row.creator_name,
+    row.author,
+    row.creator,
+    row.creatorId
+  ];
+
+  return candidates.some(value => normalizeCreatorKey(value) === targetKey);
+}
+
+function normalizeModRecord(row, fallbackCreatorSlug) {
+  const metadata = parseJsonField(row.metadata, {});
+  const legacyFeatures = parseArrayField(row.features || metadata.features);
+  const legacyImages = parseArrayField(row.images || metadata.images);
+  const features = Array.isArray(metadata.features)
+    ? metadata.features
+    : legacyFeatures;
+  const requirements = parseRequirementsField(row.requirements !== undefined && row.requirements !== null ? row.requirements : metadata.requirements);
+  const images = Array.isArray(metadata.images)
+    ? metadata.images
+    : legacyImages;
+
+  const creatorName = row.creator_name || row.author || 'Unknown Creator';
+  const creatorSlug = row.creator_slug || fallbackCreatorSlug || slugify(creatorName);
+  const title = row.title || 'Untitled Mod';
+  const description = row.description || '';
+  const categoryName = row.category_name || row.category || '';
+  const downloadUrl = row.download_url || '';
+
+  return {
+    id: row.id,
+    title,
+    slug: row.slug,
+    description,
+    content: row.content || '',
+    creator_name: creatorName,
+    creator_slug: creatorSlug,
+    category_name: categoryName,
+    image_url: row.image_url || (images[0] || ''),
+    download_url: downloadUrl,
+    file_size: row.file_size || '',
+    version: row.version || '',
+    tags: parseJsonField(row.tags, []),
+    metadata: {
+      ...metadata,
+      features,
+      requirements,
+      images,
+      page_updated: metadata.page_updated || row.page_updated || '',
+      download_name: metadata.download_name || row.download_name || downloadUrl.split('/').pop() || title
+    },
+    published: row.published !== undefined ? row.published : 1,
+    created_at: row.created_at || '',
+    updated_at: row.updated_at || row.created_at || '',
+    page_url: `/${creatorSlug}/${row.slug}`
   };
-
-  fillSelect(document.getElementById('authorFilterSelect'), authors);
-  fillSelect(document.getElementById('categoryFilterSelect'), categories);
 }
 
-let showUnpublishedOnly = false;
-const selectedIds = new Set();
-
-document.getElementById('showUnpublishedToggle').addEventListener('click', (e) => {
-  showUnpublishedOnly = !showUnpublishedOnly;
-  e.target.textContent = 'Show unpublished only: ' + (showUnpublishedOnly ? 'On' : 'Off');
-  renderTable();
-});
-document.getElementById('refreshBtn').addEventListener('click', loadMods);
-document.getElementById('searchInput').addEventListener('input', renderTable);
-document.getElementById('sortSelect').addEventListener('change', renderTable);
-document.getElementById('authorFilterSelect').addEventListener('change', renderTable);
-document.getElementById('categoryFilterSelect').addEventListener('change', renderTable);
-
-function sortRows(rows) {
-  const mode = document.getElementById('sortSelect').value;
-  const sorted = [...rows];
-  const cmp = (a, b) => (a || '').toString().toLowerCase().localeCompare((b || '').toString().toLowerCase());
-  switch (mode) {
-    case 'updated_asc':
-      return sorted.sort((a, b) => new Date(a.updated_at || 0) - new Date(b.updated_at || 0));
-    case 'author_asc':
-      return sorted.sort((a, b) => cmp(a.author, b.author));
-    case 'category_asc':
-      return sorted.sort((a, b) => cmp(a.category, b.category));
-    case 'title_asc':
-      return sorted.sort((a, b) => cmp(a.title, b.title));
-    case 'updated_desc':
-    default:
-      return sorted.sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
-  }
-}
-
-function renderTable() {
-  const search = document.getElementById('searchInput').value.trim().toLowerCase();
-  const authorFilter = document.getElementById('authorFilterSelect').value;
-  const categoryFilter = document.getElementById('categoryFilterSelect').value;
-  const tbody = document.getElementById('modsTableBody');
-  tbody.innerHTML = '';
-
-  let rows = allMods.filter(m => {
-    if (showUnpublishedOnly && Number(m.published) !== 0) return false;
-    if (authorFilter && m.author !== authorFilter) return false;
-    if (categoryFilter && m.category !== categoryFilter) return false;
-    if (!search) return true;
-    return [m.title, m.author, m.category, m.slug]
-      .some(v => (v || '').toLowerCase().includes(search));
-  });
-
-  rows = sortRows(rows);
-
-  document.getElementById('emptyState').style.display = rows.length === 0 ? 'block' : 'none';
-
-  for (const mod of rows) {
-    const tr = document.createElement('tr');
-    const published = Number(mod.published) !== 0;
-    tr.innerHTML = `
-      <td><input type="checkbox" class="row-checkbox" data-id="${escapeHtml(mod.id)}" ${selectedIds.has(mod.id) ? 'checked' : ''}></td>
-      <td>${escapeHtml(mod.title)}</td>
-      <td>${escapeHtml(mod.author || '')}</td>
-      <td>${escapeHtml(mod.category || '')}</td>
-      <td><code>${escapeHtml(mod.slug)}</code></td>
-      <td><span class="pill ${published ? 'published' : 'unpublished'}">${published ? 'Published' : 'Unpublished'}</span></td>
-      <td>${formatDateOnly(mod.updated_at)}</td>
-      <td>
-        <div class="row-actions">
-          <button class="secondary" data-action="edit" data-id="${escapeHtml(mod.id)}">Edit</button>
-          <button class="secondary" data-action="unpublish" data-id="${escapeHtml(mod.id)}">${published ? 'Unpublish' : 'Republish'}</button>
-          <button class="danger" data-action="delete" data-id="${escapeHtml(mod.id)}">Delete</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  }
-
-  syncSelectAllCheckbox();
-}
-
-// ---- Bulk selection ----
-document.getElementById('modsTableBody').addEventListener('change', (e) => {
-  const checkbox = e.target.closest('.row-checkbox');
-  if (!checkbox) return;
-  if (checkbox.checked) selectedIds.add(checkbox.dataset.id);
-  else selectedIds.delete(checkbox.dataset.id);
-  syncSelectAllCheckbox();
-  updateBulkBar();
-});
-
-document.getElementById('selectAllCheckbox').addEventListener('change', (e) => {
-  const visibleIds = Array.from(document.querySelectorAll('.row-checkbox')).map(cb => cb.dataset.id);
-  if (e.target.checked) visibleIds.forEach(id => selectedIds.add(id));
-  else visibleIds.forEach(id => selectedIds.delete(id));
-  renderTable();
-  updateBulkBar();
-});
-
-function syncSelectAllCheckbox() {
-  const boxes = Array.from(document.querySelectorAll('.row-checkbox'));
-  const selectAll = document.getElementById('selectAllCheckbox');
-  selectAll.checked = boxes.length > 0 && boxes.every(cb => selectedIds.has(cb.dataset.id));
-  selectAll.indeterminate = boxes.some(cb => selectedIds.has(cb.dataset.id)) && !selectAll.checked;
-}
-
-function updateBulkBar() {
-  const bar = document.getElementById('bulkBar');
-  const count = selectedIds.size;
-  bar.style.display = count > 0 ? 'flex' : 'none';
-  document.getElementById('bulkCount').textContent = `${count} selected`;
-}
-
-document.getElementById('bulkClearBtn').addEventListener('click', () => {
-  selectedIds.clear();
-  renderTable();
-  updateBulkBar();
-});
-
-async function bulkSetPublished(published) {
-  const ids = [...selectedIds];
-  let failed = 0;
-  for (const id of ids) {
+function parseArrayField(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
     try {
-      await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}`, {
-        method: 'PUT',
-        body: JSON.stringify({ published })
-      });
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [parsed];
     } catch {
-      failed++;
+      return [value];
     }
   }
-  setStatus(
-    failed === 0
-      ? `${ids.length} mod(s) ${published ? 'republished' : 'hidden'}.`
-      : `${ids.length - failed} succeeded, ${failed} failed.`,
-    failed > 0
-  );
-  selectedIds.clear();
-  loadMods();
+  return [value];
 }
 
-document.getElementById('bulkHideBtn').addEventListener('click', () => {
-  if (confirm(`Hide ${selectedIds.size} mod(s)? They'll be unpublished (not deleted) and can be republished later.`)) {
-    bulkSetPublished(false);
+// Requirements are stored as { anyOf: [...], allOf: [...] } - anyOf is an OR
+// group rendered as "At least one of the following", allOf is rendered as
+// "In addition to" (or just "Requirements" if there's no anyOf group).
+// Falls back to treating a legacy flat array/string as allOf, since a plain
+// list historically meant "all of these are needed".
+function parseRequirementsField(value) {
+  let parsed = value;
+  if (typeof parsed === 'string' && parsed.trim()) {
+    try { parsed = JSON.parse(parsed); } catch { parsed = null; }
   }
-});
-document.getElementById('bulkShowBtn').addEventListener('click', () => bulkSetPublished(true));
-
-// Permanently deletes every currently-selected mod. To delete ALL mods in
-// the archive: clear the search box and author/category filters first (so
-// every row is visible), then use the header checkbox to select-all before
-// clicking this.
-async function bulkDeleteSelected() {
-  const ids = [...selectedIds];
-  let failed = 0;
-  for (const id of ids) {
-    try {
-      await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}?hard=true`, { method: 'DELETE' });
-    } catch {
-      failed++;
-    }
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && (parsed.anyOf || parsed.allOf)) {
+    return {
+      anyOf: Array.isArray(parsed.anyOf) ? parsed.anyOf : [],
+      allOf: Array.isArray(parsed.allOf) ? parsed.allOf : []
+    };
   }
-  setStatus(
-    failed === 0
-      ? `${ids.length} mod(s) permanently deleted.`
-      : `${ids.length - failed} deleted, ${failed} failed.`,
-    failed > 0
-  );
-  selectedIds.clear();
-  loadMods();
+  return { anyOf: [], allOf: parseArrayField(value) };
 }
 
-document.getElementById('bulkDeleteBtn').addEventListener('click', () => {
-  const count = selectedIds.size;
-  const allSelected = count === allMods.length;
-  const warning = allSelected
-    ? `Permanently delete ALL ${count} mod(s) in the archive? This cannot be undone.`
-    : `Permanently delete ${count} selected mod(s)? This cannot be undone.\n\nUse "Hide selected" instead if you just want to unpublish them.`;
-  if (!confirm(warning)) return;
-
-  // Extra confirmation for a full wipe, since it's easy to fat-finger
-  // select-all and this is irreversible.
-  if (allSelected) {
-    const typed = prompt(`Type DELETE to confirm permanently deleting all ${count} mods.`);
-    if (typed !== 'DELETE') {
-      setStatus('Bulk delete cancelled.');
-      return;
-    }
-  }
-
-  bulkDeleteSelected();
-});
-
-document.getElementById('modsTableBody').addEventListener('click', async (e) => {
-  const btn = e.target.closest('button[data-action]');
-  if (!btn) return;
-  const id = btn.dataset.id;
-  const mod = allMods.find(m => m.id === id);
-  if (!mod) return;
-
-  if (btn.dataset.action === 'edit') {
-    openModal(mod);
-  } else if (btn.dataset.action === 'unpublish') {
-    const nowPublished = Number(mod.published) === 0; // toggling to published
-    try {
-      await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}`, {
-        method: 'PUT',
-        body: JSON.stringify({ published: nowPublished })
-      });
-      setStatus(nowPublished ? 'Mod republished.' : 'Mod unpublished.');
-      loadMods();
-    } catch (err) {
-      setStatus('Failed: ' + err.message, true);
-    }
-  } else if (btn.dataset.action === 'delete') {
-    const hard = confirm(
-      `Delete "${mod.title}"?\n\nOK = permanently delete this mod (cannot be undone).\nCancel = keep it (use Unpublish instead if you just want to hide it).`
-    );
-    if (!hard) return;
-    try {
-      await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}?hard=true`, { method: 'DELETE' });
-      setStatus('Mod permanently deleted.');
-      loadMods();
-    } catch (err) {
-      setStatus('Failed: ' + err.message, true);
-    }
-  }
-});
-
-document.getElementById('addBtn').addEventListener('click', () => openModal(null));
-document.getElementById('cancelBtn').addEventListener('click', closeModal);
-document.getElementById('modalOverlay').addEventListener('click', (e) => {
-  if (e.target.id === 'modalOverlay') closeModal();
-});
-
-// ---- Author / Category combobox ----
-// Plain text inputs with a filtered suggestion dropdown sourced from every
-// author/category already used across all mods. Picking a suggestion fills
-// the field; typing anything else (including something brand new) just
-// works too, since author/category are freeform strings, not a fixed list.
-function setupCombo(inputId, listId, getOptions) {
-  const input = document.getElementById(inputId);
-  const list = document.getElementById(listId);
-
-  function render() {
-    const query = input.value.trim().toLowerCase();
-    const options = getOptions().filter(v => !query || v.toLowerCase().includes(query));
-    if (options.length === 0) {
-      list.innerHTML = '<li class="combo-empty">No matches - keep typing to add a new one</li>';
-    } else {
-      list.innerHTML = options.map(v => `<li data-value="${escapeHtml(v)}">${escapeHtml(v)}</li>`).join('');
-    }
-    list.classList.add('show');
-  }
-
-  input.addEventListener('focus', render);
-  input.addEventListener('input', render);
-  input.addEventListener('blur', () => {
-    // Delay so a click on a suggestion registers before the list hides.
-    setTimeout(() => list.classList.remove('show'), 150);
-  });
-  list.addEventListener('mousedown', (e) => {
-    const li = e.target.closest('li[data-value]');
-    if (!li) return;
-    input.value = li.dataset.value;
-    list.classList.remove('show');
-  });
-}
-
-function refreshCombos() {
-  // No-op beyond initial setup - setupCombo reads live from allMods each
-  // time the list opens, via getDistinctAuthors/getDistinctCategories.
-}
-
-function getDistinctAuthors() {
-  return [...new Set(allMods.map(m => m.author).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-}
-function getDistinctCategories() {
-  return [...new Set(allMods.map(m => m.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-}
-setupCombo('authorInput', 'authorComboList', getDistinctAuthors);
-setupCombo('categoryInput', 'categoryComboList', getDistinctCategories);
-
-// Mirrors generateSlug() in admin-api.js so the preview slug shown here
-// matches what the server will actually key creator_settings rows by.
-function slugifyClient(text) {
-  return String(text || '')
+function slugify(value) {
+  return String(value || '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 }
 
-// Looks up whether the typed author's creator page is currently forced to
-// the static site, and reflects that in the checkbox/hint. A 404 (no saved
-// preference yet) just means "still using the default dynamic page."
-async function loadCreatorStaticSetting(authorName) {
-  const checkbox = document.getElementById('creatorStaticPageCheckbox');
-  const hint = document.getElementById('creatorStaticPageHint');
-  const slug = slugifyClient(authorName);
-  if (!slug) {
-    checkbox.checked = false;
-    hint.textContent = '';
-    return;
-  }
-  hint.textContent = `Checking current setting for /${slug}...`;
+function normalizeCreatorKey(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+function parseJsonField(value, fallback) {
+  if (!value) return fallback;
+  if (typeof value === 'object') return value;
   try {
-    const data = await apiRequest(`/api/admin/creator-settings/${encodeURIComponent(slug)}`);
-    checkbox.checked = Number(data.setting?.use_static_page) === 1;
-    hint.textContent = checkbox.checked
-      ? `/${slug} is currently forced to the static site.`
-      : `/${slug} currently uses the dynamic, database-rendered page.`;
+    return JSON.parse(value);
   } catch {
-    // No saved row yet (404) - default is the dynamic page.
-    checkbox.checked = false;
-    hint.textContent = `/${slug} will use the dynamic, database-rendered page unless you check this.`;
+    return fallback;
   }
 }
 
-document.getElementById('authorInput').addEventListener('blur', () => {
-  loadCreatorStaticSetting(document.getElementById('authorInput').value.trim());
-});
-
-// Saves the creator page preference for whichever author a mod was just
-// saved under. Runs after the mod save itself succeeds - if this part fails,
-// it's logged but doesn't block the mod save that already went through.
-async function syncCreatorStaticSetting(authorName, useStatic) {
-  const slug = slugifyClient(authorName);
-  if (!slug) return;
+// Get file info including upload time and download count
+async function handleFileInfo(filename, env, corsHeaders) {
   try {
-    await apiRequest(`/api/admin/creator-settings/${encodeURIComponent(slug)}`, {
-      method: 'PUT',
-      body: JSON.stringify({ use_static_page: useStatic })
-    });
-  } catch (err) {
-    console.error('Failed to save creator page setting:', err);
-  }
-}
-
-function openModal(mod) {
-  editingId = mod ? mod.id : null;
-  document.getElementById('modalTitle').textContent = mod ? `Edit: ${mod.title}` : 'Add Mod';
-  document.getElementById('fileSizeStatus').textContent = '';
-  exitReqEditMode();
-  const form = document.getElementById('modForm');
-  form.reset();
-
-  if (mod) {
-    form.title.value = mod.title || '';
-    form.slug.value = mod.slug || '';
-    form.author.value = mod.author || '';
-    form.category.value = mod.category || '';
-    form.file_size.value = mod.file_size || '';
-    form.description.value = mod.description || '';
-    form.download_name.value = mod.download_name || '';
-    form.features.value = joinArrayField(mod.features, '\n');
-    form.created_at.value = toDateInputValue(mod.created_at);
-    form.page_updated.value = mmddyyyyToDateInputValue(getMetadataField(mod, 'page_updated'));
-    currentRequirements = parseRequirements(mod.requirements);
-
-    // Build the ordered image list: cover image first, then the gallery.
-    // Comparisons are normalized so a photo stored as the cover under a
-    // slightly different URL form (protocol, trailing slash, encoding)
-    // still gets recognized and isn't duplicated - or worse, isn't
-    // filtered and ends up looking like a missing photo elsewhere.
-    const coverKey = normalizeUrlForCompare(mod.image_url);
-    const seen = new Set([coverKey].filter(Boolean));
-    const gallery = parseImageList(mod.images).filter(url => {
-      const key = normalizeUrlForCompare(url);
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-    currentImages = [mod.image_url, ...gallery].filter(Boolean);
-
-    currentDownload = { url: mod.download_url || '', name: mod.download_name || '' };
-    document.getElementById('downloadUrlInput').value = currentDownload.url;
-
-    document.getElementById('updatedAtDisplay').value = formatDateOnly(mod.updated_at);
-    document.getElementById('publishedCheckbox').checked = Number(mod.published) !== 0;
-    loadCreatorStaticSetting(mod.author || '');
-  } else {
-    currentRequirements = { anyOf: [], allOf: [] };
-    currentImages = [];
-    currentDownload = { url: '', name: '' };
-    document.getElementById('downloadUrlInput').value = '';
-    document.getElementById('publishedCheckbox').checked = true;
-    document.getElementById('updatedAtDisplay').value = 'Will be set when saved';
-    document.getElementById('creatorStaticPageCheckbox').checked = false;
-    document.getElementById('creatorStaticPageHint').textContent = '';
-  }
-
-  renderRequirementsList();
-  renderImagesGrid();
-  renderDownloadDisplay();
-  document.getElementById('modalOverlay').classList.add('show');
-}
-
-// Normalizes a URL for comparison purposes only (never used for display/
-// storage) so that trivial differences - http vs https, a trailing slash,
-// or %20 vs a literal space - don't cause the same photo to be treated as
-// a different one when checking whether it's already the cover.
-function normalizeUrlForCompare(url) {
-  if (!url) return '';
-  try {
-    let decoded = decodeURI(url.trim());
-    return decoded.replace(/^https?:\/\//i, '').replace(/\/+$/, '').toLowerCase();
-  } catch {
-    return url.trim().toLowerCase();
-  }
-}
-
-// Parses whatever was stored for the gallery images (array, or JSON-string
-// array) into a plain array of URL strings. Some entries may have come
-// through as {url: ...} objects rather than plain strings (e.g. from the
-// bulk import scraper), so both shapes are normalized here - otherwise
-// those photos would silently fail to render instead of showing up.
-function parseImageList(value) {
-  let list;
-  if (!value) {
-    list = [];
-  } else if (Array.isArray(value)) {
-    list = value;
-  } else if (typeof value === 'string') {
-    try {
-      const parsed = JSON.parse(value);
-      list = Array.isArray(parsed) ? parsed : [];
-    } catch {
-      list = [];
-    }
-  } else {
-    list = [];
-  }
-  return list
-    .map(entry => (typeof entry === 'string' ? entry : (entry && (entry.url || entry.src || entry.image_url)) || ''))
-    .filter(Boolean);
-}
-
-function getMetadataField(mod, field) {
-  let metadata = mod.metadata;
-  if (typeof metadata === 'string') {
-    try { metadata = JSON.parse(metadata); } catch { metadata = {}; }
-  }
-  return (metadata && metadata[field]) || '';
-}
-
-// Converts a stored "MM/DD/YYYY" (or similar parseable) string into the
-// "YYYY-MM-DD" format an <input type="date"> needs.
-function mmddyyyyToDateInputValue(value) {
-  if (!value) return '';
-  const d = new Date(value);
-  if (isNaN(d.getTime())) return '';
-  return d.toISOString().split('T')[0];
-}
-
-// Converts a "YYYY-MM-DD" <input type="date"> value into "MM/DD/YYYY" for
-// display on the mod page (matching the site's existing format).
-function dateInputValueToMmddyyyy(value) {
-  if (!value) return undefined;
-  const [year, month, day] = value.split('-');
-  return `${month}/${day}/${year}`;
-}
-
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('show');
-  editingId = null;
-}
-
-function joinArrayField(value, sep) {
-  sep = sep || ', ';
-  if (Array.isArray(value)) return value.join(sep);
-  if (typeof value === 'string') {
-    try {
-      const parsed = JSON.parse(value);
-      if (Array.isArray(parsed)) return parsed.join(sep);
-    } catch {}
-    return value;
-  }
-  return '';
-}
-
-function escapeHtml(v) {
-  return String(v ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-// Displays only the date part (no time) regardless of whether the stored
-// value has a time component - e.g. "Jul 5, 2026".
-function formatDateOnly(value) {
-  if (!value) return '—';
-  const datePart = String(value).split('T')[0].split(' ')[0];
-  const d = new Date(`${datePart}T00:00:00Z`);
-  if (isNaN(d.getTime())) return datePart;
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-}
-
-// Converts any stored timestamp to a YYYY-MM-DD string for a <input type="date">
-function toDateInputValue(value) {
-  if (!value) return '';
-  return String(value).split('T')[0].split(' ')[0];
-}
-
-document.getElementById('modForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const payload = {
-    title: form.title.value.trim(),
-    slug: form.slug.value.trim() || undefined,
-    author: form.author.value.trim(),
-    category: form.category.value.trim(),
-    file_size: form.file_size.value.trim(),
-    created_at: form.created_at.value || undefined,
-    description: form.description.value,
-    image_url: currentImages[0] || '',
-    download_url: currentDownload.url || '',
-    download_name: form.download_name.value.trim(),
-    features: form.features.value,
-    requirements: currentRequirements,
-    page_updated: dateInputValueToMmddyyyy(form.page_updated.value),
-    images: currentImages.slice(1),
-    published: document.getElementById('publishedCheckbox').checked
-  };
-
-  const saveBtn = document.getElementById('saveBtn');
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'Saving...';
-
-  try {
-    if (editingId) {
-      await apiRequest(`/api/admin/mods/${encodeURIComponent(editingId)}`, {
-        method: 'PUT',
-        body: JSON.stringify(payload)
+    // Get file from R2
+    const object = await env.FILES.head(filename);
+    
+    if (!object) {
+      return new Response(JSON.stringify({ error: 'File not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
-      setStatus('Mod updated.');
+    }
+
+    // Get download count from KV
+    const countKey = `downloads:${filename}`;
+    const downloadCount = await env.DOWNLOAD_COUNTS.get(countKey);
+
+    const fileInfo = {
+      filename: filename,
+      size: object.size,
+      sizeFormatted: formatBytes(object.size),
+      uploaded: object.uploaded.toISOString(),
+      uploadedAgo: timeAgo(object.uploaded),
+      downloads: parseInt(downloadCount || '0'),
+      etag: object.etag,
+      httpMetadata: object.httpMetadata,
+      customMetadata: object.customMetadata,
+    };
+
+    return new Response(JSON.stringify(fileInfo), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Increment download count
+async function handleDownloadCount(filename, env, corsHeaders) {
+  try {
+    console.log('Tracking download for:', filename);
+    const countKey = `downloads:${filename}`;
+    
+    // Get current count with timeout protection
+    let currentCount;
+    try {
+      currentCount = await Promise.race([
+        env.DOWNLOAD_COUNTS.get(countKey),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('KV read timeout')), 5000))
+      ]);
+    } catch (readError) {
+      console.error('KV read error:', readError);
+      currentCount = null;
+    }
+    
+    console.log('Current count for', filename, ':', currentCount);
+    const newCount = parseInt(currentCount || '0') + 1;
+    
+    // Update count with timeout protection and retry
+    let writeSuccess = false;
+    let writeAttempts = 0;
+    const maxRetries = 3;
+    
+    while (!writeSuccess && writeAttempts < maxRetries) {
+      try {
+        // Update total count
+        await Promise.race([
+          env.DOWNLOAD_COUNTS.put(countKey, newCount.toString()),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('KV write timeout')), 5000))
+        ]);
+        
+        writeSuccess = true;
+        console.log('Updated count to:', newCount, 'on attempt', writeAttempts + 1);
+      } catch (writeError) {
+        writeAttempts++;
+        console.error(`KV write error (attempt ${writeAttempts}):`, writeError);
+        if (writeAttempts < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 100 * writeAttempts)); // Backoff
+        }
+      }
+    }
+    
+    if (!writeSuccess) {
+      throw new Error('Failed to write to KV after multiple attempts');
+    }
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      downloads: newCount,
+      filename: filename 
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error in handleDownloadCount:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      filename: filename,
+      success: false
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Direct download with count increment
+async function handleDirectDownload(filename, env, corsHeaders) {
+  try {
+    // Get file from R2
+    const object = await env.FILES.get(filename);
+    
+    if (!object) {
+      return new Response('File not found', { 
+        status: 404, 
+        headers: corsHeaders 
+      });
+    }
+
+    // Increment download count - properly await it with retry logic
+    const countKey = `downloads:${filename}`;
+    try {
+      const currentCount = await env.DOWNLOAD_COUNTS.get(countKey);
+      const newCount = parseInt(currentCount || '0') + 1;
+      
+      // Retry logic for KV write
+      let writeSuccess = false;
+      for (let attempt = 0; attempt < 3 && !writeSuccess; attempt++) {
+        try {
+          await env.DOWNLOAD_COUNTS.put(countKey, newCount.toString());
+          writeSuccess = true;
+          console.log('Direct download tracked for:', filename, 'New count:', newCount);
+        } catch (writeError) {
+          console.error(`KV write attempt ${attempt + 1} failed:`, writeError);
+          if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 50));
+        }
+      }
+      
+      if (!writeSuccess) {
+        console.error('Failed to track download after 3 attempts');
+      }
+    } catch (countError) {
+      // Log error but don't fail the download
+      console.error('Failed to increment download count:', countError);
+    }
+
+    // Return file with appropriate headers
+    const headers = new Headers(corsHeaders);
+    object.writeHttpMetadata(headers);
+    headers.set('Content-Disposition', `attachment; filename="${filename}"`);
+
+    return new Response(object.body, { headers });
+  } catch (error) {
+    return new Response(error.message, { 
+      status: 500, 
+      headers: corsHeaders 
+    });
+  }
+}
+
+// Helper: Format bytes to human readable
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+// Helper: Time ago formatter
+// Mirrors the exact day-threshold rule api-client.js uses client-side when
+// it refreshes the file-details box after page load: relative time ("3
+// hours ago", "yesterday", "5 days ago") for anything under a week old,
+// otherwise a plain calendar date. Using the SAME rule here for the
+// server-rendered initial HTML means the text doesn't visibly flip from
+// "3 months ago" to an actual date the moment the client script runs.
+function formatUploadedDisplay(date) {
+  const uploadDate = new Date(date);
+  const hoursDiff = Math.floor((new Date() - uploadDate) / (1000 * 60 * 60));
+  const daysDiff = Math.floor(hoursDiff / 24);
+
+  if (hoursDiff < 24) return timeAgo(uploadDate);
+  if (daysDiff === 1) return 'yesterday';
+  if (daysDiff < 7) return `${daysDiff} days ago`;
+  return uploadDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function timeAgo(date) {
+  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  
+  let interval = Math.floor(seconds / 31536000);
+  if (interval >= 1) return interval + (interval === 1 ? ' year ago' : ' years ago');
+  
+  interval = Math.floor(seconds / 2592000);
+  if (interval >= 1) return interval + (interval === 1 ? ' month ago' : ' months ago');
+  
+  interval = Math.floor(seconds / 86400);
+  if (interval >= 1) return interval + (interval === 1 ? ' day ago' : ' days ago');
+  
+  interval = Math.floor(seconds / 3600);
+  if (interval >= 1) return interval + (interval === 1 ? ' hour ago' : ' hours ago');
+  
+  interval = Math.floor(seconds / 60);
+  if (interval >= 1) return interval + (interval === 1 ? ' minute ago' : ' minutes ago');
+  
+  return Math.floor(seconds) + ' seconds ago';
+}
+
+// Handler: Get top downloaded files
+async function handleTopDownloads(env, corsHeaders) {
+  try {
+    // List all download count keys
+    const list = await env.DOWNLOAD_COUNTS.list({ prefix: 'downloads:' });
+    
+    // Fetch all download counts
+    const downloadStats = await Promise.all(
+      list.keys.map(async (key) => {
+        const count = parseInt(await env.DOWNLOAD_COUNTS.get(key.name) || '0');
+        const filename = key.name.replace('downloads:', '');
+        return { filename, downloads: count };
+      })
+    );
+    
+    // Sort by downloads (descending)
+    downloadStats.sort((a, b) => b.downloads - a.downloads);
+    
+    return new Response(JSON.stringify({
+      totalFiles: downloadStats.length,
+      totalDownloads: downloadStats.reduce((sum, item) => sum + item.downloads, 0),
+      topDownloads: downloadStats
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Handler: Get daily download statistics
+// Handler: Track page view
+async function handlePageView(pagePath, env, corsHeaders) {
+  try {
+    const key = `pageviews:${pagePath}`;
+    const currentCount = parseInt(await env.DOWNLOAD_COUNTS.get(key) || '0');
+    await env.DOWNLOAD_COUNTS.put(key, (currentCount + 1).toString());
+    
+    // Also increment total site views
+    const totalKey = 'pageviews:__total__';
+    const totalCount = parseInt(await env.DOWNLOAD_COUNTS.get(totalKey) || '0');
+    await env.DOWNLOAD_COUNTS.put(totalKey, (totalCount + 1).toString());
+    
+    return new Response(JSON.stringify({ 
+      success: true, 
+      page: pagePath,
+      views: currentCount + 1 
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Handler: Get page view statistics
+async function handlePageViewStats(env, corsHeaders) {
+  try {
+    // List all pageview keys
+    const list = await env.DOWNLOAD_COUNTS.list({ prefix: 'pageviews:' });
+    
+    // Fetch all page view counts
+    const pageStats = await Promise.all(
+      list.keys.map(async (key) => {
+        const count = parseInt(await env.DOWNLOAD_COUNTS.get(key.name) || '0');
+        const pagePath = key.name.replace('pageviews:', '');
+        return { page: pagePath, views: count };
+      })
+    );
+    
+    // Separate total views from individual pages
+    const totalViews = pageStats.find(stat => stat.page === '__total__')?.views || 0;
+    const topPages = pageStats
+      .filter(stat => stat.page !== '__total__')
+      .sort((a, b) => b.views - a.views);
+    
+    return new Response(JSON.stringify({
+      totalViews,
+      totalPages: topPages.length,
+      topPages
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Handler: List all files in R2
+async function handleListFiles(env, corsHeaders) {
+  try {
+    const listed = await env.FILES.list();
+    
+    const files = listed.objects.map(obj => ({
+      name: obj.key,
+      size: obj.size,
+      sizeFormatted: formatBytes(obj.size),
+      uploaded: obj.uploaded,
+      etag: obj.etag,
+      url: `https://files.trainsimarchive.org/${encodeURIComponent(obj.key)}`,
+      apiUrl: `https://api.trainsimarchive.org/api/file-info/${encodeURIComponent(obj.key)}`
+    }));
+    
+    return new Response(JSON.stringify({
+      totalFiles: files.length,
+      files: files.sort((a, b) => a.name.localeCompare(b.name))
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Handler: GET /api/stats/total-mods - real mod count, not the old
+// hardcoded/KV-only totalMods numbers used elsewhere in this file.
+async function handleTotalModsStat(env, corsHeaders) {
+  try {
+    await ensureDatabaseSchema(env);
+
+    const { results } = await env.DB.prepare(
+      `SELECT
+         COUNT(*) AS total,
+         SUM(CASE WHEN published = 1 OR published IS NULL THEN 1 ELSE 0 END) AS published
+       FROM mods`
+    ).all();
+
+    const dbTotal = Number(results?.[0]?.total || 0);
+    const dbPublished = Number(results?.[0]?.published || 0);
+
+    // Legacy mods still only in KV (not yet migrated into D1) are counted
+    // too, minus any that match an id/slug already in D1, so migrated mods
+    // aren't double-counted. This can be removed once migration is done.
+    const { results: dbRows } = await env.DB.prepare('SELECT id, slug FROM mods').all();
+    const dbKeys = new Set();
+    (dbRows || []).forEach(row => {
+      if (row.id) dbKeys.add(String(row.id));
+      if (row.slug) dbKeys.add(String(row.slug));
+    });
+
+    const legacyData = await getModMetadata(env);
+    const legacyMods = Array.isArray(legacyData) ? legacyData : Object.values(legacyData);
+    const legacyOnlyCount = legacyMods.filter(
+      mod => !dbKeys.has(String(mod.id)) && !dbKeys.has(String(mod.slug))
+    ).length;
+
+    return new Response(JSON.stringify({
+      totalMods: dbPublished + legacyOnlyCount,
+      breakdown: {
+        databasePublished: dbPublished,
+        databaseTotal: dbTotal,
+        legacyNotYetMigrated: legacyOnlyCount
+      }
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error computing total-mods stat:', error);
+    return new Response(JSON.stringify({ error: error.message, totalMods: 0 }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Handler: Search through mod metadata (titles, descriptions, tags, etc)
+async function handleSearch(query, env, corsHeaders) {
+  try {
+    if (!query || query.trim().length === 0) {
+      return new Response(JSON.stringify({ 
+        error: 'Search query is required',
+        results: [] 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const searchTerm = query.toLowerCase().trim();
+    const searchWords = searchTerm.split(/\s+/).filter(w => w.length >= 2);
+    
+    // Search pool: published D1 mods plus any not-yet-migrated legacy mods.
+    const allMods = await fetchSearchableMods(env);
+    
+    console.log(`Searching ${allMods.length} mods for: "${searchTerm}"`);
+    
+    if (!allMods || allMods.length === 0) {
+      return new Response(JSON.stringify({
+        query: query,
+        totalResults: 0,
+        results: [],
+        message: 'No mods in database. Try refreshing metadata.'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    // Search through mod metadata
+    const matchingMods = [];
+    
+    for (const mod of allMods) {
+      let relevance = 0;
+      let phraseMatch = false;
+      const titleLower = mod.title.toLowerCase();
+      const descLower = (mod.description || '').toLowerCase();
+      const tagsLower = (mod.tags || []).join(' ').toLowerCase();
+      const categoryLower = mod.category.toLowerCase();
+      const creatorLower = mod.creator.toLowerCase();
+      
+      // EXACT PHRASE MATCHING (highest priority)
+      if (titleLower.includes(searchTerm)) {
+        relevance += 1000;
+        phraseMatch = true;
+        // Exact title match gets even more bonus
+        if (titleLower === searchTerm) relevance += 500;
+      }
+      
+      if (descLower.includes(searchTerm)) {
+        relevance += 300;
+        phraseMatch = true;
+      }
+      
+      if (tagsLower.includes(searchTerm)) {
+        relevance += 400;
+        phraseMatch = true;
+      }
+      
+      if (categoryLower.includes(searchTerm)) {
+        relevance += 200;
+        phraseMatch = true;
+      }
+      
+      if (creatorLower.includes(searchTerm)) {
+        relevance += 150;
+        phraseMatch = true;
+      }
+      
+      // If we have a phrase match, skip individual word matching
+      if (!phraseMatch && searchWords.length > 1) {
+        // Individual word matching (only if no phrase match and multi-word query)
+        let wordMatchCount = 0;
+        
+        for (const word of searchWords) {
+          let foundInMod = false;
+          
+          if (titleLower.includes(word)) {
+            relevance += 15;
+            foundInMod = true;
+          }
+          if (descLower.includes(word)) {
+            relevance += 8;
+            foundInMod = true;
+          }
+          if (tagsLower.includes(word)) {
+            relevance += 10;
+            foundInMod = true;
+          }
+          
+          if (foundInMod) wordMatchCount++;
+        }
+        
+        // Require at least 50% of words to match for multi-word queries
+        if (wordMatchCount < Math.ceil(searchWords.length * 0.5)) {
+          relevance = 0;
+        }
+      }
+      
+      // If no match, skip this mod
+      if (relevance === 0) continue;
+      
+      // Get download count if available
+      // D1 mods track downloads under the plain filename key (same scheme
+      // as the download endpoint); legacy scraped mods use the older
+      // "TRS - <id>" key from the original GitHub-based importer.
+      const downloadKey = mod.source === 'd1'
+        ? `downloads:${mod.downloadFilename || ''}`
+        : `downloads:TRS - ${mod.id}`;
+      const downloads = parseInt(await env.DOWNLOAD_COUNTS.get(downloadKey) || '0');
+      
+      // Add popularity bonus (logarithmic to not overwhelm relevance)
+      relevance += Math.log10(downloads + 1) * 5;
+      
+      matchingMods.push({
+        id: mod.id,
+        title: mod.title,
+        description: mod.description || '',
+        category: mod.category,
+        creator: mod.creator,
+        image: mod.image,
+        url: mod.url,
+        downloads: downloads,
+        relevance: Math.round(relevance)
+      });
+    }
+    
+    console.log(`Found ${matchingMods.length} matching mods`);
+    
+    // Sort by relevance score
+    matchingMods.sort((a, b) => b.relevance - a.relevance);
+    
+    return new Response(JSON.stringify({
+      query: query,
+      totalResults: matchingMods.length,
+      results: matchingMods
+    }), {
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      },
+    });
+  } catch (error) {
+    console.error('Search error:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      results: []
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Calculate search relevance score
+function calculateRelevance(filename, searchTerm) {
+  // Exact match = highest score
+  if (filename === searchTerm) return 100;
+  
+  // Starts with search term = high score
+  if (filename.startsWith(searchTerm)) return 90;
+  
+  // Word boundary match = medium-high score
+  const words = filename.split(/[-_\s.]/);
+  for (const word of words) {
+    if (word === searchTerm) return 80;
+    if (word.startsWith(searchTerm)) return 70;
+  }
+  
+  // Contains search term = medium score
+  if (filename.includes(searchTerm)) return 60;
+  
+  // Partial match = low score
+  const searchChars = searchTerm.split('');
+  let matchCount = 0;
+  for (const char of searchChars) {
+    if (filename.includes(char)) matchCount++;
+  }
+  return (matchCount / searchChars.length) * 50;
+}
+
+// GitHub configuration
+const GITHUB_REPO = 'History365/trainsimulatormodarchive';
+const GITHUB_BRANCH = 'main';
+const MOD_PATHS = [
+  'trurail-simulations',
+  'uts-creations',
+  'cleartracks'
+];
+
+// Scrape mod metadata from GitHub
+async function scrapeModMetadata(env) {
+  const allMods = {};
+  
+  for (const path of MOD_PATHS) {
+    try {
+      // List files from GitHub API
+      const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${path}?ref=${GITHUB_BRANCH}`;
+      console.log('Fetching directory listing:', apiUrl);
+      
+      const headers = {
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'TSMA-Worker'
+      };
+      
+      // Add GitHub token if available for higher rate limits
+      if (env.GITHUB_TOKEN) {
+        headers['Authorization'] = `token ${env.GITHUB_TOKEN}`;
+      }
+      
+      const response = await fetch(apiUrl, { headers });
+      
+      console.log(`GitHub API response for ${path}: ${response.status}`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`GitHub API error for ${path}: ${response.status} - ${errorText}`);
+        continue;
+      }
+      
+      const files = await response.json();
+      
+      if (!Array.isArray(files)) {
+        console.error(`Unexpected response for ${path}:`, files);
+        continue;
+      }
+      
+      console.log(`Found ${files.length} items in ${path}`);
+      
+      // Process each HTML file
+      for (const file of files) {
+        if (file.type !== 'file' || !file.name.endsWith('.html')) {
+          continue;
+        }
+        
+        try {
+          // Use download_url from API response
+          const htmlUrl = file.download_url;
+          if (!htmlUrl) {
+            console.error(`No download_url for ${file.name}`);
+            continue;
+          }
+          
+          console.log('Fetching HTML:', htmlUrl);
+          
+          const htmlResponse = await fetch(htmlUrl);
+          if (!htmlResponse.ok) {
+            console.error(`Failed to fetch ${file.name}: ${htmlResponse.status}`);
+            continue;
+          }
+          
+          const html = await htmlResponse.text();
+          
+          // Extract metadata
+          const modId = file.name.replace('.html', '');
+          const metadata = extractModMetadata(html, modId, path);
+          
+          if (metadata) {
+            allMods[modId] = metadata;
+            console.log(`Scraped: ${modId}`);
+          }
+        } catch (err) {
+          console.error(`Error processing ${file.name}:`, err.message);
+        }
+      }
+    } catch (err) {
+      console.error(`Error scraping ${path}:`, err.message);
+    }
+  }
+  
+  console.log(`Total mods scraped: ${Object.keys(allMods).length}`);
+  return allMods;
+}
+
+// Extract metadata from HTML content
+function extractModMetadata(html, modId, basePath) {
+  try {
+    // Extract title
+    const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
+    let title = titleMatch ? titleMatch[1].replace(' - Train Simulator Mod Archive', '').trim() : modId;
+    
+    // Extract description from meta tag
+    const descMatch = html.match(/<meta name="description" content="([^"]+)"/i);
+    const description = descMatch ? descMatch[1] : '';
+    
+    // Extract main image - look for mainDisplayImage first
+    let image = 'https://files.trainsimarchive.org/media/placeholder.jpg';
+    
+    // Priority 1: Get mainDisplayImage src
+    const mainImageMatch = html.match(/<img[^>]+id="mainDisplayImage"[^>]+src="([^"]+)"/i);
+    if (mainImageMatch) {
+      image = mainImageMatch[1];
     } else {
-      await apiRequest('/api/admin/mods', {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-      setStatus('Mod created.');
+      // Priority 2: mod-card-image background
+      const bgImageMatch = html.match(/class="mod-card-image"[^>]+style="background-image:\s*url\(['"]([^'"]+)['"]\)/i);
+      if (bgImageMatch) {
+        image = bgImageMatch[1];
+      }
     }
-    await syncCreatorStaticSetting(payload.author, document.getElementById('creatorStaticPageCheckbox').checked);
-    closeModal();
-    loadMods();
+    
+    // Extract keywords/tags from meta
+    const keywordsMatch = html.match(/<meta name="keywords" content="([^"]+)"/i);
+    const keywords = keywordsMatch ? keywordsMatch[1] : '';
+    const tags = keywords.toLowerCase()
+      .split(',')
+      .map(t => t.trim())
+      .filter(t => t && !['train simulator', 'mods', 'archive'].includes(t))
+      .slice(0, 8); // Limit to 8 tags
+    
+    // Determine category from path or content
+    let category = 'other';
+    if (html.includes('bundles') || html.includes('Bundle')) category = 'bundles';
+    else if (html.includes('Enhancement Pack') || html.includes('enhancement')) category = 'enhancement-packs';
+    else if (html.includes('Reskin') || html.includes('repaint')) category = 'reskins';
+    else if (html.includes('Rolling Stock') || html.includes('hopper') || html.includes('car')) category = 'rolling-stock';
+    else if (html.includes('Patch')) category = 'patches';
+    
+    // Extract creator name from "By <a>...</a>" pattern
+    let creator = basePath; // Fallback to folder path
+    const creatorMatch = html.match(/By\s*<a[^>]*>([^<]+)<\/a>/i);
+    if (creatorMatch) {
+      creator = creatorMatch[1].trim();
+    }
+    
+    // Extract download file URL - look for data-url and data-name attributes
+    let downloadUrl = null;
+    let downloadFilename = null;
+    
+    // Look for data-url and data-name in download buttons/links
+    const dataUrlMatch = html.match(/data-url="([^"]+)"/);
+    const dataNameMatch = html.match(/data-name="([^"]+)"/);
+    
+    if (dataUrlMatch && dataUrlMatch[1]) {
+      downloadUrl = dataUrlMatch[1];
+    }
+    if (dataNameMatch && dataNameMatch[1]) {
+      downloadFilename = dataNameMatch[1];
+    }
+    
+    return {
+      id: modId,
+      title: title,
+      description: description,
+      category: category,
+      creator: creator,
+      tags: tags,
+      image: image,
+      url: `${basePath}/${modId}.html`, // Page URL for correct routing
+      downloadUrl: downloadUrl,
+      downloadFilename: downloadFilename
+    };
   } catch (err) {
-    setStatus('Save failed: ' + err.message, true);
-  } finally {
-    saveBtn.disabled = false;
-    saveBtn.textContent = 'Save';
+    console.error('Error extracting metadata:', err);
+    return null;
   }
-});
-
-// Init
-if (apiKey) {
-  testKey().then(ok => ok ? showApp() : showGate('Saved key was rejected - enter it again.'));
-} else {
-  showGate();
 }
-</script>
-</body>
-</html>
+
+// Refresh metadata endpoint with logging
+async function handleRefreshMetadata(env, corsHeaders) {
+  try {
+    console.log('Starting metadata refresh from GitHub...');
+    
+    // DON'T get existing metadata - start fresh
+    const existingMetadata = {};
+    
+    // Scrape all mods
+    const newMetadata = await scrapeModMetadata(env);
+    
+    // Compare and log changes
+    const refreshLog = {
+      timestamp: new Date().toISOString(),
+      added: [],
+      updated: [],
+      unchanged: [],
+      totalMods: Object.keys(newMetadata).length
+    };
+    
+    // Mark everything as "added" since we're doing a full refresh
+    for (const [modId, newMod] of Object.entries(newMetadata)) {
+      refreshLog.added.push({
+        id: modId,
+        title: newMod.title,
+        category: newMod.category,
+        description: newMod.description // Add to log for debugging
+      });
+    }
+    
+    // DELETE old metadata first to ensure clean slate
+    await env.DOWNLOAD_COUNTS.delete('mod_metadata');
+    
+    // Store new metadata in KV permanently (no expiration)
+    await env.DOWNLOAD_COUNTS.put('mod_metadata', JSON.stringify(newMetadata));
+    
+    // Append to refresh log history (keep last 50 entries)
+    let logHistory = [];
+    try {
+      const existingLog = await env.DOWNLOAD_COUNTS.get('the/the/the/refresh_history.log');
+      if (existingLog) {
+        logHistory = JSON.parse(existingLog);
+      }
+    } catch (e) {
+      // New log file
+    }
+    
+    logHistory.unshift(refreshLog);
+    logHistory = logHistory.slice(0, 50); // Keep only last 50 refreshes
+    
+    await env.DOWNLOAD_COUNTS.put('the/the/the/refresh_history.log', JSON.stringify(logHistory, null, 2));
+    
+    console.log(`Refreshed metadata: ${refreshLog.added.length} added, ${refreshLog.updated.length} updated, ${refreshLog.unchanged.length} unchanged`);
+    console.log(`Total mods in database: ${refreshLog.totalMods}`);
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Metadata refreshed successfully',
+      summary: {
+        totalMods: refreshLog.totalMods,
+        added: refreshLog.added.length,
+        updated: refreshLog.updated.length,
+        unchanged: refreshLog.unchanged.length
+      },
+      details: refreshLog
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Error refreshing metadata:', error);
+    return new Response(JSON.stringify({
+      error: error.message,
+      success: false
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// Get metadata from KV or use fallback
+async function getModMetadata(env) {
+  try {
+    const cached = await env.DOWNLOAD_COUNTS.get('mod_metadata');
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (err) {
+    console.error('Error loading cached metadata:', err);
+  }
+  
+  // Return fallback hardcoded data
+  return MOD_METADATA_FALLBACK;
+}
+
+// View refresh history log
+async function handleRefreshHistory(env, corsHeaders) {
+  try {
+    const logData = await env.DOWNLOAD_COUNTS.get('the/the/the/refresh_history.log');
+    
+    if (!logData) {
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'No refresh history yet',
+        history: []
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    const history = JSON.parse(logData);
+    
+    return new Response(JSON.stringify({
+      success: true,
+      totalRefreshes: history.length,
+      history: history
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Error fetching refresh history:', error);
+    return new Response(JSON.stringify({
+      error: error.message,
+      success: false
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// Fallback mod metadata (in case KV is empty or scraping fails)
+const MOD_METADATA_FALLBACK = {
+  'adriana-county-bundle': {
+    id: 'adriana-county-bundle',
+    title: 'Adriana County Bundle',
+    description: 'Multiple repaints of EMD\'s GP40-2 and the PS 4750 Hopper into Adriana County liveries.',
+    category: 'bundles',
+    creator: 'trurail',
+    tags: ['gp40-2', 'hopper', 'freight', 'adriana-county'],
+    image: 'https://files.trainsimarchive.org/media/14a601_782b088de4d348a5b25ea8b83b285863~mv2.jpg',
+    url: 'trurail-simulations/adriana-county-bundle.html'
+  },
+  'csx-road-bundle': {
+    id: 'csx-road-bundle',
+    title: 'CSX Road Bundle',
+    description: 'The download contains 5 CSX locomotives and 6 CSX freight cars.',
+    category: 'bundles',
+    creator: 'trurail',
+    tags: ['csx', 'locomotives', 'freight', 'bundle'],
+    image: 'https://files.trainsimarchive.org/media/Untitled.png',
+    url: 'trurail-simulations/csx-road-bundle.html'
+  },
+  'bnsf-c44-9w-heritage-1': {
+    id: 'bnsf-c44-9w-heritage-1',
+    title: 'BNSF Dash 9-44CW H1',
+    description: 'A visual and audible overhaul of the C44-9W DLC, focusing on the H1 scheme',
+    category: 'enhancement-packs',
+    creator: 'trurail',
+    tags: ['bnsf', 'dash-9', 'heritage', 'c44-9w'],
+    image: 'https://files.trainsimarchive.org/media/unnamed.png',
+    url: 'trurail-simulations/bnsf-c44-9w-heritage-1.html'
+  },
+  'bnsf-c44-9w-heritage-2': {
+    id: 'bnsf-c44-9w-heritage-2',
+    title: 'BNSF Dash 9-44CW H2',
+    description: 'A visual and audible overhaul of the C44-9W DLC, focusing on the H2 scheme',
+    category: 'enhancement-packs',
+    creator: 'trurail',
+    tags: ['bnsf', 'dash-9', 'heritage', 'c44-9w'],
+    image: 'https://files.trainsimarchive.org/media/14a601_cf89462c0bef46d7ac05001071348a16~mv2.jpg',
+    url: 'trurail-simulations/bnsf-c44-9w-heritage-2.html'
+  },
+  'metra-f59phi-pack': {
+    id: 'metra-f59phi-pack',
+    title: 'Metra F59PHI Pack',
+    description: 'A repaint of EMD\'s F59PHI into Metra\'s Ex-Amtrak Surfliner paint scheme.',
+    category: 'reskins',
+    creator: 'trurail',
+    tags: ['metra', 'f59phi', 'passenger'],
+    image: 'https://files.trainsimarchive.org/media/14a601_6cdd4ee2688f406e911d26fa656a96fd~mv2.jpg',
+    url: 'trurail-simulations/metra-f59phi-pack.html'
+  },
+  'bn-sd70mac': {
+    id: 'bn-sd70mac',
+    title: 'Burlington Northern SD70MAC',
+    description: 'A repaint of EMD\'s SD70MAC into multiple BN/BNSF variants.',
+    category: 'reskins',
+    creator: 'trurail',
+    tags: ['bn', 'bnsf', 'sd70mac', 'freight'],
+    image: 'https://files.trainsimarchive.org/media/placeholder.jpg',
+    url: 'trurail-simulations/bn-sd70mac.html'
+  },
+  'southern-pacific-gp9': {
+    id: 'southern-pacific-gp9',
+    title: 'Southern Pacific GP9',
+    category: 'reskins',
+    creator: 'trurail',
+    tags: ['sp', 'southern-pacific', 'gp9', 'bloody-nose'],
+    image: 'https://files.trainsimarchive.org/media/placeholder.jpg',
+    url: 'trurail-simulations/southern-pacific-gp9.html'
+  },
+  'autoflood-iii-hopper': {
+    id: 'autoflood-iii-hopper',
+    title: 'Autoflood III Downloads',
+    category: 'rolling-stock',
+    creator: 'trurail',
+    tags: ['hopper', 'freight', 'autoflood'],
+    image: 'https://files.trainsimarchive.org/media/placeholder.jpg',
+    url: 'trurail-simulations/autoflood-iii-hopper.html'
+  },
+  'bnsf-25th-anniversary-es44ac': {
+    id: 'bnsf-25th-anniversary-es44ac',
+    title: 'BNSF 25th Anniversary ES44AC',
+    category: 'reskins',
+    creator: 'trurail',
+    tags: ['bnsf', 'es44ac', 'anniversary', 'freight'],
+    image: 'https://files.trainsimarchive.org/media/placeholder.jpg',
+    url: 'trurail-simulations/bnsf-25th-anniversary-es44ac.html'
+  },
+  'conrail-u36b': {
+    id: 'conrail-u36b',
+    title: 'Conrail U36B',
+    category: 'reskins',
+    creator: 'trurail',
+    tags: ['conrail', 'u36b', 'freight'],
+    image: 'https://files.trainsimarchive.org/media/placeholder.jpg',
+    url: 'trurail-simulations/conrail-u36b.html'
+  }
+};
+
+// Get all mods with their download counts - DEDICATED ENDPOINT
+async function handleModsWithDownloads(env, corsHeaders) {
+  try {
+    // Get all metadata
+    const allMetadataRaw = await getModMetadata(env);
+    
+    // Ensure we have an object format for lookup
+    const allMetadata = Array.isArray(allMetadataRaw) 
+      ? allMetadataRaw.reduce((acc, mod) => ({ ...acc, [mod.id]: mod }), {})
+      : allMetadataRaw;
+    
+    // Build response with download counts
+    const modsWithDownloads = [];
+    
+    for (const [modId, mod] of Object.entries(allMetadata)) {
+      // Get download count for this file
+      let downloadCount = 0;
+      
+      if (mod.downloadFilename) {
+        try {
+          const countKey = `downloads:${mod.downloadFilename}`;
+          const countData = await env.DOWNLOAD_COUNTS.get(countKey);
+          downloadCount = parseInt(countData || '0');
+        } catch (e) {
+          console.error(`Error getting download count for ${mod.downloadFilename}:`, e);
+        }
+      }
+      
+      // Only include mods that have a download URL
+      if (mod.downloadUrl && mod.downloadFilename) {
+        modsWithDownloads.push({
+          modName: mod.title,
+          pageUrl: `https://trainsimarchive.org/${mod.url}`,
+          downloadUrl: mod.downloadUrl,
+          downloadFilename: mod.downloadFilename,
+          downloadCount: downloadCount,
+          image: mod.image || 'https://files.trainsimarchive.org/media/placeholder.jpg'
+        });
+      }
+    }
+    
+    // Sort by download count (highest to lowest)
+    modsWithDownloads.sort((a, b) => b.downloadCount - a.downloadCount);
+    
+    return new Response(JSON.stringify({
+      success: true,
+      total: modsWithDownloads.length,
+      timestamp: new Date().toISOString(),
+      mods: modsWithDownloads
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error getting mods with downloads:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message,
+      mods: []
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Get related mods based on category, tags, and download patterns
+async function handleRelatedMods(modId, env, corsHeaders) {
+  try {
+    // Get metadata from KV or fallback
+    const allMetadataRaw = await getModMetadata(env);
+    
+    // Ensure we have an object format for lookup
+    const allMetadata = Array.isArray(allMetadataRaw) 
+      ? allMetadataRaw.reduce((acc, mod) => ({ ...acc, [mod.id]: mod }), {})
+      : allMetadataRaw;
+    
+    const mod = allMetadata[modId];
+    
+    if (!mod) {
+      return new Response(JSON.stringify({ 
+        error: 'Mod not found',
+        relatedMods: []
+      }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Calculate relevance scores for all other mods
+    const scoredMods = [];
+    
+    for (const [otherId, otherMod] of Object.entries(allMetadata)) {
+      if (otherId === modId) continue; // Skip the current mod
+      
+      let score = 0;
+      
+      // Same category = high relevance
+      if (otherMod.category === mod.category) score += 50;
+      
+      // Same creator = medium relevance
+      if (otherMod.creator === mod.creator) score += 30;
+      
+      // Shared tags = high relevance (more tags = higher score)
+      const sharedTags = mod.tags.filter(tag => otherMod.tags.includes(tag));
+      score += sharedTags.length * 20;
+      
+      // Get download counts for popularity boost
+      try {
+        const countKey = `downloads:TRS - ${otherId}`;
+        const downloadCount = await env.DOWNLOAD_COUNTS.get(countKey);
+        const downloads = parseInt(downloadCount || '0');
+        // Add popularity score (logarithmic to prevent overwhelming other factors)
+        score += Math.log10(downloads + 1) * 5;
+      } catch (e) {
+        // Ignore download count errors
+      }
+      
+      scoredMods.push({
+        ...otherMod,
+        score: score
+      });
+    }
+    
+    // Sort by score and take top 4
+    const relatedMods = scoredMods
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4)
+      .map(({ score, ...mod }) => mod); // Remove score from final output
+
+    return new Response(JSON.stringify({
+      success: true,
+      modId: modId,
+      relatedMods: relatedMods
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error getting related mods:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      relatedMods: []
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Get random mods for homepage
+async function handleRandomMods(count, env, corsHeaders) {
+  try {
+    // Get all mods from metadata cache
+    const allModsData = await getModMetadata(env);
+    
+    // Convert object to array if needed
+    const allMods = Array.isArray(allModsData) ? allModsData : Object.values(allModsData);
+    
+    if (!allMods || allMods.length === 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'No mods available',
+        mods: []
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    // Shuffle and take requested count
+    const shuffled = [...allMods].sort(() => Math.random() - 0.5);
+    const randomMods = shuffled.slice(0, Math.min(count, allMods.length));
+    
+    // Clean up mod data - remove tags, description, category, id
+    // Only return: title, creator, image, url
+    const cleanedMods = randomMods.map(mod => ({
+      title: mod.title,
+      creator: mod.creator,
+      image: mod.image,
+      url: mod.url
+    }));
+    
+    return new Response(JSON.stringify({
+      success: true,
+      total: allMods.length,
+      mods: cleanedMods
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error getting random mods:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      mods: []
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Handler for cleaning up scraped data from database
+// Rate limiting: 100 requests per IP per minute for downloads, 200 for other endpoints
+async function checkRateLimit(request, env) {
+  const ip = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
+  const url = new URL(request.url);
+  
+  // Different limits for different endpoints
+  const isDownload = url.pathname.includes('/api/download/');
+  const limit = isDownload ? 100 : 200; // downloads: 100/min, others: 200/min
+  const windowSeconds = 60;
+  
+  const key = `ratelimit:${ip}:${Math.floor(Date.now() / 1000 / windowSeconds)}`;
+  
+  try {
+    // Get current count
+    const currentCount = await env.DOWNLOAD_COUNTS.get(key);
+    const count = parseInt(currentCount || '0');
+    
+    if (count >= limit) {
+      return { allowed: false, retryAfter: windowSeconds };
+    }
+    
+    // Increment count with TTL
+    await env.DOWNLOAD_COUNTS.put(key, (count + 1).toString(), {
+      expirationTtl: windowSeconds * 2 // Keep for 2 windows to be safe
+    });
+    
+    return { allowed: true };
+  } catch (error) {
+    console.error('Rate limit check error:', error);
+    // On error, allow the request (fail open)
+    return { allowed: true };
+  }
+}
