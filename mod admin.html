@@ -143,6 +143,7 @@
     margin-top: 20px;
     gap: 10px;
   }
+  .btn-row { display: flex; gap: 8px; }
   .checkbox-row { display: flex; align-items: center; gap: 8px; }
   .checkbox-row label { font-size: 0.85rem; color: var(--text); }
   .empty { color: var(--muted); padding: 30px 0; text-align: center; }
@@ -328,6 +329,37 @@
     .req-chip .req-btns { flex-wrap: wrap; }
     #keyGate { margin: 40px 16px; max-width: none; padding: 20px; }
     #reqLabelInput, #reqUrlInput { flex-basis: 100% !important; }
+
+    /* Anything under 16px makes iOS Safari zoom the whole page in the
+       instant you tap into it (its built-in accessibility behavior, not a
+       bug you can suppress any other way) - and it doesn't zoom back out
+       reliably, so the editor modal ends up feeling broken/oversized for
+       the rest of that visit. Bumping just the mobile font-size to 16px
+       stops the zoom trigger entirely while leaving the compact 0.9rem
+       desktop sizing untouched. Also fatten up the tap targets themselves
+       (fields, buttons, checkboxes) since 8px padding/16px checkboxes are
+       small and easy to mis-tap on a phone. */
+    input, select, textarea { font-size: 16px; padding: 10px 12px; }
+    .checkbox-row input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; }
+    .combo-list li { padding: 10px 8px; font-size: 0.95rem; }
+    .dropzone { padding: 20px 12px; }
+
+    /* Modal action buttons (Save/Cancel) stack full-width and reorder so
+       Save (the primary action) is the first, top-most button under a
+       thumb - easier to hit reliably than a row of small side-by-side
+       buttons. */
+    .modal-actions { flex-direction: column-reverse; align-items: stretch; }
+    .modal-actions > button { width: 100%; padding: 12px 14px; font-size: 0.95rem; }
+    .btn-row { flex-direction: column-reverse; }
+    .btn-row button { width: 100%; padding: 12px 14px; font-size: 0.95rem; }
+
+    /* The requirement/image/file rows use inline flex layouts sized for a
+       wide desktop modal - let them wrap fully instead of squeezing every
+       control onto one cramped line. */
+    .dropzone .dz-actions { flex-direction: column; }
+    .dropzone .dz-actions button { width: 100%; }
+    .file-display { flex-wrap: wrap; }
+    .image-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
   }
 </style>
 </head>
@@ -371,9 +403,11 @@
       <select id="authorFilterSelect">
         <option value="">All authors</option>
       </select>
+      <button class="danger" id="deleteAuthorBtn" title="Delete the creator selected on the left">Delete creator</button>
       <select id="categoryFilterSelect">
         <option value="">All categories</option>
       </select>
+      <button class="danger" id="deleteCategoryBtn" title="Delete the category selected on the left">Delete category</button>
     </div>
 
     <div class="toolbar" id="bulkBar" style="display:none;">
@@ -522,7 +556,7 @@
           <input type="checkbox" name="published" id="publishedCheckbox" checked>
           <label for="publishedCheckbox">Published (visible on the site)</label>
         </div>
-        <div style="display:flex; gap:8px;">
+        <div class="btn-row">
           <button type="button" class="secondary" id="cancelBtn">Cancel</button>
           <button type="submit" id="saveBtn">Save</button>
         </div>
@@ -559,7 +593,7 @@
     </div>
     <div class="modal-actions">
       <span id="bulkEditCount" style="color:var(--muted); font-size:0.85rem;"></span>
-      <div style="display:flex; gap:8px;">
+      <div class="btn-row">
         <button type="button" class="secondary" id="bulkEditCancelBtn">Cancel</button>
         <button type="button" id="bulkEditApplyBtn">Apply</button>
       </div>
@@ -1068,6 +1102,7 @@ function setStatus(message, isError) {
 async function apiRequest(path, options = {}) {
   const res = await fetch(`${API_ORIGIN}${path}`, {
     ...options,
+    cache: 'no-store',
     headers: {
       'X-API-Key': apiKey,
       'Content-Type': 'application/json',
@@ -1112,6 +1147,68 @@ function populateFilterOptions() {
   fillSelect(document.getElementById('categoryFilterSelect'), categories);
 }
 
+// ---- Delete category / delete creator ----
+// Categories and creators aren't separate rows in the database - they're
+// just the `category`/`author` text on each mod (see the note at the top of
+// admin-api.js). "Deleting" one means: for a category, clear that tag off
+// every mod that has it (mods stay published, they just lose the tag/
+// grouping). For a creator, unpublish every mod by that creator (same as
+// hiding each one individually) - pick "Delete creator" again afterward
+// with the confirm dialog's permanent option if you actually want their
+// mods gone for good, not just hidden.
+document.getElementById('deleteCategoryBtn').addEventListener('click', async () => {
+  const select = document.getElementById('categoryFilterSelect');
+  const category = select.value;
+  if (!category) {
+    setStatus('Pick a category from the dropdown first.', true);
+    return;
+  }
+  const count = allMods.filter(m => m.category === category).length;
+  if (!confirm(`Remove the "${category}" category from ${count} mod(s)? The mods themselves are kept and stay published - this only clears the category tag.`)) return;
+
+  try {
+    const data = await apiRequest(`/api/admin/categories/${encodeURIComponent(category)}`, { method: 'DELETE' });
+    allMods.forEach(m => { if (m.category === category) m.category = ''; });
+    setStatus(data.message || `Category "${category}" removed.`);
+    select.value = '';
+    populateFilterOptions();
+    renderTable();
+  } catch (err) {
+    setStatus('Failed: ' + err.message, true);
+  }
+});
+
+document.getElementById('deleteAuthorBtn').addEventListener('click', async () => {
+  const select = document.getElementById('authorFilterSelect');
+  const author = select.value;
+  if (!author) {
+    setStatus('Pick a creator from the dropdown first.', true);
+    return;
+  }
+  const count = allMods.filter(m => m.author === author).length;
+  const hard = confirm(
+    `Delete creator "${author}"?\n\nOK = permanently delete all ${count} of their mod(s) (cannot be undone).\nCancel = just unpublish/hide them instead (safer, reversible from "Show unpublished only").`
+  );
+  const hardParam = hard ? '?hard=true' : '';
+
+  try {
+    const data = await apiRequest(`/api/admin/creators/${encodeURIComponent(author)}${hardParam}`, { method: 'DELETE' });
+    if (hard) {
+      allMods = allMods.filter(m => m.author !== author);
+    } else {
+      allMods.forEach(m => { if (m.author === author) m.published = 0; });
+    }
+    setStatus(data.message || `Creator "${author}" removed.`);
+    select.value = '';
+    selectedIds.clear();
+    populateFilterOptions();
+    renderTable();
+    updateBulkBar();
+  } catch (err) {
+    setStatus('Failed: ' + err.message, true);
+  }
+});
+
 let showUnpublishedOnly = false;
 const selectedIds = new Set();
 
@@ -1130,9 +1227,22 @@ function sortRows(rows) {
   const mode = document.getElementById('sortSelect').value;
   const sorted = [...rows];
   const cmp = (a, b) => (a || '').toString().toLowerCase().localeCompare((b || '').toString().toLowerCase());
+  // "YYYY-MM-DD HH:MM:SS" (space separator, no 'Z') is technically outside
+  // the ISO 8601 subset some browsers reliably parse with `new Date()` -
+  // normalize to a 'T' separator plus UTC 'Z' so sorting doesn't silently
+  // fall back to "Invalid Date" (which sorts as NaN, i.e. randomly) in
+  // stricter engines.
+  const parseTs = (value) => {
+    if (!value) return 0;
+    const raw = String(value).trim();
+    const hasTime = /[T ]\d{2}:\d{2}/.test(raw);
+    const iso = hasTime ? raw.replace(' ', 'T') + (raw.endsWith('Z') ? '' : 'Z') : `${raw.split('T')[0]}T00:00:00Z`;
+    const t = new Date(iso).getTime();
+    return isNaN(t) ? 0 : t;
+  };
   switch (mode) {
     case 'updated_asc':
-      return sorted.sort((a, b) => new Date(a.updated_at || 0) - new Date(b.updated_at || 0));
+      return sorted.sort((a, b) => parseTs(a.updated_at) - parseTs(b.updated_at));
     case 'author_asc':
       return sorted.sort((a, b) => cmp(a.author, b.author));
     case 'category_asc':
@@ -1141,7 +1251,7 @@ function sortRows(rows) {
       return sorted.sort((a, b) => cmp(a.title, b.title));
     case 'updated_desc':
     default:
-      return sorted.sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+      return sorted.sort((a, b) => parseTs(b.updated_at) - parseTs(a.updated_at));
   }
 }
 
@@ -1231,23 +1341,29 @@ document.getElementById('bulkClearBtn').addEventListener('click', () => {
 async function bulkSetPublished(published) {
   const ids = [...selectedIds];
   let failed = 0;
+  let firstError = '';
   for (const id of ids) {
     try {
       await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}`, {
         method: 'PUT',
         body: JSON.stringify({ published })
       });
-    } catch {
+      const mod = allMods.find(m => m.id === id);
+      if (mod) mod.published = published ? 1 : 0;
+    } catch (err) {
       failed++;
+      if (!firstError) firstError = err.message;
     }
   }
   setStatus(
     failed === 0
       ? `${ids.length} mod(s) ${published ? 'republished' : 'hidden'}.`
-      : `${ids.length - failed} succeeded, ${failed} failed.`,
+      : `${ids.length - failed} succeeded, ${failed} failed (${firstError}).`,
     failed > 0
   );
   selectedIds.clear();
+  renderTable();
+  updateBulkBar();
   loadMods();
 }
 
@@ -1351,20 +1467,28 @@ document.getElementById('bulkShowBtn').addEventListener('click', () => bulkSetPu
 async function bulkDeleteSelected() {
   const ids = [...selectedIds];
   let failed = 0;
+  let firstError = '';
+  const deletedIds = [];
   for (const id of ids) {
     try {
       await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}?hard=true`, { method: 'DELETE' });
-    } catch {
+      deletedIds.push(id);
+    } catch (err) {
       failed++;
+      if (!firstError) firstError = err.message;
     }
   }
+  allMods = allMods.filter(m => !deletedIds.includes(m.id));
   setStatus(
     failed === 0
       ? `${ids.length} mod(s) permanently deleted.`
-      : `${ids.length - failed} deleted, ${failed} failed.`,
+      : `${ids.length - failed} deleted, ${failed} failed (${firstError}).`,
     failed > 0
   );
   selectedIds.clear();
+  populateFilterOptions();
+  renderTable();
+  updateBulkBar();
   loadMods();
 }
 
@@ -1394,20 +1518,36 @@ document.getElementById('modsTableBody').addEventListener('click', async (e) => 
   if (!btn) return;
   const id = btn.dataset.id;
   const mod = allMods.find(m => m.id === id);
-  if (!mod) return;
+  if (!mod) {
+    // Previously this just silently returned, which looked exactly like a
+    // dead button. If this fires, the row's data-id didn't match anything
+    // in allMods - almost always because the list was stale when the row
+    // was drawn. Surface it instead of doing nothing, and force a reload so
+    // the table catches up.
+    setStatus('That mod is no longer in the list - refreshing...', true);
+    loadMods();
+    return;
+  }
 
   if (btn.dataset.action === 'edit') {
     openModal(mod);
   } else if (btn.dataset.action === 'unpublish') {
     const nowPublished = Number(mod.published) === 0; // toggling to published
+    btn.disabled = true;
     try {
       await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}`, {
         method: 'PUT',
         body: JSON.stringify({ published: nowPublished })
       });
+      // Update local state immediately rather than waiting on a re-fetch -
+      // the table reflects the change right away even if a GET right after
+      // a write were ever served stale (e.g. by an intermediate cache).
+      mod.published = nowPublished ? 1 : 0;
       setStatus(nowPublished ? 'Mod republished.' : 'Mod unpublished.');
+      renderTable();
       loadMods();
     } catch (err) {
+      btn.disabled = false;
       setStatus('Failed: ' + err.message, true);
     }
   } else if (btn.dataset.action === 'delete') {
@@ -1415,11 +1555,20 @@ document.getElementById('modsTableBody').addEventListener('click', async (e) => 
       `Delete "${mod.title}"?\n\nOK = permanently delete this mod (cannot be undone).\nCancel = keep it (use Unpublish instead if you just want to hide it).`
     );
     if (!hard) return;
+    btn.disabled = true;
     try {
       await apiRequest(`/api/admin/mods/${encodeURIComponent(id)}?hard=true`, { method: 'DELETE' });
+      // Remove it from local state immediately, same reasoning as above -
+      // don't wait on a re-fetch to make it disappear from the table.
+      allMods = allMods.filter(m => m.id !== id);
+      selectedIds.delete(id);
       setStatus('Mod permanently deleted.');
+      populateFilterOptions();
+      renderTable();
+      updateBulkBar();
       loadMods();
     } catch (err) {
+      btn.disabled = false;
       setStatus('Failed: ' + err.message, true);
     }
   }
@@ -1682,14 +1831,28 @@ function escapeHtml(v) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// Displays only the date part (no time) regardless of whether the stored
-// value has a time component - e.g. "Jul 5, 2026".
+// Displays the stored updated_at timestamp in the browser's own local
+// timezone (whatever machine/phone you're viewing this admin panel from),
+// as MM/D/YYYY plus time-of-day - e.g. "07/8/2026, 3:41 PM". Previously
+// this stripped the time and force-formatted in UTC, so it always showed
+// "today"/"yesterday" relative to Cloudflare's clock rather than yours.
+// Omitting the `timeZone` option below lets Intl default to the browser's
+// detected local zone.
 function formatDateOnly(value) {
   if (!value) return '—';
-  const datePart = String(value).split('T')[0].split(' ')[0];
-  const d = new Date(`${datePart}T00:00:00Z`);
-  if (isNaN(d.getTime())) return datePart;
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  const raw = String(value).trim();
+  const hasTime = /[T ]\d{2}:\d{2}/.test(raw);
+  const isoValue = hasTime ? raw.replace(' ', 'T') + (raw.endsWith('Z') ? '' : 'Z') : `${raw.split('T')[0]}T00:00:00Z`;
+  const d = new Date(isoValue);
+  if (isNaN(d.getTime())) return raw;
+
+  const parts = new Intl.DateTimeFormat('en-US', { month: '2-digit', day: 'numeric', year: 'numeric' }).formatToParts(d);
+  const month = parts.find(p => p.type === 'month')?.value;
+  const day = parts.find(p => p.type === 'day')?.value;
+  const year = parts.find(p => p.type === 'year')?.value;
+  const datePart = (month && day && year) ? `${month}/${day}/${year}` : d.toLocaleDateString('en-US');
+  const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return `${datePart}, ${timePart}`;
 }
 
 // Converts any stored timestamp to a YYYY-MM-DD string for a <input type="date">
