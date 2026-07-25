@@ -1130,12 +1130,12 @@ document.getElementById('apiKeySubmit').addEventListener('click', async () => {
   const val = document.getElementById('apiKeyInput').value.trim();
   if (!val) return;
   apiKey = val;
-  const ok = await testKey();
-  if (ok) {
+  const result = await testKey();
+  if (result.ok) {
     sessionStorage.setItem('tsma_admin_key', apiKey);
     showApp();
   } else {
-    showGate('That key was rejected by the API (401 Unauthorized). Double check it matches ADMIN_API_KEY.');
+    showGate(result.reason);
   }
 });
 
@@ -1150,9 +1150,21 @@ async function testKey() {
     const res = await fetch(`${API_ORIGIN}/api/admin/mods`, {
       headers: { 'X-API-Key': apiKey }
     });
-    return res.status !== 401;
-  } catch {
-    return false;
+    if (res.status === 401) {
+      return { ok: false, reason: 'That key was rejected by the API (401 Unauthorized). Double check it matches ADMIN_API_KEY.' };
+    }
+    if (!res.ok) {
+      return { ok: false, reason: `API returned an unexpected error (status ${res.status}).` };
+    }
+    return { ok: true };
+  } catch (err) {
+    // A thrown fetch is almost always a CORS/network failure, not a bad
+    // key - the request never got a response the browser would let us
+    // read. Report that distinctly instead of pretending it's a 401.
+    return {
+      ok: false,
+      reason: `Request to the API failed before a response could be read (likely CORS or a network issue), not a rejected key: ${err.message}`
+    };
   }
 }
 
