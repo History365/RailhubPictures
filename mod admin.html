@@ -117,6 +117,14 @@
   }
   .pill.published { background: rgba(76,175,125,0.15); color: var(--good); }
   .pill.unpublished { background: rgba(224,85,90,0.15); color: var(--danger); }
+  .status-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .mod-url-link {
+    color: var(--accent);
+    font-size: 0.78rem;
+    text-decoration: none;
+  }
+  .mod-url-link:hover { text-decoration: underline; }
+  .mod-url-note { font-size: 0.78rem; color: var(--muted); }
   .row-actions { display: flex; gap: 6px; flex-wrap: nowrap; }
   .row-actions button { padding: 5px 10px; font-size: 0.8rem; }
   #status {
@@ -618,7 +626,7 @@
       </div>
 
       <div class="modal-actions">
-        <div class="hint" id="modUrlDisplay" style="margin-bottom:6px;"></div>
+        <div class="mod-url-note" id="modUrlDisplay" style="margin-bottom:6px;"></div>
         <div class="checkbox-row">
           <input type="checkbox" name="published" id="publishedCheckbox" checked>
           <label for="publishedCheckbox">Published (visible on the site)</label>
@@ -1487,9 +1495,9 @@ function renderTable() {
     const modUrl = getModUrl(mod);
     const urlCell = published
       ? (modUrl
-          ? `<a href="${escapeHtml(modUrl)}" target="_blank" rel="noopener" class="hint">View live &rarr;</a>`
-          : `<span class="hint">Published, but no URL yet</span>`)
-      : `<span class="hint">Not live</span>`;
+          ? `<a href="${escapeHtml(modUrl)}" target="_blank" rel="noopener" class="mod-url-link">View live &rarr;</a>`
+          : `<span class="mod-url-note">Published, but no URL yet</span>`)
+      : `<span class="mod-url-note">Not live</span>`;
     tr.innerHTML = `
       <td><input type="checkbox" class="row-checkbox" data-id="${escapeHtml(mod.id)}" ${selectedIds.has(mod.id) ? 'checked' : ''}></td>
       <td>${escapeHtml(mod.title)}</td>
@@ -1497,8 +1505,10 @@ function renderTable() {
       <td>${escapeHtml(mod.category || '')}</td>
       <td><code>${escapeHtml(mod.slug)}</code></td>
       <td>
-        <span class="pill ${published ? 'published' : 'unpublished'}">${published ? 'Published' : 'Unpublished'}</span>
-        <div style="margin-top:4px;">${urlCell}</div>
+        <div class="status-cell">
+          <span class="pill ${published ? 'published' : 'unpublished'}">${published ? 'Published' : 'Unpublished'}</span>
+          ${urlCell}
+        </div>
       </td>
       <td>${formatDateOnly(mod.updated_at)}</td>
       <td>
@@ -1915,10 +1925,10 @@ function refreshModUrlDisplay() {
     return;
   }
   if (!published) {
-    el.innerHTML = `Live URL (not visible while unpublished): <span style="color:var(--muted);">${escapeHtml(url)}</span>`;
+    el.innerHTML = `Live URL (not visible while unpublished): ${escapeHtml(url)}`;
     return;
   }
-  el.innerHTML = `Live URL: <a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
+  el.innerHTML = `Live URL: <a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="mod-url-link">${escapeHtml(url)}</a>`;
 }
 document.getElementById('modForm').author.addEventListener('input', refreshModUrlDisplay);
 document.getElementById('modForm').slug.addEventListener('input', refreshModUrlDisplay);
