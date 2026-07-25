@@ -410,12 +410,44 @@
     .file-display { flex-wrap: wrap; }
     .image-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
 
-    /* Titles/links/slugs were forced onto one line (nowrap + ellipsis, or a
-       wide table pinned to a horizontal scrollbar), which just clipped or
-       hid text on a phone-width screen. Letting these wrap to a second line
-       instead keeps everything readable without needing to scroll sideways. */
-    .table-scroll table { min-width: 0; width: 100%; }
-    .table-scroll td, .table-scroll th { white-space: normal; word-break: break-word; }
+    /* The table was previously forced to width:100% with word-break on
+       mobile, which just squeezed 7-8 columns into ~40px each - narrow
+       enough that ordinary words wrapped one letter per line. Instead,
+       drop the table's row/column grid entirely below 720px and lay each
+       row out as a stacked card: every <td> becomes its own line, labeled
+       with the column header (from its data-label attribute) so context
+       isn't lost. Cells with no label (the checkbox and actions columns)
+       just render without one. */
+    .table-scroll { overflow-x: visible; }
+    .table-scroll table, .table-scroll thead, .table-scroll tbody,
+    .table-scroll th, .table-scroll td, .table-scroll tr {
+      display: block;
+      width: auto;
+    }
+    .table-scroll thead { display: none; }
+    .table-scroll tbody tr {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      background: var(--panel-2);
+    }
+    .table-scroll tbody td {
+      border-bottom: none;
+      padding: 6px 0;
+      white-space: normal;
+      word-break: break-word;
+    }
+    .table-scroll tbody td[data-label]:not([data-label=""])::before {
+      content: attr(data-label);
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 2px;
+    }
     .row-actions { flex-wrap: wrap; }
     .req-chip { align-items: flex-start; }
     .req-chip .req-text { white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word; }
@@ -1321,15 +1353,15 @@ function renderFilesTable() {
   for (const file of rows) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>
+      <td data-label="File">
         <div class="file-name-cell">
           <span class="file-key">${escapeHtml(file.name)}</span>
           <a href="${escapeHtml(file.url)}" target="_blank" rel="noopener">Open file</a>
         </div>
       </td>
-      <td>${escapeHtml(file.sizeFormatted || '')}</td>
-      <td>${file.uploaded ? escapeHtml(new Date(file.uploaded).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })) : '—'}</td>
-      <td>
+      <td data-label="Size">${escapeHtml(file.sizeFormatted || '')}</td>
+      <td data-label="Uploaded">${file.uploaded ? escapeHtml(new Date(file.uploaded).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })) : '—'}</td>
+      <td data-label="">
         <div class="row-actions">
           <button class="secondary" data-action="copy" data-url="${escapeHtml(file.url)}">Copy link</button>
           <button class="danger" data-action="delete" data-name="${escapeHtml(file.name)}">Delete</button>
@@ -1547,19 +1579,19 @@ function renderTable() {
           : `<span class="mod-url-note">Published, but no URL yet</span>`)
       : `<span class="mod-url-note">Not live</span>`;
     tr.innerHTML = `
-      <td><input type="checkbox" class="row-checkbox" data-id="${escapeHtml(mod.id)}" ${selectedIds.has(mod.id) ? 'checked' : ''}></td>
-      <td>${escapeHtml(mod.title)}</td>
-      <td>${escapeHtml(mod.author || '')}</td>
-      <td>${escapeHtml(mod.category || '')}</td>
-      <td><code>${escapeHtml(mod.slug)}</code></td>
-      <td>
+      <td data-label=""><input type="checkbox" class="row-checkbox" data-id="${escapeHtml(mod.id)}" ${selectedIds.has(mod.id) ? 'checked' : ''}></td>
+      <td data-label="Title">${escapeHtml(mod.title)}</td>
+      <td data-label="Author">${escapeHtml(mod.author || '')}</td>
+      <td data-label="Category">${escapeHtml(mod.category || '')}</td>
+      <td data-label="Slug"><code>${escapeHtml(mod.slug)}</code></td>
+      <td data-label="Status">
         <div class="status-cell">
           <span class="pill ${published ? 'published' : 'unpublished'}">${published ? 'Published' : 'Unpublished'}</span>
           ${urlCell}
         </div>
       </td>
-      <td>${formatDateOnly(mod.updated_at)}</td>
-      <td>
+      <td data-label="Updated">${formatDateOnly(mod.updated_at)}</td>
+      <td data-label="">
         <div class="row-actions">
           <button class="secondary" data-action="edit" data-id="${escapeHtml(mod.id)}">Edit</button>
           <button class="secondary" data-action="unpublish" data-id="${escapeHtml(mod.id)}">${published ? 'Unpublish' : 'Republish'}</button>
