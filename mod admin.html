@@ -34,6 +34,20 @@
     gap: 16px;
     flex-wrap: wrap;
   }
+  .stats-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.15;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    min-width: 64px;
+  }
+  .stat-chip .stat-value { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+  .stat-chip .stat-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
   header h1 { font-size: 1.15rem; margin: 0; font-weight: 600; }
   header .sub { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
   main { padding: 24px 28px 80px; max-width: 1200px; margin: 0 auto; }
@@ -347,6 +361,8 @@
   @media (max-width: 720px) {
     header { padding: 14px 16px; }
     header h1 { font-size: 1rem; }
+    .stat-chip { padding: 4px 10px; min-width: 52px; }
+    .stat-chip .stat-value { font-size: 0.9rem; }
     main { padding: 16px 16px 60px; }
     .tab-nav { padding: 8px 16px 0; }
     .tab-btn { padding: 9px 10px; font-size: 0.85rem; }
@@ -423,6 +439,11 @@
     <div>
       <h1>Train Simulator Mod Archive — Mod Admin</h1>
       <div class="sub">Editing <code id="apiOrigin"></code></div>
+    </div>
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-chip"><span class="stat-value" id="statTotalMods">—</span><span class="stat-label">Mods</span></div>
+      <div class="stat-chip"><span class="stat-value" id="statTotalDownloads">—</span><span class="stat-label">Downloads</span></div>
+      <div class="stat-chip"><span class="stat-value" id="statTotalViews">—</span><span class="stat-label">Views</span></div>
     </div>
     <button class="secondary" id="logoutBtn">Clear API key</button>
   </header>
@@ -1154,6 +1175,33 @@ function showApp() {
   document.getElementById('keyGate').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   loadMods();
+  loadSiteStats();
+}
+
+// These three are public read-only stats endpoints (no admin key needed),
+// so failures here are non-fatal - the chips just stay at '—' rather than
+// blocking the rest of the panel from loading.
+function formatStatNumber(n) {
+  return Number(n || 0).toLocaleString('en-US');
+}
+
+async function loadSiteStats() {
+  const setChip = (id, value) => { document.getElementById(id).textContent = formatStatNumber(value); };
+
+  fetch(`${API_ORIGIN}/api/stats/total-mods`)
+    .then(res => res.json())
+    .then(data => setChip('statTotalMods', data.totalMods))
+    .catch(err => console.warn('Failed to load total-mods stat:', err));
+
+  fetch(`${API_ORIGIN}/api/stats/top-downloads`)
+    .then(res => res.json())
+    .then(data => setChip('statTotalDownloads', data.totalDownloads))
+    .catch(err => console.warn('Failed to load top-downloads stat:', err));
+
+  fetch(`${API_ORIGIN}/api/stats/pageviews`)
+    .then(res => res.json())
+    .then(data => setChip('statTotalViews', data.totalViews))
+    .catch(err => console.warn('Failed to load pageviews stat:', err));
 }
 
 document.getElementById('apiKeySubmit').addEventListener('click', async () => {
@@ -2166,7 +2214,7 @@ document.getElementById('modForm').addEventListener('submit', async (e) => {
 
 // Init
 if (apiKey) {
-  testKey().then(ok => ok ? showApp() : showGate('Saved key was rejected - enter it again.'));
+  testKey().then(result => result.ok ? showApp() : showGate(result.reason));
 } else {
   showGate();
 }
