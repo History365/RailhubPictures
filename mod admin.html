@@ -618,6 +618,7 @@
       </div>
 
       <div class="modal-actions">
+        <div class="hint" id="modUrlDisplay" style="margin-bottom:6px;"></div>
         <div class="checkbox-row">
           <input type="checkbox" name="published" id="publishedCheckbox" checked>
           <label for="publishedCheckbox">Published (visible on the site)</label>
@@ -684,6 +685,27 @@
 <script>
 const API_ORIGIN = 'https://api.trainsimarchive.org';
 document.getElementById('apiOrigin').textContent = API_ORIGIN;
+
+// Where live mod pages are actually served from (not the API origin).
+const SITE_ORIGIN = 'https://www.trainsimarchive.org';
+
+// Mirrors the server's slugify() in index.js, so the URL we build here
+// matches what the Worker will actually route to even before a page has
+// ever been requested (creator_slug isn't always present on the row).
+function slugify(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// Live URL for a mod's page - null if we don't have enough to build one
+// (no author or no slug yet, e.g. an unsaved new mod).
+function getModUrl(mod) {
+  const creatorSlug = mod.creator_slug || slugify(mod.author);
+  if (!creatorSlug || !mod.slug) return null;
+  return `${SITE_ORIGIN}/${creatorSlug}/${mod.slug}`;
+}
 
 let apiKey = sessionStorage.getItem('tsma_admin_key') || '';
 let allMods = [];
@@ -1462,13 +1484,22 @@ function renderTable() {
   for (const mod of rows) {
     const tr = document.createElement('tr');
     const published = Number(mod.published) !== 0;
+    const modUrl = getModUrl(mod);
+    const urlCell = published
+      ? (modUrl
+          ? `<a href="${escapeHtml(modUrl)}" target="_blank" rel="noopener" class="hint">View live &rarr;</a>`
+          : `<span class="hint">Published, but no URL yet</span>`)
+      : `<span class="hint">Not live</span>`;
     tr.innerHTML = `
       <td><input type="checkbox" class="row-checkbox" data-id="${escapeHtml(mod.id)}" ${selectedIds.has(mod.id) ? 'checked' : ''}></td>
       <td>${escapeHtml(mod.title)}</td>
       <td>${escapeHtml(mod.author || '')}</td>
       <td>${escapeHtml(mod.category || '')}</td>
       <td><code>${escapeHtml(mod.slug)}</code></td>
-      <td><span class="pill ${published ? 'published' : 'unpublished'}">${published ? 'Published' : 'Unpublished'}</span></td>
+      <td>
+        <span class="pill ${published ? 'published' : 'unpublished'}">${published ? 'Published' : 'Unpublished'}</span>
+        <div style="margin-top:4px;">${urlCell}</div>
+      </td>
       <td>${formatDateOnly(mod.updated_at)}</td>
       <td>
         <div class="row-actions">
@@ -1867,6 +1898,32 @@ async function syncCreatorStaticSetting(authorName, useStatic) {
   }
 }
 
+// Recomputes the live-URL line in the edit modal from whatever's currently
+// typed in the form (not just the saved mod), so it stays accurate as you
+// edit the slug/author/published checkbox before hitting Save.
+function refreshModUrlDisplay() {
+  const form = document.getElementById('modForm');
+  const el = document.getElementById('modUrlDisplay');
+  const published = document.getElementById('publishedCheckbox').checked;
+  const draftMod = { author: form.author.value, slug: form.slug.value.trim() };
+  const url = getModUrl(draftMod);
+
+  if (!url) {
+    el.textContent = editingId
+      ? 'Live URL: need an author + slug to build this.'
+      : 'Live URL: will be shown once this mod has an author and slug.';
+    return;
+  }
+  if (!published) {
+    el.innerHTML = `Live URL (not visible while unpublished): <span style="color:var(--muted);">${escapeHtml(url)}</span>`;
+    return;
+  }
+  el.innerHTML = `Live URL: <a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
+}
+document.getElementById('modForm').author.addEventListener('input', refreshModUrlDisplay);
+document.getElementById('modForm').slug.addEventListener('input', refreshModUrlDisplay);
+document.getElementById('publishedCheckbox').addEventListener('change', refreshModUrlDisplay);
+
 function openModal(mod) {
   editingId = mod ? mod.id : null;
   document.getElementById('modalTitle').textContent = mod ? `Edit: ${mod.title}` : 'Add Mod';
@@ -1909,6 +1966,7 @@ function openModal(mod) {
     document.getElementById('updatedAtDisplay').value = formatDateOnly(mod.updated_at);
     document.getElementById('publishedCheckbox').checked = Number(mod.published) !== 0;
     loadCreatorStaticSetting(mod.author || '');
+    refreshModUrlDisplay();
   } else {
     currentRequirements = { anyOf: [], allOf: [] };
     currentImages = [];
@@ -1918,6 +1976,7 @@ function openModal(mod) {
     document.getElementById('updatedAtDisplay').value = 'Will be set when saved';
     document.getElementById('creatorStaticPageCheckbox').checked = false;
     document.getElementById('creatorStaticPageHint').textContent = '';
+    refreshModUrlDisplay();
   }
 
   renderRequirementsList();
