@@ -37,6 +37,29 @@
   header h1 { font-size: 1.15rem; margin: 0; font-weight: 600; }
   header .sub { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
   main { padding: 24px 28px 80px; max-width: 1200px; margin: 0 auto; }
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    padding: 10px 28px 0;
+    border-bottom: 1px solid var(--border);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--panel-2); }
+  .tab-btn.active { color: var(--text); background: var(--panel); border: 1px solid var(--border); border-bottom-color: var(--panel); }
+  .file-name-cell { display: flex; flex-direction: column; gap: 2px; }
+  .file-name-cell .file-key { word-break: break-word; }
+  .file-name-cell a { color: var(--accent); font-size: 0.78rem; }
   .toolbar {
     display: flex;
     gap: 10px;
@@ -317,6 +340,8 @@
     header { padding: 14px 16px; }
     header h1 { font-size: 1rem; }
     main { padding: 16px 16px 60px; }
+    .tab-nav { padding: 8px 16px 0; }
+    .tab-btn { padding: 9px 10px; font-size: 0.85rem; }
     .toolbar { gap: 8px; }
     #searchInput { min-width: 0; flex-basis: 100%; }
     .toolbar select { flex: 1 1 140px; }
@@ -360,6 +385,18 @@
     .dropzone .dz-actions button { width: 100%; }
     .file-display { flex-wrap: wrap; }
     .image-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+
+    /* Titles/links/slugs were forced onto one line (nowrap + ellipsis, or a
+       wide table pinned to a horizontal scrollbar), which just clipped or
+       hid text on a phone-width screen. Letting these wrap to a second line
+       instead keeps everything readable without needing to scroll sideways. */
+    .table-scroll table { min-width: 0; width: 100%; }
+    .table-scroll td, .table-scroll th { white-space: normal; word-break: break-word; }
+    .row-actions { flex-wrap: wrap; }
+    .req-chip { align-items: flex-start; }
+    .req-chip .req-text { white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word; }
+    .file-display .file-name { white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word; }
+    .browse-item .browse-name { white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word; }
   }
 </style>
 </head>
@@ -382,9 +419,15 @@
     <button class="secondary" id="logoutBtn">Clear API key</button>
   </header>
 
+  <nav class="tab-nav">
+    <button class="tab-btn active" id="tabModsBtn" data-tab="mods">Mods</button>
+    <button class="tab-btn" id="tabFilesBtn" data-tab="files">Files (R2)</button>
+  </nav>
+
   <main>
     <div id="status"></div>
 
+    <div id="modsView">
     <div class="toolbar">
       <input type="text" id="searchInput" placeholder="Search by title, author, category, or slug...">
       <button class="secondary" id="showUnpublishedToggle">Show unpublished only: Off</button>
@@ -437,6 +480,29 @@
     </table>
     </div>
     <div id="emptyState" class="empty" style="display:none;">No mods found.</div>
+    </div>
+
+    <div id="filesView" style="display:none;">
+      <div class="toolbar">
+        <input type="text" id="filesSearchInput" placeholder="Search by filename...">
+        <button class="secondary" id="filesRefreshBtn">Refresh</button>
+        <span id="filesSummary" style="color:var(--muted); font-size:0.85rem;"></span>
+      </div>
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Size</th>
+            <th>Uploaded</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="filesTableBody"></tbody>
+      </table>
+      </div>
+      <div id="filesEmptyState" class="empty" style="display:none;">No files found.</div>
+    </div>
   </main>
 </div>
 
@@ -1115,6 +1181,112 @@ async function apiRequest(path, options = {}) {
   }
   return data;
 }
+
+// ---- Tabs (Mods / Files) ----
+let allFiles = [];
+let filesLoaded = false;
+
+document.getElementById('tabModsBtn').addEventListener('click', () => switchTab('mods'));
+document.getElementById('tabFilesBtn').addEventListener('click', () => switchTab('files'));
+
+function switchTab(tab) {
+  const isMods = tab === 'mods';
+  document.getElementById('modsView').style.display = isMods ? 'block' : 'none';
+  document.getElementById('filesView').style.display = isMods ? 'none' : 'block';
+  document.getElementById('tabModsBtn').classList.toggle('active', isMods);
+  document.getElementById('tabFilesBtn').classList.toggle('active', !isMods);
+  if (!isMods && !filesLoaded) loadFiles();
+}
+
+// ---- Files (R2) view ----
+// Listing is the public GET /api/files/list endpoint (same data the mod
+// editor's "browse existing files" picker already uses), so it works
+// without the admin key too - only the delete action below actually needs
+// the key, since that's a real destructive action against storage.
+async function loadFiles() {
+  document.getElementById('filesTableBody').innerHTML = '';
+  document.getElementById('filesSummary').textContent = 'Loading...';
+  try {
+    const res = await fetch(`${API_ORIGIN}/api/files/list`, { cache: 'no-store' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+    allFiles = data.files || [];
+    filesLoaded = true;
+    renderFilesTable();
+  } catch (err) {
+    document.getElementById('filesSummary').textContent = '';
+    setStatus('Failed to load files: ' + err.message, true);
+  }
+}
+
+function renderFilesTable() {
+  const search = document.getElementById('filesSearchInput').value.trim().toLowerCase();
+  const tbody = document.getElementById('filesTableBody');
+  tbody.innerHTML = '';
+
+  const rows = allFiles.filter(f => !search || f.name.toLowerCase().includes(search));
+  document.getElementById('filesSummary').textContent = `${rows.length} of ${allFiles.length} file(s)`;
+  document.getElementById('filesEmptyState').style.display = rows.length === 0 ? 'block' : 'none';
+
+  for (const file of rows) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="file-name-cell">
+          <span class="file-key">${escapeHtml(file.name)}</span>
+          <a href="${escapeHtml(file.url)}" target="_blank" rel="noopener">Open file</a>
+        </div>
+      </td>
+      <td>${escapeHtml(file.sizeFormatted || '')}</td>
+      <td>${file.uploaded ? escapeHtml(new Date(file.uploaded).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })) : '—'}</td>
+      <td>
+        <div class="row-actions">
+          <button class="secondary" data-action="copy" data-url="${escapeHtml(file.url)}">Copy link</button>
+          <button class="danger" data-action="delete" data-name="${escapeHtml(file.name)}">Delete</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+document.getElementById('filesSearchInput').addEventListener('input', renderFilesTable);
+document.getElementById('filesRefreshBtn').addEventListener('click', loadFiles);
+
+document.getElementById('filesTableBody').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+
+  if (btn.dataset.action === 'copy') {
+    try {
+      await navigator.clipboard.writeText(btn.dataset.url);
+      setStatus('Link copied.');
+    } catch {
+      setStatus('Could not copy link - copy it from "Open file" instead.', true);
+    }
+    return;
+  }
+
+  if (btn.dataset.action === 'delete') {
+    const name = btn.dataset.name;
+    // This is a real, permanent delete against R2 - not a soft-unpublish
+    // like the mod delete flow - so it gets its own explicit confirmation
+    // naming the exact file, rather than a generic "are you sure?".
+    if (!confirm(`Permanently delete "${name}" from file storage? This can't be undone, and any mod still pointing at this file will end up with a broken link.`)) {
+      return;
+    }
+    btn.disabled = true;
+    try {
+      await apiRequest(`/api/admin/files/${encodeURIComponent(name)}`, { method: 'DELETE' });
+      setStatus(`"${name}" deleted.`);
+      allFiles = allFiles.filter(f => f.name !== name);
+      renderFilesTable();
+    } catch (err) {
+      setStatus('Delete failed: ' + err.message, true);
+      btn.disabled = false;
+    }
+  }
+});
 
 async function loadMods() {
   try {
